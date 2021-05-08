@@ -1,0 +1,29 @@
+name: Node.js CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install pnpm
+      run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm
+    - name: INSTALL
+      run: pnpm install
+    - name: TEST
+      run: pnpm run nx run-many -- --target=test --all=true --parallel=true 
+    - name: UNIT TEST
+      run: pnpm run nx run-many -- --target=e2e --all=true

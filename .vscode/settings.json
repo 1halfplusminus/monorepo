@@ -1,0 +1,3 @@
+{
+    "jest.pathToJest": "pnpm run nx run-many -- --target=test --all=true"
+}
