@@ -10,7 +10,12 @@ const mapBounds = (positionnable: { position: LatLngExpression }[]) => {
 };
 
 export interface CountriesMarkerProps {
-  countries?: { position: LatLngExpression; name: string; stat: number }[];
+  countries?: {
+    position: LatLngExpression;
+    name: string;
+    deaths: number;
+    recovered: number;
+  }[];
 }
 
 export function CountriesMarker({ countries = [] }: CountriesMarkerProps) {
@@ -24,13 +29,13 @@ export function CountriesMarker({ countries = [] }: CountriesMarkerProps) {
     <ErrorBoundary
       FallbackComponent={({ error, resetErrorBoundary }) => (
         <CovidMarker position={[0, 0]}>
-          <CovidMarkerPopup name={'error'} stat={0} />
+          <CovidMarkerPopup name={'error'} />
         </CovidMarker>
       )}
     >
-      {countries.map(({ position, name, stat }) => (
+      {countries.map(({ position, name, deaths }) => (
         <CovidMarker key={name} position={position}>
-          <CovidMarkerPopup name={name} stat={stat} />
+          <CovidMarkerPopup name={name} deaths={deaths} />
         </CovidMarker>
       ))}
     </ErrorBoundary>

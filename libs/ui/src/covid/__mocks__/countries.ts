@@ -4,6 +4,7 @@ export default [
   {
     name: 'france',
     position: tuple([46, 2]),
-    stat: 999,
+    deaths: 999,
+    recovered: 0,
   },
 ];

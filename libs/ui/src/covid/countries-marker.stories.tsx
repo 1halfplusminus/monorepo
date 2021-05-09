@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { CountriesMarker } from './countries-marker';
 import { CovidMap } from './map';
 import countries from './__mocks__/countries';
@@ -16,7 +16,7 @@ export const primary = () => {
   );
 };
 
-export const api = () => {
+export const Api: FC = () => {
   const { countries } = useStatsByCountries();
   return (
     <CovidMap>

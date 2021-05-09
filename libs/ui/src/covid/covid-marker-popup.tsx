@@ -4,14 +4,19 @@ import { Popup } from 'react-leaflet';
 /* eslint-disable-next-line */
 export interface CovidMarkerPopupProps {
   name: string;
-  stat: number;
+  deaths?: number;
+  recovered?: number;
 }
 
-export function CovidMarkerPopup({ name, stat }: CovidMarkerPopupProps) {
+export function CovidMarkerPopup({
+  name,
+  deaths = 0,
+  recovered = 0,
+}: CovidMarkerPopupProps) {
   return (
     <Popup>
       name: {name}: <br />
-      state: {stat}
+      death: {deaths}
     </Popup>
   );
 }

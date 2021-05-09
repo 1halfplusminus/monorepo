@@ -17,6 +17,8 @@ export interface Disease_getV3Covid19Countries {
   __typename: "CovidCountry";
   country: string | null;
   countryInfo: Disease_getV3Covid19Countries_countryInfo | null;
+  deaths: number | null;
+  recovered: number | null;
 }
 
 export interface Disease {

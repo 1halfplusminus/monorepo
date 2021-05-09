@@ -11,6 +11,8 @@ const mapCountry = (country: CountryJSON): Country => {
   return {
     name: country.name,
     position: country.latlng,
+    deaths: 0,
+    recovered: 0,
   };
 };
 

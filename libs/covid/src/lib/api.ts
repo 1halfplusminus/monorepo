@@ -5,6 +5,8 @@ export class Country {
   flag?: string;
   id?: string;
   position: LatLngExpression;
+  deaths: number;
+  recovered: number;
 }
 
 export type GetStatsByCountries = () => Promise<Country[]>;

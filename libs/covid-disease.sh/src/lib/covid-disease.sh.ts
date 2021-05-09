@@ -28,6 +28,8 @@ const query = gql`
         lat
         long
       }
+      deaths
+      recovered
     }
   }
 `;
@@ -36,6 +38,8 @@ export const mapCountry = (country: Disease_getV3Covid19Countries): Country => {
   return {
     position: [country.countryInfo.lat, country.countryInfo.long],
     name: country.country,
+    deaths: country.deaths,
+    recovered: country.recovered,
   };
 };
 

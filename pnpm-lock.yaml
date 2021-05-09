@@ -179,12 +179,14 @@ importers:
 
   libs/ui:
     specifiers:
+      '@testing-library/user-event': ^13.1.8
       '@types/leaflet': ^1.7.0
       jest-svg-transformer: ^1.0.0
       leaflet: ^1.7.1
       react-error-boundary: ^3.1.3
       react-leaflet: ^3.1.0
     dependencies:
+      '@testing-library/user-event': 13.1.8
       jest-svg-transformer: 1.0.0
       leaflet: 1.7.1
       react-error-boundary: 3.1.3
@@ -5022,6 +5024,15 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     dev: true
+
+  /@testing-library/user-event/13.1.8:
+    resolution: {integrity: sha512-M04HgOlJvxILf5xyrkJaEQfFOtcvhy3usLldQIEg9zgFIYQofSmFGVfFlS7BWowqlBGLrItwGMlPXCoBgoHSiw==}
+    engines: {node: '>=10', npm: '>=6'}
+    peerDependencies:
+      '@testing-library/dom': '>=7.21.4'
+    dependencies:
+      '@babel/runtime': 7.14.0
+    dev: false
 
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}

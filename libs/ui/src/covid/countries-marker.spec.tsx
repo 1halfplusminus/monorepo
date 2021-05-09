@@ -12,10 +12,10 @@ describe('CountriesMarker', () => {
     );
     expect(baseElement).toBeTruthy();
   });
-  it('should render successfully if countries is null', () => {
+  it('should render successfully if countries is undefined', () => {
     const { baseElement } = render(
       <MapContainer>
-        <CountriesMarker countries={null} />
+        <CountriesMarker countries={undefined} />
       </MapContainer>
     );
     expect(baseElement).toBeTruthy();
