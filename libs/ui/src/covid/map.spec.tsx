@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import Map from './map';
+import CovidMap from './map';
 
 describe('Map', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<Map />);
+    const { baseElement } = render(<CovidMap />);
     expect(baseElement).toBeTruthy();
     expect(baseElement).toMatchSnapshot();
   });

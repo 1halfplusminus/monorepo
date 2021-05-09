@@ -1,3 +1,6 @@
 {
-    "jest.pathToJest": "pnpm run nx run-many -- --target=test --all=true"
+  "jest.pathToJest": "pnpm run nx run-many -- --target=test --all=true",
+  "editor.formatOnSave": true,
+  "typescript.suggest.paths": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

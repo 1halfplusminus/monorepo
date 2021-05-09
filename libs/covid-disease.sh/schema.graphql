@@ -1,0 +1,595 @@
+schema {
+  query: Query
+}
+
+type Query {
+  """
+  Get global COVID-19 totals for today, yesterday and two days ago
+  
+  Equivalent to GET /v3/covid-19/all
+  """
+  getV3Covid19All: CovidAll
+  """
+  Returns a list of supported country names
+  
+  Equivalent to GET /v3/covid-19/apple/countries
+  """
+  getV3Covid19AppleCountries: [String]
+  """
+  Returns a list of supported subregions in a country where data is available
+  
+  Equivalent to GET /v3/covid-19/apple/countries/{country}
+  """
+  getV3Covid19AppleCountriesCountry: CovidAppleSubregions
+  """
+  Returns a list of mobility data entries for subregion(s) every day since January 13th. Each entry has driving, transit, and walking data with an associated number of percentage change since January 13th
+  
+  Equivalent to GET /v3/covid-19/apple/countries/{country}/{subregions}
+  """
+  getV3Covid19AppleCountriesCountrySubregions: CovidAppleData
+  """
+  Get COVID-19 totals for all continents
+  
+  Equivalent to GET /v3/covid-19/continents
+  """
+  getV3Covid19Continents: [CovidContinent]
+  """
+  Get COVID-19 totals for a specific continent
+  
+  Equivalent to GET /v3/covid-19/continents/{continent}
+  """
+  getV3Covid19ContinentsContinent: CovidContinent
+  """
+  Get COVID-19 totals for all countries
+  
+  Equivalent to GET /v3/covid-19/countries
+  """
+  getV3Covid19Countries: [CovidCountry]
+  """
+  Get COVID-19 totals for a specific set of countries
+  
+  Equivalent to GET /v3/covid-19/countries/{countries}
+  """
+  getV3Covid19CountriesCountries: [CovidCountry]
+  """
+  Get COVID-19 totals for a specific country
+  
+  Equivalent to GET /v3/covid-19/countries/{country}
+  """
+  getV3Covid19CountriesCountry: CovidCountry
+  """
+  Returns a list of supported country names
+  
+  Equivalent to GET /v3/covid-19/gov/
+  """
+  getV3Covid19Gov: [String]
+  """
+  Get COVID-19 government reported data for a specific country
+  
+  Equivalent to GET /v3/covid-19/gov/{country}
+  """
+  getV3Covid19GovCountry: JSON
+  """
+  Get COVID-19 time series data for all countries and their provinces
+  
+  Equivalent to GET /v3/covid-19/historical
+  """
+  getV3Covid19Historical(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidHistoricalListItem]
+  """
+  Get global accumulated COVID-19 time series data
+  
+  Equivalent to GET /v3/covid-19/historical/all
+  """
+  getV3Covid19HistoricalAll: CovidHistoricalAll
+  """
+  Get COVID-19 time series data for a specific set of countries
+  
+  Equivalent to GET /v3/covid-19/historical/{countries}
+  """
+  getV3Covid19HistoricalCountries: [CovidHistoricalCountry]
+  """
+  Get COVID-19 time series data for a specific country
+  
+  Equivalent to GET /v3/covid-19/historical/{country}
+  """
+  getV3Covid19HistoricalCountry: CovidHistoricalCountry
+  """
+  Get COVID-19 time series data for a specific province in a country
+  
+  Equivalent to GET /v3/covid-19/historical/{country}/{province}
+  """
+  getV3Covid19HistoricalCountryProvince: CovidHistoricalProvince
+  """
+  Get COVID-19 time series data for a set of provinces in a country
+  
+  Equivalent to GET /v3/covid-19/historical/{country}/{provinces}
+  """
+  getV3Covid19HistoricalCountryProvinces: [CovidHistoricalProvince]
+  """
+  Returns a list of US States and provinces
+  
+  Equivalent to GET /v3/covid-19/historical/usacounties
+  """
+  getV3Covid19HistoricalUsacounties: [String]
+  """
+  Get COVID-19 time series data for all counties in a specified US state
+  
+  Equivalent to GET /v3/covid-19/historical/usacounties/{state}
+  """
+  getV3Covid19HistoricalUsacountiesState(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidHistoricalUSCountyListItem]
+  """
+  Get COVID-19 totals for all countries and their provinces
+  
+  Equivalent to GET /v3/covid-19/jhucsse
+  """
+  getV3Covid19Jhucsse: CovidJHUCountries
+  """
+  Get COVID-19 totals for all US counties
+  
+  Equivalent to GET /v3/covid-19/jhucsse/counties
+  """
+  getV3Covid19JhucsseCounties: [CovidJHUCounty]
+  """
+  Get COVID-19 totals for a specific county
+  
+  Equivalent to GET /v3/covid-19/jhucsse/counties/{county}
+  """
+  getV3Covid19JhucsseCountiesCounty: [CovidJHUCounty]
+  """
+  Get COVID-19 time series data for all available US counties, with an entry for each day since the pandemic began
+  
+  Equivalent to GET /v3/covid-19/nyt/counties
+  """
+  getV3Covid19NytCounties(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidNYTCountyListItem]
+  """
+  Get COVID-19 time series data for a county or set of counties, with an entry for each day since the pandemic began
+  
+  Equivalent to GET /v3/covid-19/nyt/counties/{county}
+  """
+  getV3Covid19NytCountiesCounty(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidNYTCountyListItem]
+  """
+  Get COVID-19 time series data for all states, with an entry for each day since the pandemic began
+  
+  Equivalent to GET /v3/covid-19/nyt/states
+  """
+  getV3Covid19NytStates(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidNYTStateListItem]
+  """
+  Get COVID-19 time series data for a state or set of states, with an entry for each day since the pandemic began
+  
+  Equivalent to GET /v3/covid-19/nyt/states/{state}
+  """
+  getV3Covid19NytStatesState(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [CovidNYTStateListItem]
+  """
+  Get COVID-19 time series data for the entire USA, with an entry for each day since the pandemic began
+  
+  Equivalent to GET /v3/covid-19/nyt/usa
+  """
+  getV3Covid19NytUsa: [CovidNYTUSAListItem]
+  """
+  Get COVID-19 totals for all US States
+  
+  Equivalent to GET /v3/covid-19/states
+  """
+  getV3Covid19States: [CovidState]
+  """
+  Get COVID-19 totals for specific US State(s)
+  
+  Equivalent to GET /v3/covid-19/states/{states}
+  """
+  getV3Covid19StatesStates: CovidState
+  """
+  Get therapeutics trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-therapeutics-tracker
+  
+  Equivalent to GET /v3/covid-19/therapeutics
+  """
+  getV3Covid19Therapeutics: Therapeutics
+  """
+  Get vaccine trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-vaccine-tracker
+  
+  Equivalent to GET /v3/covid-19/vaccine
+  """
+  getV3Covid19Vaccine: Vaccines
+  """
+  Get total global COVID-19 vaccine doses administered. Sourced from https://covid.ourworldindata.org/
+  
+  Equivalent to GET /v3/covid-19/vaccine/coverage
+  """
+  getV3Covid19VaccineCoverage: JSON
+  """
+  Get COVID-19 vaccine doses administered for all countries that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
+  
+  Equivalent to GET /v3/covid-19/vaccine/coverage/countries
+  """
+  getV3Covid19VaccineCoverageCountries(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [VaccineCountryCoverage]
+  """
+  Get COVID-19 vaccine doses administered for a country that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
+  
+  Equivalent to GET /v3/covid-19/vaccine/coverage/countries/{country}
+  """
+  getV3Covid19VaccineCoverageCountriesCountry: VaccineCountryCoverage
+  """
+  Get COVID-19 vaccine doses administered for all states that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
+  
+  Equivalent to GET /v3/covid-19/vaccine/coverage/states
+  """
+  getV3Covid19VaccineCoverageStates(
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
+    limit: Int
+  ): [VaccineStateCoverage]
+  """
+  Get COVID-19 vaccine doses administered for a state that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
+  
+  Equivalent to GET /v3/covid-19/vaccine/coverage/states/{state}
+  """
+  getV3Covid19VaccineCoverageStatesState: VaccineStateCoverage
+  """
+  Get Influenza-like-illness data for the 2019 and 2020 outbreaks from the US Center for Disease Control
+  
+  Equivalent to GET /v3/influenza/cdc/ILINet
+  """
+  getV3InfluenzaCdcILINet: InfluenzaILINet
+  """
+  Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US clinical labs
+  
+  Equivalent to GET /v3/influenza/cdc/USCL
+  """
+  getV3InfluenzaCdcUSCL: InfluenzaUSCL
+  """
+  Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US public health labs
+  
+  Equivalent to GET /v3/influenza/cdc/USPHL
+  """
+  getV3InfluenzaCdcUSPHL: InfluenzaUSPHL
+}
+
+type CovidAll {
+  active: Float
+  activePerOneMillion: Float
+  affectedCountries: Float
+  cases: Float
+  casesPerOneMillion: Float
+  critical: Float
+  criticalPerOneMillion: Float
+  deaths: Float
+  deathsPerOneMillion: Float
+  oneCasePerPeople: Float
+  oneDeathPerPeople: Float
+  oneTestPerPeople: Float
+  population: Float
+  recovered: Float
+  recoveredPerOneMillion: Float
+  tests: Float
+  testsPerOneMillion: Float
+  todayCases: Float
+  todayRecovered: Float
+  updated: Float
+}
+
+type CovidAppleSubregions {
+  country: String
+  subregions: [String]
+}
+
+type CovidAppleData {
+  country: String
+  data: [DataListItem]
+  subregion: String
+}
+
+type DataListItem {
+  date: String
+  driving: Float
+  geoType: String
+  subRegion: String
+  subregionAndCity: String
+  transit: Float
+  walking: Float
+}
+
+type CovidContinent {
+  active: Float
+  activePerOneMillion: Float
+  cases: Float
+  casesPerOneMillion: Float
+  continent: String
+  continentInfo: ContinentInfo
+  countries: [String]
+  critical: Float
+  criticalPerOneMillion: Float
+  deaths: Float
+  deathsPerOneMillion: Float
+  population: Float
+  recovered: Float
+  recoveredPerOneMillion: Float
+  tests: Float
+  testsPerOneMillion: Float
+  todayCases: Float
+  todayDeaths: Float
+  todayRecovered: Float
+  updated: Float
+}
+
+type ContinentInfo {
+  lat: Float
+  long: Float
+}
+
+type CovidCountry {
+  active: Float
+  activePerOneMillion: Float
+  cases: Float
+  casesPerOneMillion: Float
+  continent: Float
+  country: String
+  countryInfo: CountryInfo
+  critical: Float
+  criticalPerOneMillion: Float
+  deaths: Float
+  deathsPerOneMillion: Float
+  oneCasePerPeople: Float
+  oneDeathPerPeople: Float
+  oneTestPerPeople: Float
+  population: Float
+  recovered: Float
+  recoveredPerOneMillion: Float
+  tests: Float
+  testsPerOneMillion: Float
+  todayCases: Float
+  todayDeaths: Float
+  todayRecovered: Float
+  updated: Float
+}
+
+type CountryInfo {
+  flag: String
+  id: Float
+  iso2: String
+  iso3: String
+  lat: Float
+  long: Float
+}
+
+"""The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+type CovidHistoricalListItem {
+  country: String
+  province: String
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline
+}
+
+"""The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+type Timeline {
+  cases: Cases5
+  deaths: Deaths6
+  recovered: Recovered5
+}
+
+type Cases5 {
+  date: Float
+}
+
+type Deaths6 {
+  date: Float
+}
+
+type Recovered5 {
+  date: Float
+}
+
+"""The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+type CovidHistoricalAll {
+  cases: Cases5
+  deaths: Deaths6
+  recovered: Recovered5
+}
+
+type CovidHistoricalCountry {
+  country: String
+  province: [String]
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline
+}
+
+type CovidHistoricalProvince {
+  country: String
+  province: String
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline
+}
+
+type CovidHistoricalUSCountyListItem {
+  county: String
+  province: String
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline
+}
+
+type CovidJHUCountries {
+  coordinates: Coordinates
+  country: String
+  county: String
+  province: String
+  stats: Stats
+  updatedAt: String
+}
+
+type Coordinates {
+  latitude: String
+  longitude: String
+}
+
+type Stats {
+  confirmed: Float
+  deaths: Float
+  recovered: Float
+}
+
+type CovidJHUCounty {
+  coordinates: Coordinates
+  country: String
+  county: String
+  province: String
+  stats: Stats
+  updatedAt: String
+}
+
+type CovidNYTCountyListItem {
+  cases: Float
+  county: String
+  date: String
+  deaths: Float
+  fips: String
+  state: String
+}
+
+type CovidNYTStateListItem {
+  cases: Float
+  date: String
+  deaths: Float
+  fips: String
+  state: String
+}
+
+type CovidNYTUSAListItem {
+  cases: Float
+  date: String
+  deaths: Float
+}
+
+type CovidState {
+  active: Float
+  cases: Float
+  casesPerOneMillion: Float
+  deaths: Float
+  deathsPerOneMillion: Float
+  population: Float
+  state: String
+  tests: Float
+  testsPerOneMillion: Float
+  todayCases: Float
+  todayDeaths: Float
+  updated: Float
+}
+
+type Therapeutics {
+  data: [Therapeutic]
+  phases: [Phases2]
+  source: String
+  totalCandidates: String
+}
+
+type Therapeutic {
+  details: String
+  developerResearcher: [String]
+  lastUpdate: String
+  medicationClass: String
+  sponsors: [String]
+  tradeName: [String]
+  trialPhase: String
+}
+
+type Phases2 {
+  candidates: String
+  phase: String
+}
+
+type Vaccines {
+  data: [Vaccine]
+  phases: [Phases2]
+  source: String
+  totalCandidates: String
+}
+
+type Vaccine {
+  candidate: String
+  details: String
+  institutions: [String]
+  mechanism: String
+  sponsors: [String]
+  trialPhase: String
+}
+
+type VaccineCountryCoverage {
+  country: String
+  timeline: JSON
+}
+
+type VaccineStateCoverage {
+  state: String
+  timeline: JSON
+}
+
+type InfluenzaILINet {
+  data: [ILINet]
+  source: String
+  updated: Float
+}
+
+type ILINet {
+  age2549: Float
+  age5064: Float
+  age524: Float
+  age64: Float
+  percentUnweightedILI: Float
+  percentWeightedILI: Float
+  totalILI: Float
+  totalPatients: Float
+  week: String
+}
+
+type InfluenzaUSCL {
+  data: [USCL]
+  source: String
+  updated: Float
+}
+
+type USCL {
+  percentPositive: Float
+  percentPositiveA: Float
+  percentPositiveB: Float
+  totalA: Float
+  totalB: Float
+  totalTests: Float
+  week: String
+}
+
+type InfluenzaUSPHL {
+  data: [USPHL]
+  source: String
+  updated: Float
+}
+
+type USPHL {
+  aH1N1: Float
+  aH3: Float
+  aH3N2v: Float
+  aSubtypingNotPerformed: Float
+  aUnableToSubType: Float
+  b: Float
+  bVIC: Float
+  totalTests: Float
+  week: String
+}

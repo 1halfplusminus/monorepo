@@ -1,14 +1,14 @@
 import React from 'react';
-import { Map, MapProps } from './map';
+import { CovidMap, CovidMapProps } from './map';
 
 export default {
-  component: Map,
+  component: CovidMap,
   title: 'Map',
 };
 
 export const primary = () => {
   /* eslint-disable-next-line */
-  const props: MapProps = {};
+  const props: CovidMapProps = {};
 
-  return <Map />;
+  return <CovidMap />;
 };

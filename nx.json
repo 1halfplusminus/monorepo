@@ -18,6 +18,9 @@
   },
   "projects": {
     "ui": { "tags": [] },
-    "ui-e2e": { "tags": [], "implicitDependencies": ["ui"] }
+    "ui-e2e": { "tags": [], "implicitDependencies": ["ui"] },
+    "covid": { "tags": [] },
+    "typescript-utils": { "tags": [] },
+    "covid-disease.sh": { "tags": [] }
   }
 }

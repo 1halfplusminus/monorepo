@@ -1,0 +1,26 @@
+{
+  "name": "@halfoneplusminus/covid",
+  "version": "1.0.0",
+  "description": "This library was generated with [Nx](https://nx.dev).",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@graphql-mesh/cli": "^0.29.11",
+    "@graphql-mesh/openapi": "^0.16.8",
+    "@types/leaflet": "^1.7.0",
+    "@types/lodash": "^4.14.168",
+    "graphql-mesh": "^0.0.1",
+    "swagger-to-graphql": "^4.0.2"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.3.16",
+    "apollo": "^2.33.1",
+    "apollo-link-rest": "*",
+    "graphql": "^15.5.0",
+    "lodash": "^4.17.21",
+    "qs": "^6.10.1"
+  }
+}

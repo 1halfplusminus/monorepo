@@ -15,8 +15,17 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@halfoneplusminus/ui": ["libs/ui/src/index.ts"]
+      "@halfoneplusminus/ui": ["libs/ui/src/index.ts"],
+      "@halfoneplusminus/covid": ["libs/covid/src/index.ts"],
+      "@halfoneplusminus/typescript/utils": [
+        "libs/typescript/utils/src/index.ts"
+      ],
+      "@halfoneplusminus/covid-disease.sh": [
+        "libs/covid-disease.sh/src/index.ts"
+      ],
+      "@halfoneplusminus/covid-diseasesh": ["libs/covid-diseasesh/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp"],
+  "include": ["/home/dartuchiwa/Github/halfoneplusminus/types/index.d.ts"]
 }

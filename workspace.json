@@ -60,6 +60,83 @@
           "options": { "lintFilePatterns": ["apps/ui-e2e/**/*.{js,ts}"] }
         }
       }
+    },
+    "covid": {
+      "root": "libs/covid",
+      "sourceRoot": "libs/covid/src",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/workspace:tsc",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/covid",
+            "main": "libs/covid/src/index.ts",
+            "tsConfig": "libs/covid/tsconfig.lib.json",
+            "assets": ["libs/covid/*.md"]
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["libs/covid/**/*.ts"] }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/covid"],
+          "options": {
+            "jestConfig": "libs/covid/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "typescript-utils": {
+      "root": "libs/typescript/utils",
+      "sourceRoot": "libs/typescript/utils/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["libs/typescript/utils/**/*.ts"] }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/typescript/utils"],
+          "options": {
+            "jestConfig": "libs/typescript/utils/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "covid-disease.sh": {
+      "root": "libs/covid-disease.sh",
+      "sourceRoot": "libs/covid-disease.sh/src",
+      "projectType": "library",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/workspace:tsc",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/covid-disease.sh",
+            "main": "libs/covid-disease.sh/src/index.ts",
+            "tsConfig": "libs/covid-disease.sh/tsconfig.lib.json",
+            "assets": ["libs/covid-disease.sh/*.md"]
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["libs/covid-disease.sh/**/*.ts"] }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/covid-disease.sh"],
+          "options": {
+            "jestConfig": "libs/covid-disease.sh/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   }
 }

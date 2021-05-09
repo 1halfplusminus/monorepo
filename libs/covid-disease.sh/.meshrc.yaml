@@ -1,0 +1,5 @@
+sources:
+  - name: disease.sh
+    handler:
+      openapi:
+        source: https://disease.sh/apidocs/swagger_v3.json
