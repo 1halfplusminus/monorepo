@@ -1,5 +1,6 @@
 import {
-  getStatsByCountries,
+  useStatsByContinents,
+  mapContinent,
   mapCountry,
   useStatsByCountries,
 } from './covid-disease.sh';
@@ -9,17 +10,61 @@ import * as React from 'react';
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () =>
-      Promise.resolve({ getV3Covid19Countries: [{ country: 'test' }] }),
+      Promise.resolve({
+        getV3Covid19Countries: [{ country: 'test' }],
+        getV3Covid19Continents: [{ continent: 'test' }],
+      }),
   })
-) as any;
+) as undefined;
 
 describe('covidDiseaseSh', () => {
-  const TestComponent = () => {
+  const TestComponentCountries = () => {
     const { countries } = useStatsByCountries();
     return <>{countries?.map((c) => c.name)}</>;
   };
-  it('render test component with ok correctly', () => {
-    expect(render(<TestComponent />)).toBeTruthy();
+  const TestComponentContinents = () => {
+    const { continents } = useStatsByContinents();
+    return <>{continents?.map((c) => c.name)}</>;
+  };
+  it('hook useStatsByCountries should render correctly', () => {
+    const { baseElement } = render(<TestComponentCountries />);
+    expect(baseElement).toBeTruthy();
+    expect(baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div />
+      </body>
+    `);
+  });
+  it('hook useStatsByContinents should render correctly', () => {
+    const { baseElement } = render(<TestComponentContinents />);
+    expect(baseElement).toBeTruthy();
+    expect(baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div />
+      </body>
+    `);
+  });
+
+  it('map continent correctly', () => {
+    expect(
+      mapContinent({
+        continent: 'Europe',
+        deaths: 100,
+        __typename: 'CovidContinent',
+        continentInfo: { __typename: 'ContinentInfo', lat: 100, long: 100 },
+        active: 0,
+        recovered: 0,
+      })
+    ).toMatchInlineSnapshot(`
+      Object {
+        "deaths": 100,
+        "name": "Europe",
+        "position": Array [
+          100,
+          100,
+        ],
+      }
+    `);
   });
   it('map country correctly', () => {
     expect(
@@ -29,9 +74,11 @@ describe('covidDiseaseSh', () => {
         countryInfo: { __typename: 'CountryInfo', lat: 10, long: 10 },
         deaths: 100,
         recovered: 100,
+        active: 100,
       })
     ).toMatchInlineSnapshot(`
       Object {
+        "active": 100,
         "deaths": 100,
         "name": "name",
         "position": Array [

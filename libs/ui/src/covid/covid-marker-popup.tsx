@@ -8,15 +8,23 @@ export interface CovidMarkerPopupProps {
   recovered?: number;
 }
 
-export function CovidMarkerPopup({
+export const CovidMarkerPopupContent = ({
   name,
   deaths = 0,
   recovered = 0,
-}: CovidMarkerPopupProps) {
+}: CovidMarkerPopupProps) => {
   return (
-    <Popup>
+    <>
       name: {name}: <br />
       death: {deaths}
+    </>
+  );
+};
+
+export function CovidMarkerPopup(props: CovidMarkerPopupProps) {
+  return (
+    <Popup>
+      <CovidMarkerPopupContent {...props} />
     </Popup>
   );
 }

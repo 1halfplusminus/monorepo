@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import CovidMarkerPopup from './covid-marker-popup';
 import CovidMap from './map';
 
+window.scrollTo = jest.fn();
+
 describe('CovidMarketPopup', () => {
   it('should render successfully', () => {
     const { baseElement, rerender, getAllByText, container } = render(
