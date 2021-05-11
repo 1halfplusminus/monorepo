@@ -14,6 +14,7 @@ const mapCountry = (country: CountryJSON): Country => {
     deaths: 100,
     recovered: 0,
     active: 100,
+    case: 0,
   };
 };
 

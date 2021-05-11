@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useEffect } from 'react';
 import styled from 'styled-components';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import tw from 'twin.macro';
 
 /* eslint-disable-next-line */
 export interface CovidMapProps {
@@ -9,7 +10,7 @@ export interface CovidMapProps {
 }
 
 const StyledMapContainer = styled(MapContainer)`
-  height: 550px;
+  ${tw`w-full h-full`}
 `;
 
 export function CovidMap({

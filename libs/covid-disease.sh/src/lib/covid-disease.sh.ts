@@ -39,6 +39,7 @@ const QUERY_CONTRIES = gql`
       deaths
       recovered
       active
+      cases
     }
   }
 `;
@@ -55,6 +56,7 @@ const QUERY_CONTINENTS = gql`
       deaths
       recovered
       active
+      cases
     }
   }
 `;
@@ -68,6 +70,7 @@ export const mapCountry = (
     deaths: country.deaths,
     recovered: country.recovered,
     active: country.active,
+    case: country.cases,
   };
 };
 

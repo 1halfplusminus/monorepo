@@ -14,6 +14,7 @@ export class Country {
   deaths: number;
   recovered: number;
   active: number;
+  case: number;
 }
 
 export type GetStatsByCountries = () => Promise<Country[]>;

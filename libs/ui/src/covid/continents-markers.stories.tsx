@@ -8,7 +8,7 @@ import CovidMap from './map';
 
 export default {
   component: ContinentsMarkers,
-  title: 'ContinentsMarkers',
+  title: 'Covid/ContinentsMarkers',
 };
 
 export const Api = () => {

@@ -3,7 +3,7 @@ import { CovidMap, CovidMapProps } from './map';
 
 export default {
   component: CovidMap,
-  title: 'Map',
+  title: 'Covid/Map',
 };
 
 export const primary = () => {

@@ -5,7 +5,7 @@ import countries from './__mocks__/countries';
 import { useStatsByCountries } from '@halfoneplusminus/covid-disease.sh';
 export default {
   component: CountriesMarker,
-  title: 'CountriesMarker',
+  title: 'Covid/CountriesMarker',
 };
 
 export const primary = () => {

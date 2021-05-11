@@ -20,6 +20,7 @@ export interface getV3Covid19Continents_getV3Covid19Continents {
   deaths: number | null;
   recovered: number | null;
   active: number | null;
+  cases: number | null;
 }
 
 export interface getV3Covid19Continents {
