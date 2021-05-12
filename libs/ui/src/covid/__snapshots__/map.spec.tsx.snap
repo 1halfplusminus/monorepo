@@ -4,7 +4,7 @@ exports[`Map should render successfully 1`] = `
 <body>
   <div>
     <div
-      class="map__StyledMapContainer-sc-8oy6jf-0 bzkmFC leaflet-container leaflet-grab leaflet-touch-drag"
+      class="map__StyledMapContainer-sc-8oy6jf-0 lizNpO leaflet-container leaflet-grab leaflet-touch-drag"
       style="position: relative;"
       tabindex="0"
     >

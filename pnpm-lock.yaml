@@ -156,7 +156,6 @@ importers:
       graphql-mesh: ^0.0.1
       jest-fetch-mock: ^3.0.3
       lodash: ^4.17.21
-      node-fetch: ^2.6.1
       qs: ^6.10.1
       swagger-to-graphql: ^4.0.2
     dependencies:
@@ -167,7 +166,6 @@ importers:
       graphql-anywhere: 4.2.7_graphql@15.5.0
       jest-fetch-mock: 3.0.3
       lodash: 4.17.21
-      node-fetch: 2.6.1
       qs: 6.10.1
     devDependencies:
       '@graphql-mesh/cli': 0.29.11_graphql@15.5.0
@@ -180,7 +178,9 @@ importers:
   libs/ui:
     specifiers:
       '@testing-library/user-event': ^13.1.8
+      '@types/color': ^3.0.1
       '@types/leaflet': ^1.7.0
+      color: ^3.1.3
       jest-svg-transformer: ^1.0.0
       leaflet: ^1.7.1
       react-error-boundary: ^3.1.3
@@ -190,6 +190,7 @@ importers:
       twin.macro: ^2.4.1
     dependencies:
       '@testing-library/user-event': 13.1.8
+      color: 3.1.3
       jest-svg-transformer: 1.0.0
       leaflet: 1.7.1
       react-error-boundary: 3.1.3
@@ -198,6 +199,7 @@ importers:
       tailwindcss: 2.1.2
       twin.macro: 2.4.1
     devDependencies:
+      '@types/color': 3.0.1
       '@types/leaflet': 1.7.0
 
 packages:
@@ -5102,6 +5104,12 @@ packages:
     resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
     dev: true
 
+  /@types/color/3.0.1:
+    resolution: {integrity: sha512-oeUWVaAwI+xINDUx+3F2vJkl/vVB03VChFF/Gl3iQCdbcakjuoJyMOba+3BXRtnBhxZ7uBYqQBi9EpLnvSoztA==}
+    dependencies:
+      '@types/color-convert': 2.0.0
+    dev: true
+
   /@types/estree/0.0.39:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
     dev: true
@@ -6547,7 +6555,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.16.6
-      caniuse-lite: 1.0.30001223
+      caniuse-lite: 1.0.30001228
       colorette: 1.2.2
       fraction.js: 4.0.13
       normalize-range: 0.1.2

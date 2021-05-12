@@ -10,7 +10,7 @@ export default {
 export const info = () => {
   /* eslint-disable-next-line */
   const props: StatistiqueCardProps = {
-    number: 1125,
+    value: 1125,
     description: 'nouveaux patients hospitalisés',
     variation: ['+', 598],
     type: 'info',
@@ -26,7 +26,7 @@ export const info = () => {
 export const danger = () => {
   /* eslint-disable-next-line */
   const props: StatistiqueCardProps = {
-    number: '106 684',
+    value: '106 684',
     description: 'cumul des décès',
     variation: ['+', 292],
     type: 'danger',

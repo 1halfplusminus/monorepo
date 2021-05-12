@@ -70,7 +70,7 @@ export const mapCountry = (
     deaths: country.deaths,
     recovered: country.recovered,
     active: country.active,
-    case: country.cases,
+    cases: country.cases,
   };
 };
 

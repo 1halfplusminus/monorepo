@@ -54,6 +54,7 @@ describe('covidDiseaseSh', () => {
         continentInfo: { __typename: 'ContinentInfo', lat: 100, long: 100 },
         active: 0,
         recovered: 0,
+        cases: 0,
       })
     ).toMatchInlineSnapshot(`
       Object {
@@ -75,10 +76,12 @@ describe('covidDiseaseSh', () => {
         deaths: 100,
         recovered: 100,
         active: 100,
+        cases: 0,
       })
     ).toMatchInlineSnapshot(`
       Object {
         "active": 100,
+        "cases": 0,
         "deaths": 100,
         "name": "name",
         "position": Array [

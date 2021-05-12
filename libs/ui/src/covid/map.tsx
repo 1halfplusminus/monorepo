@@ -11,6 +11,13 @@ export interface CovidMapProps {
 
 const StyledMapContainer = styled(MapContainer)`
   ${tw`w-full h-full`}
+  min-height: 520px;
+  .leaflet-div-icon {
+    height: inherit !important;
+    width: inherit !important;
+    background-color: transparent;
+    border: 0;
+  }
 `;
 
 export function CovidMap({

@@ -22,25 +22,25 @@ export const primary = () => {
       <Stats>
         <StatistiqueCard
           {...{
-            number: '5 780 379',
+            value: '5 780 379',
             description: 'cas confirmés',
             variation: ['+', 3292],
-            type: 'warning',
+            type: 'cases',
           }}
         />
         <StatistiqueCard
           {...{
-            number: 17829181,
-            description: 'premières doses injectées (au total)',
-            type: 'success',
+            value: 17829181,
+            description: 'cas guéri',
+            type: 'recovered',
           }}
         />
         <StatistiqueCard
           {...{
-            number: '106 684',
-            description: 'nouveaux patients hospitalisés',
+            value: '106 684',
+            description: 'cumul des décès',
             variation: ['+', 292],
-            type: 'danger',
+            type: 'deaths',
           }}
         />
       </Stats>

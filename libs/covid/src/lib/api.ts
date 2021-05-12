@@ -14,8 +14,13 @@ export class Country {
   deaths: number;
   recovered: number;
   active: number;
-  case: number;
+  cases: number;
 }
+
+export type CountryStatistics = keyof Omit<
+  Country,
+  'name' | 'flag' | 'id' | 'position'
+>;
 
 export type GetStatsByCountries = () => Promise<Country[]>;
 

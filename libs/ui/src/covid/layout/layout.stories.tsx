@@ -6,7 +6,7 @@ import { Header, Layout, LayoutProps, Page, TwoColumns } from './layout';
 
 export default {
   component: Layout,
-  title: 'Layout',
+  title: 'Covid/Layout',
 };
 
 const Content = () => (
@@ -16,7 +16,7 @@ const Content = () => (
       <Stats>
         <StatistiqueCard
           {...{
-            number: '5 780 379',
+            value: '5 780 379',
             description: 'cas confirmés',
             variation: ['+', 3292],
             type: 'warning',
@@ -24,14 +24,14 @@ const Content = () => (
         />
         <StatistiqueCard
           {...{
-            number: 17829181,
+            value: 17829181,
             description: 'premières doses injectées (au total)',
             type: 'success',
           }}
         />
         <StatistiqueCard
           {...{
-            number: '106 684',
+            value: '106 684',
             description: 'nouveaux patients hospitalisés',
             variation: ['+', 292],
             type: 'danger',

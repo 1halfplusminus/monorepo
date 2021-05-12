@@ -3,26 +3,16 @@ import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import NumberFormat from 'react-number-format';
+import { getColor, getStatType, StatType } from './utils';
+import { CountryStatistics } from '@halfoneplusminus/covid';
 
 export interface StatistiqueCardProps {
-  type: 'success' | 'warning' | 'danger' | 'info' | 'secondary';
-  number: ReactNode | number;
+  type: StatType | CountryStatistics;
+  value: ReactNode | number;
   variation?: ['-' | '+', number] | ReactNode;
   description: ReactNode;
+  onClick?: (type: StatType | CountryStatistics) => void;
 }
-
-export const getColor = (type: StatistiqueCardProps['type']) => {
-  switch (type) {
-    case 'warning':
-      return '#fa9b4c';
-    case 'success':
-      return '#19be5e';
-    case 'danger':
-      return '#d1335b';
-    default:
-      return '#53657d';
-  }
-};
 
 const StatistiqueCardTitle = styled.h4`
   ${tw`text-xl font-bold m-0`}
@@ -58,19 +48,23 @@ const StatistiqueCardVariation = styled(
   ${tw`text-sm font-light`}
 `;
 
-const StyledStatistiqueCard = styled.div<Pick<StatistiqueCardProps, 'type'>>`
-  ${tw`inline-flex flex-col space-y-1 items-center justify-start w-32 h-32 px-1 py-2.5 bg-white border border-gray-300 rounded-xl`}
+const StyledStatistiqueCard = styled.div<{ type: StatType }>`
+  ${tw`cursor-pointer inline-flex flex-col space-y-1 items-center justify-start w-32 h-32 px-1 py-2.5 bg-white border border-gray-300 rounded-xl`}
   color: ${({ type }) => getColor(type)};
 `;
 
 export function StatistiqueCard({
-  number,
+  value: number,
   description,
   variation,
   type,
+  onClick,
 }: StatistiqueCardProps) {
+  const handleClick = () => {
+    onClick(type);
+  };
   return (
-    <StyledStatistiqueCard type={type}>
+    <StyledStatistiqueCard onClick={handleClick} type={getStatType(type)}>
       <StatistiqueCardTitle>
         {typeof number === 'number' || typeof number === 'string' ? (
           <NumberFormat
