@@ -21,9 +21,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install pnpm
       run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm
-    - name: INSTALL
+    - name: pnpm install
       run: pnpm install
-    - name: TEST
+    - name: unit test
       run: pnpm run nx run-many -- --target=test --all=true --parallel=true 
-    - name: UNIT TEST
+    - name: e2e test
       run: pnpm run nx run-many -- --target=e2e --all=true

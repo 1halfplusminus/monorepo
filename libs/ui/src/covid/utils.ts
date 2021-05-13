@@ -2,6 +2,7 @@ import { latLng, latLngBounds, LatLngExpression } from 'leaflet';
 import { useCallback, useEffect, useState } from 'react';
 import { useMap, useMapEvent } from 'react-leaflet';
 import { CountryStatistics } from '@halfoneplusminus/covid';
+import format from 'date-fns/format';
 
 export const sortPositionnable = (
   p1: LatLngExpression,
@@ -99,6 +100,10 @@ export const getColor = (type: StatType) => {
 
 export const formatNumber = (number: number) =>
   new Intl.NumberFormat('fr-FR').format(number);
+
+export const formatDate = (date: Date, pattern: string) => {
+  return format(date, pattern);
+};
 
 export const getStatType = (stat: CountryStatistics | StatType): StatType => {
   switch (stat) {

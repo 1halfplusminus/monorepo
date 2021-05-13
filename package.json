@@ -28,6 +28,7 @@
   },
   "private": true,
   "dependencies": {
+    "@storybook/addon-actions": "^6.2.9",
     "core-js": "^3.6.5",
     "document-register-element": "1.13.1",
     "react": "17.0.2",
@@ -52,6 +53,7 @@
     "@nrwl/tao": "12.1.1",
     "@nrwl/web": "12.1.1",
     "@nrwl/workspace": "12.1.1",
+    "@storybook/addon-essentials": "^6.2.9",
     "@storybook/addon-knobs": "^6.1.11",
     "@storybook/react": "^6.1.11",
     "@svgr/webpack": "^5.4.0",
