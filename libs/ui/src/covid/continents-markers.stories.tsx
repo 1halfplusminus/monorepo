@@ -5,20 +5,19 @@ import {
   ContinentsMarkersProps,
 } from './continents-markers';
 import CovidMap from './map';
+import { Story } from '@storybook/react';
 
 export default {
   component: ContinentsMarkers,
   title: 'Covid/ContinentsMarkers',
 };
 
-export const Api = () => {
+export const Api: Story<ContinentsMarkersProps> = (props) => {
   const { continents } = useStatsByContinents();
-  /* eslint-disable-next-line */
-  const props: ContinentsMarkersProps = { continents };
 
   return (
     <CovidMap zoom={3}>
-      <ContinentsMarkers {...props} />
+      <ContinentsMarkers {...props} continents={continents} />
     </CovidMap>
   );
 };

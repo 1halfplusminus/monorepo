@@ -3,6 +3,7 @@
   "typescript.suggest.paths": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "jest.jestCommandLine": "pnpm run nx run-many -- --target=test --all=true",
+  "jestrunner.jestCommand": "pnpx jest --",
   "scss.validate": false,
   "editor.quickSuggestions": {
     "strings": true

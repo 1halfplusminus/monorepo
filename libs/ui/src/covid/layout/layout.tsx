@@ -37,15 +37,15 @@ export const Header = styled.header`
 /** MainContent */
 
 export const MainContent = styled.main`
-  ${tw`inline-flex items-start justify-between w-full h-full`}
+  ${tw`inline-flex items-start justify-between w-full h-full flex-wrap md:flex-wrap`}
 `;
 
 const Left = styled.section`
-  ${tw`max-h-80 order-2 w-5/12 h-80`}
+  ${tw`max-h-80 order-2 h-80 w-full md:w-6/12`}
 `;
 
 const Right = styled.section`
-  ${tw`space-y-1.5 w-7/12 h-full px-2 py-2.5`}
+  ${tw`space-y-1.5  px-2 py-2.5 md:w-6/12 w-11/12 md:h-full`}
 `;
 
 export interface TwoColumnsProps {

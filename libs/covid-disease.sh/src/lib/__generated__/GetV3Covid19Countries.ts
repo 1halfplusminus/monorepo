@@ -11,6 +11,8 @@ export interface GetV3Covid19Countries_getV3Covid19Countries_countryInfo {
   __typename: "CountryInfo";
   lat: number | null;
   long: number | null;
+  flag: string | null;
+  iso2: string | null;
 }
 
 export interface GetV3Covid19Countries_getV3Covid19Countries {

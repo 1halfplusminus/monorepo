@@ -15,11 +15,12 @@ export class Country {
   recovered: number;
   active: number;
   cases: number;
+  iso?: string;
 }
 
 export type CountryStatistics = keyof Omit<
   Country,
-  'name' | 'flag' | 'id' | 'position'
+  'name' | 'flag' | 'id' | 'position' | 'iso'
 >;
 
 export type GetStatsByCountries = () => Promise<Country[]>;

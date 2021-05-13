@@ -11,14 +11,12 @@ export const sortPositionnable = (
   return latLng(p1).distanceTo([0, 0]) - latLng(p2).distanceTo([0, 0]);
 };
 export const mapBounds = (positionnable: { position: LatLngExpression }[]) => {
-  return positionnable.length > 1
-    ? latLngBounds(
-        positionnable
-          .map(({ position }) => position)
-          .sort(sortPositionnable)
-          .slice(0, positionnable.length < 5 ? positionnable.length : 5)
-      )
-    : latLng(positionnable[0].position).toBounds(450000);
+  return latLngBounds(
+    positionnable
+      .map(({ position }) => position)
+      .sort(sortPositionnable)
+      .slice(0, 5)
+  );
 };
 const havePositionnables = (positionnables: { position: LatLngExpression }[]) =>
   positionnables && positionnables.length > 0;
@@ -38,36 +36,39 @@ export const useFitBounds = (
 ) => {
   const map = useMap();
   const [isVisible, setIsVisible] = useState(true);
-  const visible = useCallback(() => {
-    const zoom = map.getZoom();
-    if (
-      map &&
-      havePositionnables(positionnables) &&
-      shouldBeVisible(zoom, options)
-    ) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  }, [map, options, positionnables]);
+  // const visible = useCallback(() => {
+  //   const zoom = map.getZoom();
+  //   if (
+  //     map &&
+  //     havePositionnables(positionnables) &&
+  //     shouldBeVisible(zoom, options)
+  //   ) {
+  //     setIsVisible(true);
+  //   } else {
+  //     setIsVisible(false);
+  //   }
+  // }, [map, options, positionnables]);
   useMapEvent('locationfound', (e) => {
     console.log('location found', e);
     map.fitBounds(latLngBounds([e.latlng]));
   });
-  useMapEvent('zoom', () => {
-    visible();
-  });
-  useEffect(() => {
-    visible();
-  }, [visible]);
+  // useMapEvent('zoom', () => {
+  //   visible();
+  // });
+  // useEffect(() => {
+  //   visible();
+  // }, [visible]);
   useEffect(() => {
     if (map) {
       if (havePositionnables(positionnables)) {
-        map.flyTo(positionnables[0].position, options.visibleAtZoomLevel[0]);
+        map.flyTo(
+          mapBounds(positionnables).getCenter(),
+          options.visibleAtZoomLevel[0]
+        );
         map.setMaxZoom(options.visibleAtZoomLevel[1]);
       }
     }
-  }, []);
+  }, [positionnables.length]);
   return { isVisible };
 };
 

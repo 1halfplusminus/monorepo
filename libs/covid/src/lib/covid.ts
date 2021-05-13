@@ -1,10 +1,11 @@
 import { pipe, mapValues, toArray, filter } from 'lodash/fp';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Country, GetStatsByCountries, UseStatsByCountries } from './api';
 
 export interface CountryJSON {
   latlng: [number, number];
   name: string;
+  country_code: string;
 }
 
 const mapCountry = (country: CountryJSON): Country => {
@@ -15,6 +16,7 @@ const mapCountry = (country: CountryJSON): Country => {
     recovered: 0,
     active: 100,
     cases: 0,
+    iso: country.country_code || '',
   };
 };
 
@@ -45,4 +47,40 @@ export const useStatsByCountries: UseStatsByCountries = () => {
     loading: false,
     error: false,
   };
+};
+const getImportJson = <T>(module: { default: T } | T) => {
+  return 'default' in module ? module.default : module;
+};
+
+export const filterOceaniaCountries = async () => {
+  const json = getImportJson<{
+    features: [{ properties: { iso_a2: string } }];
+  }>(await import('./oceania.json'));
+  return (country: Country) => {
+    return json.features
+      .map((c) => c.properties.iso_a2.toUpperCase())
+      .includes(country?.iso?.toUpperCase());
+  };
+};
+
+export const useOceaniaCountriesFilter = ({
+  countries,
+}: {
+  countries: Country[];
+}) => {
+  const filterRef = useRef<(country: Country) => boolean>();
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const [filteredCountries, setFilteredCountries] = useState<Country[]>();
+  useEffect(() => {
+    if (!filterRef.current) {
+      filterOceaniaCountries().then((f) => {
+        setLoaded(true);
+        filterRef.current = f;
+      });
+    }
+    if (filterRef.current) {
+      setFilteredCountries(countries?.filter(filterRef.current));
+    }
+  }, [countries, loaded]);
+  return { countries: filteredCountries, loaded };
 };

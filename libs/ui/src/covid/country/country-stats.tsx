@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Country, CountryStatistics } from '@halfoneplusminus/covid';
 import StatistiqueCard from '../statistique-card';
 import Stats from '../stats';
@@ -23,13 +23,14 @@ export const useCountryStats = ({
   );
   const onStatClick = (stat: CountryStatistics) => {
     setDisplayStat(stat);
-    console.log(stat);
   };
 
   const handleClick = (country: Country) => {
     setSelectedCountry(country);
   };
-
+  useEffect(() => {
+    setSelectedCountry(country);
+  }, [country]);
   return {
     bindCountriesMarker: () => ({
       displayStat,

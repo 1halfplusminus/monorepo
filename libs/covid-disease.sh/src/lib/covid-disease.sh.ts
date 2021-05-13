@@ -2,7 +2,6 @@ import {
   UseStatsByContinents,
   Continent,
   Country,
-  filterCountries,
   GetStatsByCountries,
   UseStatsByCountries,
 } from '@halfoneplusminus/covid';
@@ -18,6 +17,7 @@ import {
   getV3Covid19Continents,
   getV3Covid19Continents_getV3Covid19Continents,
 } from './__generated__/getV3Covid19Continents';
+import { useMemo } from 'react';
 
 // Set `RestLink` with your endpoint
 export const restLink = new RestLink({ uri: 'https://disease.sh/v3/covid-19' });
@@ -35,6 +35,8 @@ const QUERY_CONTRIES = gql`
       countryInfo {
         lat
         long
+        flag
+        iso2
       }
       deaths
       recovered
@@ -71,6 +73,7 @@ export const mapCountry = (
     recovered: country.recovered,
     active: country.active,
     cases: country.cases,
+    iso: country.countryInfo.iso2,
   };
 };
 
@@ -111,10 +114,12 @@ export const useStatsByCountries: UseStatsByCountries = () => {
       client,
     }
   );
+  const mappedData = useMemo(
+    () => data?.getV3Covid19Countries?.map(mapCountry),
+    [data]
+  );
   return {
-    countries: data?.getV3Covid19Countries
-      ?.filter(filterCountries)
-      .map(mapCountry),
+    countries: mappedData,
     loading,
     error: !error,
   };

@@ -72,7 +72,13 @@ describe('covidDiseaseSh', () => {
       mapCountry({
         __typename: 'CovidCountry',
         country: 'name',
-        countryInfo: { __typename: 'CountryInfo', lat: 10, long: 10 },
+        countryInfo: {
+          __typename: 'CountryInfo',
+          lat: 10,
+          long: 10,
+          iso2: 'NC',
+          flag: '',
+        },
         deaths: 100,
         recovered: 100,
         active: 100,
@@ -83,6 +89,7 @@ describe('covidDiseaseSh', () => {
         "active": 100,
         "cases": 0,
         "deaths": 100,
+        "iso": "NC",
         "name": "name",
         "position": Array [
           10,

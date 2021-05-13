@@ -19,7 +19,7 @@ export function CountriesMarker({
   onClick = () => {},
 }: CountriesMarkerProps) {
   const { isVisible } = useFitBounds(countries, {
-    visibleAtZoomLevel: [4, 100],
+    visibleAtZoomLevel: [3, 100],
   });
   const handleClick = (country: Country) => {
     return () => {

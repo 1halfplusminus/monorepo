@@ -1,3 +1,4 @@
+import { Story } from '@storybook/react';
 import React from 'react';
 import CovidMap from '../map';
 import StatistiqueCard from '../statistique-card';
@@ -41,15 +42,14 @@ const Content = () => (
     }
   />
 );
-export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: LayoutProps = {
-    debug: true,
-    main: <Content />,
-    header: '',
-  };
-
+export const primary: Story<LayoutProps> = (props) => {
   return <Layout {...props} />;
+};
+
+primary.args = {
+  debug: true,
+  main: <Content />,
+  header: '',
 };
 
 export const header = () => {

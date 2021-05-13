@@ -6,9 +6,6 @@ export default {
   title: 'Covid/Map',
 };
 
-export const primary = () => {
-  /* eslint-disable-next-line */
-  const props: CovidMapProps = {};
-
-  return <CovidMap />;
+export const primary = (props: CovidMapProps) => {
+  return <CovidMap {...props} />;
 };

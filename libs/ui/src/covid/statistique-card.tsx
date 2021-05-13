@@ -61,7 +61,9 @@ export function StatistiqueCard({
   onClick,
 }: StatistiqueCardProps) {
   const handleClick = () => {
-    onClick(type);
+    if (onClick) {
+      onClick(type);
+    }
   };
   return (
     <StyledStatistiqueCard onClick={handleClick} type={getStatType(type)}>
