@@ -22,8 +22,7 @@
       ],
       "@halfoneplusminus/covid-disease.sh": [
         "libs/covid-disease.sh/src/index.ts"
-      ],
-      "@halfoneplusminus/covid-diseasesh": ["libs/covid-diseasesh/src/index.ts"]
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"],

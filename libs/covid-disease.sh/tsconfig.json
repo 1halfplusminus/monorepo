@@ -1,5 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  },
   "files": [],
   "include": [],
   "references": [

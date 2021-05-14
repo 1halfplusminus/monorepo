@@ -1,5 +1,11 @@
 sources:
-  - name: disease.sh
+  - name: Disease
     handler:
       openapi:
-        source: https://disease.sh/apidocs/swagger_v3.json
+        source: ./openapi-fixed.json
+
+additionalResolvers:
+  - ./src/additional-resolvers.ts
+
+require:
+  - ts-node/register/transpile-only

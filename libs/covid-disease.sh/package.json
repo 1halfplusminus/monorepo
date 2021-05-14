@@ -6,7 +6,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate-schema": "pnpx graphql-mesh dump-schema --output ./schema.graphql",
     "precodegen": "pnpm run generate-schema",
-    "codegen": "pnpx apollo client:codegen --target=typescript"
+    "codegen": "pnpx apollo client:codegen --target=typescript",
+    "mesh:serve": "pnpx graphql-mesh serve",
+    "generate:mesh": "pnpx graphql-mesh typescript --output ./src/generated/mesh.ts",
+    "generate:sdk": "pnpx graphql-mesh generate-sdk --output ./src/generated/sdk.ts",
+    "generate": "pnpx openapi --input ./openapi-fixed.json --output ./src/generated  --client node"
   },
   "author": "",
   "license": "ISC",
@@ -15,17 +19,23 @@
     "@graphql-mesh/openapi": "^0.16.8",
     "@types/leaflet": "^1.7.0",
     "@types/lodash": "^4.14.168",
+    "@types/node": "^15.0.3",
     "graphql-mesh": "^0.0.1",
     "swagger-to-graphql": "^4.0.2"
   },
   "dependencies": {
     "@apollo/client": "^3.3.16",
+    "@graphql-mesh/config": "^0.16.5",
+    "@graphql-mesh/runtime": "^0.16.5",
     "apollo": "^2.33.1",
     "apollo-link-rest": "*",
     "graphql": "^15.5.0",
     "graphql-anywhere": "^4.2.7",
     "jest-fetch-mock": "^3.0.3",
     "lodash": "^4.17.21",
+    "node-fetch": "^2.6.1",
+    "openapi-to-graphql-cli": "^2.3.0",
+    "openapi-typescript-codegen": "^0.9.3",
     "qs": "^6.10.1"
   }
 }

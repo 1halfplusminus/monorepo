@@ -5,8 +5,11 @@
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "esModuleInterop": true,
-    "types": [],
-    "resolveJsonModule": true
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "paths": {
+      "@halfoneplusminus/covid": ["dist/libs/covid"]
+    }
   },
   "include": ["**/*.ts", "./apollo.config.js"],
   "exclude": ["**/*.spec.ts"]
