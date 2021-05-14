@@ -9,7 +9,7 @@ export interface PageProps {
 }
 
 export const Page = styled.main<PageProps>`
-  ${tw`h-screen w-screen bg-gray-200`}
+  ${tw`h-screen w-full bg-gray-200`}
   ${({ debug }) =>
     debug &&
     css`
@@ -31,8 +31,8 @@ export const Page = styled.main<PageProps>`
 `;
 
 /** Header */
-export const Header = styled.header`
-  ${tw`flex-auto h-20`}
+export const Header = styled.div`
+  ${tw`flex-auto md:h-20 h-24`}
 `;
 /** MainContent */
 
@@ -45,7 +45,7 @@ const Left = styled.section`
 `;
 
 const Right = styled.section`
-  ${tw`space-y-1.5  px-2 py-2.5 md:w-6/12 w-11/12 md:h-full`}
+  ${tw`space-y-1.5  px-2 py-2.5 md:w-6/12 w-full md:h-full`}
 `;
 
 export interface TwoColumnsProps {
@@ -54,10 +54,10 @@ export interface TwoColumnsProps {
 }
 export const TwoColumns = ({ left, right }: TwoColumnsProps) => {
   return (
-    <MainContent>
+    <>
       <Left>{left}</Left>
       <Right>{right}</Right>
-    </MainContent>
+    </>
   );
 };
 

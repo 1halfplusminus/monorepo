@@ -6,22 +6,27 @@ export class Continent {
   position: LatLngExpression;
 }
 
-export class Country {
+export class Country implements Statistics {
+  recovered: number;
+  active: number;
+  cases: number;
+  deaths: number;
   name: string;
   flag?: string;
   id?: string;
   position: LatLngExpression;
-  deaths: number;
-  recovered: number;
-  active: number;
-  cases: number;
   iso?: string;
+  today: Statistics;
 }
 
-export type CountryStatistics = keyof Omit<
-  Country,
-  'name' | 'flag' | 'id' | 'position' | 'iso'
->;
+export type Statistics = {
+  recovered: number;
+  active?: number;
+  cases: number;
+  deaths: number;
+};
+
+export type StatisticsKeys = keyof Statistics;
 
 export type GetStatsByCountries = () => Promise<Country[]>;
 

@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Country, CountryStatistics } from '@halfoneplusminus/covid';
+import { Country, StatisticsKeys } from '@halfoneplusminus/covid';
 import StatistiqueCard from '../statistique-card';
 import Stats from '../stats';
+import CountryTitleIcon from './country-title-icon';
 
 /* eslint-disable-next-line */
 export interface CountryStatsProps {
   country: Country;
-  onStatClick: (stat: CountryStatistics) => void;
+  onStatClick: (stat: StatisticsKeys) => void;
 }
 export const useCountryStats = ({
   country,
   displayStat: displayStatInitial = 'deaths',
 }: {
   country: Country;
-  displayStat?: CountryStatistics;
+  displayStat?: StatisticsKeys;
 }) => {
-  const [displayStat, setDisplayStat] = useState<CountryStatistics>(
+  const [displayStat, setDisplayStat] = useState<StatisticsKeys>(
     displayStatInitial
   );
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(
     country
   );
-  const onStatClick = (stat: CountryStatistics) => {
+  const onStatClick = (stat: StatisticsKeys) => {
     setDisplayStat(stat);
   };
 
@@ -42,34 +43,41 @@ export const useCountryStats = ({
     }),
   };
 };
+
 export function CountryStats({ country, onStatClick }: CountryStatsProps) {
   return country ? (
-    <Stats>
-      <StatistiqueCard
-        {...{
-          value: country['cases'],
-          description: 'cas confirmés',
-          type: 'cases',
-          onClick: onStatClick,
-        }}
-      />
-      <StatistiqueCard
-        {...{
-          value: country['recovered'],
-          description: 'cas guéri',
-          type: 'recovered',
-          onClick: onStatClick,
-        }}
-      />
-      <StatistiqueCard
-        {...{
-          value: country['deaths'],
-          description: 'cumul des décès',
-          type: 'deaths',
-          onClick: onStatClick,
-        }}
-      />
-    </Stats>
+    <>
+      <CountryTitleIcon name={country.name} />
+      <Stats>
+        <StatistiqueCard
+          {...{
+            value: country['cases'],
+            description: 'cas confirmés',
+            type: 'cases',
+            onClick: onStatClick,
+            variation: country.today?.cases,
+          }}
+        />
+        <StatistiqueCard
+          {...{
+            value: country['recovered'],
+            description: 'cas guéri',
+            type: 'recovered',
+            onClick: onStatClick,
+            variation: country.today?.recovered,
+          }}
+        />
+        <StatistiqueCard
+          {...{
+            value: country['deaths'],
+            description: 'cumul des décès',
+            type: 'deaths',
+            onClick: onStatClick,
+            variation: country.today?.deaths,
+          }}
+        />
+      </Stats>
+    </>
   ) : null;
 }
 

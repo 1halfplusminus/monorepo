@@ -7,7 +7,7 @@ import ChevronLeft from './chevron-right';
 import { OnDateChange } from './hooks';
 
 const HeaderContainer = styled.header`
-  ${tw`p-3 flex bg-blue-600 h-16 flex-row`}
+  ${tw`p-3 flex bg-blue-600 h-full flex-row flex-wrap`}
 `;
 
 const HeaderItem = styled.div`
@@ -53,11 +53,13 @@ const HeaderDatePicker = ({
   return (
     <div
       css={css`
-        ${tw`flex px-1 items-center`}
+        ${tw`inline-flex px-1 items-center`}
       `}
     >
       <ChevronRight onClick={handleRightClick} css={iconCss} />
-      <span tw="text-white">Données au {formatDate(date, 'dd/MM/yyyy')}</span>
+      <span tw="text-white text-center">
+        Données au {formatDate(date, 'dd/MM/yyyy')}
+      </span>
       <ChevronLeft onClick={handleLeftClick} css={iconCss} />
     </div>
   );

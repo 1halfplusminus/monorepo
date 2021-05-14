@@ -83,6 +83,9 @@ describe('covidDiseaseSh', () => {
         recovered: 100,
         active: 100,
         cases: 0,
+        todayCases: 10,
+        todayDeaths: 10,
+        todayRecovered: 10,
       })
     ).toMatchInlineSnapshot(`
       Object {

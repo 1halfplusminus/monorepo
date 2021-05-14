@@ -17,6 +17,11 @@ const mapCountry = (country: CountryJSON): Country => {
     active: 100,
     cases: 0,
     iso: country.country_code || '',
+    today: {
+      deaths: 0,
+      cases: 0,
+      recovered: 0,
+    },
   };
 };
 
@@ -54,7 +59,7 @@ const getImportJson = <T>(module: { default: T } | T) => {
 
 export const filterOceaniaCountries = async () => {
   const json = getImportJson<{
-    features: [{ properties: { iso_a2: string } }];
+    features: { properties: { iso_a2: string } }[];
   }>(await import('./oceania.json'));
   return (country: Country) => {
     return json.features

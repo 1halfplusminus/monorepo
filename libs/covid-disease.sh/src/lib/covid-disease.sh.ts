@@ -42,12 +42,15 @@ const QUERY_CONTRIES = gql`
       recovered
       active
       cases
+      todayCases
+      todayDeaths
+      todayRecovered
     }
   }
 `;
 
 const QUERY_CONTINENTS = gql`
-  query getV3Covid19Continents {
+  query GetV3Covid19Continents {
     getV3Covid19Continents
       @rest(type: "[CovidContinent]", path: "/continents") {
       continent
@@ -74,6 +77,11 @@ export const mapCountry = (
     active: country.active,
     cases: country.cases,
     iso: country.countryInfo.iso2,
+    today: {
+      cases: country.todayCases,
+      deaths: country.todayDeaths,
+      recovered: country.todayRecovered,
+    },
   };
 };
 

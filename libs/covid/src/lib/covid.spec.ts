@@ -18,6 +18,11 @@ describe('covid', () => {
             133,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -30,6 +35,11 @@ describe('covid', () => {
             175,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -42,6 +52,11 @@ describe('covid', () => {
             165.5,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -54,6 +69,11 @@ describe('covid', () => {
             174,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -66,6 +86,11 @@ describe('covid', () => {
             147,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -78,6 +103,11 @@ describe('covid', () => {
             159,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
         Object {
           "active": 100,
@@ -90,6 +120,11 @@ describe('covid', () => {
             167,
           ],
           "recovered": 0,
+          "today": Object {
+            "cases": 0,
+            "deaths": 0,
+            "recovered": 0,
+          },
         },
       ]
     `);

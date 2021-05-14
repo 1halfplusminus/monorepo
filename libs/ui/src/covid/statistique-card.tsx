@@ -24,25 +24,35 @@ const StatistiqueCardDescription = styled.div`
 
 const StatistiqueCardVariation = styled(
   ({ variation, ...rest }: Pick<StatistiqueCardProps, 'variation'>) => {
-    return (
-      <div {...rest}>
-        {variation && variation[0] ? (
-          <>
-            ({variation[0]}{' '}
-            {
-              <NumberFormat
-                displayType="text"
-                thousandSeparator={' '}
-                value={variation[1]}
-              />
-            }{' '}
-            )
-          </>
-        ) : (
-          <> {variation}</>
-        )}
-      </div>
-    );
+    const processVariation = (variation: StatistiqueCardProps['variation']) => {
+      if (typeof variation === 'number') {
+        return [variation >= 0 ? '+' : '-', variation];
+      }
+      return variation;
+    };
+    const renderVariation = (variation: StatistiqueCardProps['variation']) => {
+      return (
+        <div {...rest}>
+          {variation && variation[0] !== undefined ? (
+            <>
+              ({variation[0]}{' '}
+              {
+                <NumberFormat
+                  displayType="text"
+                  thousandSeparator={' '}
+                  value={variation[1]}
+                />
+              }{' '}
+              )
+            </>
+          ) : (
+            variation
+          )}
+        </div>
+      );
+    };
+    const component = renderVariation(processVariation(variation));
+    return component;
   }
 )`
   ${tw`text-sm font-light`}
@@ -78,7 +88,9 @@ export function StatistiqueCard({
           number
         )}
       </StatistiqueCardTitle>
-      {variation && <StatistiqueCardVariation variation={variation} />}
+      {variation !== undefined ? (
+        <StatistiqueCardVariation variation={variation} />
+      ) : null}
       <StatistiqueCardDescription>{description}</StatistiqueCardDescription>
     </StyledStatistiqueCard>
   );

@@ -1,7 +1,6 @@
 import { Meta, Story } from '@storybook/react';
 import React from 'react';
 import { Header, HeaderProps } from './header';
-import { date, text } from '@storybook/addon-knobs';
 import { useHeaderDatePickerState } from './hooks';
 
 export default {
