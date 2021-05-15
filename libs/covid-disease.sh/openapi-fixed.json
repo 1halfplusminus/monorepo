@@ -1438,15 +1438,15 @@
               "properties": {
                 "cases": {
                   "type": "object",
-                  "properties": { "date": { "type": "number" } }
+                  "additionalProperties": { "type": "number" }
                 },
                 "deaths": {
                   "type": "object",
-                  "properties": { "date": { "type": "number" } }
+                  "additionalProperties": { "type": "number" }
                 },
                 "recovered": {
                   "type": "object",
-                  "properties": { "date": { "type": "number" } }
+                  "additionalProperties": { "type": "number" }
                 }
               }
             }

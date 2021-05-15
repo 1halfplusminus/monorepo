@@ -56,10 +56,8 @@
           {
             "name": "yesterday",
             "in": "query",
-            "schema": {
-              "enum": ["true", "false", "1", "0"],
-              "type": "string"
-            },
+            "enum": ["true", "false", "1", "0"],
+            "type": "string",
             "description": "Queries data reported a day ago"
           },
           {

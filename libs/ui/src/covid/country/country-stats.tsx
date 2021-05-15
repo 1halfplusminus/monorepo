@@ -31,7 +31,7 @@ export const useCountryStats = ({
   };
   useEffect(() => {
     setSelectedCountry(country);
-  }, [country]);
+  }, [country?.name]);
   return {
     bindCountriesMarker: () => ({
       displayStat,

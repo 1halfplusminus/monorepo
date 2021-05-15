@@ -4,8 +4,8 @@ sources:
       openapi:
         source: ./openapi-fixed.json
 
-additionalResolvers:
-  - ./src/additional-resolvers.ts
+#additionalResolvers:
+  #- ./src/additional-resolvers.ts
 
-require:
-  - ts-node/register/transpile-only
+#require:
+ # - ts-node/register/transpile-only

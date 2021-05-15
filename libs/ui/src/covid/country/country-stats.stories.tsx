@@ -14,7 +14,8 @@ export default {
 };
 
 export const Primary = () => {
-  const { countries } = useStatsByCountries();
+  const datePicker = useHeaderDatePickerState({ date: new Date() });
+  const { countries } = useStatsByCountries(datePicker.date);
   const { countries: filteredCountries } = useOceaniaCountriesFilter({
     countries,
   });
@@ -36,12 +37,7 @@ export const Primary = () => {
         right={<CountryStats {...bindCountryStats()} />}
       />
     ),
-    header: (
-      <Header
-        title="Covid Pacifique"
-        {...useHeaderDatePickerState({ date: new Date() })}
-      />
-    ),
+    header: <Header title="Covid Pacifique" {...datePicker} />,
   };
 
   return <Layout {...props} />;

@@ -32,7 +32,9 @@ export type GetStatsByCountries = () => Promise<Country[]>;
 
 export type GetStatsByContinent = () => Promise<Continent[]>;
 
-export type UseStatsByCountries = () => {
+export type UseStatsByCountries = (
+  date?: Date
+) => {
   countries: Country[] | null;
   loading: boolean;
   error: boolean;
