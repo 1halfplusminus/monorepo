@@ -1,7 +1,22 @@
 {
   "version": 2,
-  "cli": { "defaultCollection": "@nrwl/react" },
-  "generators": { "@nrwl/react": { "application": { "babel": true } } },
+  "cli": {
+    "defaultCollection": "@nrwl/react"
+  },
+  "defaultProject": "covid-dashboard",
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "babel": true
+      }
+    },
+    "@nrwl/next": {
+      "application": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
+    }
+  },
   "projects": {
     "ui": {
       "root": "libs/ui",
@@ -10,7 +25,9 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"] }
+          "options": {
+            "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -25,9 +42,15 @@
           "options": {
             "uiFramework": "@storybook/react",
             "port": 4400,
-            "config": { "configFolder": "libs/ui/.storybook" }
+            "config": {
+              "configFolder": "libs/ui/.storybook"
+            }
           },
-          "configurations": { "ci": { "quiet": true } }
+          "configurations": {
+            "ci": {
+              "quiet": true
+            }
+          }
         },
         "build-storybook": {
           "executor": "@nrwl/storybook:build",
@@ -35,9 +58,15 @@
           "options": {
             "uiFramework": "@storybook/react",
             "outputPath": "dist/storybook/ui",
-            "config": { "configFolder": "libs/ui/.storybook" }
+            "config": {
+              "configFolder": "libs/ui/.storybook"
+            }
           },
-          "configurations": { "ci": { "quiet": true } }
+          "configurations": {
+            "ci": {
+              "quiet": true
+            }
+          }
         }
       }
     },
@@ -53,11 +82,17 @@
             "tsConfig": "apps/ui-e2e/tsconfig.e2e.json",
             "devServerTarget": "ui:storybook"
           },
-          "configurations": { "ci": { "devServerTarget": "ui:storybook:ci" } }
+          "configurations": {
+            "ci": {
+              "devServerTarget": "ui:storybook:ci"
+            }
+          }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/ui-e2e/**/*.{js,ts}"] }
+          "options": {
+            "lintFilePatterns": ["apps/ui-e2e/**/*.{js,ts}"]
+          }
         }
       }
     },
@@ -73,12 +108,14 @@
             "outputPath": "dist/libs/covid",
             "main": "libs/covid/src/index.ts",
             "tsConfig": "libs/covid/tsconfig.lib.json",
-            "assets": ["libs/covid/*.md"]
+            "assets": ["libs/covid/*.md", "libs/covid/src/lib/oceania.json"]
           }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/covid/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["libs/covid/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -97,7 +134,9 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/typescript/utils/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["libs/typescript/utils/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -126,7 +165,9 @@
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/covid-disease.sh/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": ["libs/covid-disease.sh/**/*.ts"]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -134,6 +175,83 @@
           "options": {
             "jestConfig": "libs/covid-disease.sh/jest.config.js",
             "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "covid-dashboard": {
+      "root": "apps/covid-dashboard",
+      "sourceRoot": "apps/covid-dashboard",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/next:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "root": "apps/covid-dashboard",
+            "outputPath": "dist/apps/covid-dashboard"
+          },
+          "configurations": {
+            "production": {}
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/next:server",
+          "options": {
+            "buildTarget": "covid-dashboard:build",
+            "dev": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "covid-dashboard:build:production",
+              "dev": false
+            }
+          }
+        },
+        "export": {
+          "executor": "@nrwl/next:export",
+          "options": {
+            "buildTarget": "covid-dashboard:build:production"
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/covid-dashboard"],
+          "options": {
+            "jestConfig": "apps/covid-dashboard/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/covid-dashboard/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "covid-dashboard-e2e": {
+      "root": "apps/covid-dashboard-e2e",
+      "sourceRoot": "apps/covid-dashboard-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/covid-dashboard-e2e/cypress.json",
+            "tsConfig": "apps/covid-dashboard-e2e/tsconfig.e2e.json",
+            "devServerTarget": "covid-dashboard:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "covid-dashboard:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/covid-dashboard-e2e/**/*.{js,ts}"]
           }
         }
       }

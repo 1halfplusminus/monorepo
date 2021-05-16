@@ -33,7 +33,7 @@ export const mapCountries = (countries: CountryJSON[]): Country[] =>
   pipe(mapValues(mapCountry), toArray)(countries);
 
 export const getStatsByCountries: GetStatsByCountries = async () => {
-  return (import('./__mocks__/countries.json') as Promise<unknown>).then(
+  return (import('./__mocks__/countries') as Promise<unknown>).then(
     (value: CountryJSON[]) => {
       return value.map(mapCountry);
     }
@@ -60,7 +60,7 @@ const getImportJson = <T>(module: { default: T } | T) => {
 export const filterOceaniaCountries = async () => {
   const json = getImportJson<{
     features: { properties: { iso_a2: string } }[];
-  }>(await import('./oceania.json'));
+  }>(await import('./oceania'));
   return (country: Country) => {
     return json.features
       .map((c) => c.properties.iso_a2.toUpperCase())

@@ -6,5 +6,6 @@ module.exports = {
     '<rootDir>/libs/typescript/utils',
     '<rootDir>/libs/covid-disease.sh',
     '<rootDir>/libs/covid-diseasesh',
+    '<rootDir>/apps/covid-dashboard',
   ],
 };

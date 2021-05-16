@@ -15,11 +15,11 @@ import {
   GetV3Covid19Countries_getV3Covid19Countries,
 } from './__generated__/GetV3Covid19Countries';
 import {
-  getV3Covid19Continents,
-  getV3Covid19Continents_getV3Covid19Continents,
-} from './__generated__/getV3Covid19Continents';
+  GetV3Covid19Continents,
+  GetV3Covid19Continents_getV3Covid19Continents,
+} from './__generated__/GetV3Covid19Continents';
 import { useEffect, useMemo, useState } from 'react';
-import { Covid19JhucsseService, covidHistorical } from './__generated__';
+import { covidHistorical } from './covidHistorical';
 import { pipe } from 'fp-ts/function';
 import indexBy from 'lodash/fp/indexBy';
 import { format } from 'date-fns';
@@ -27,8 +27,12 @@ import { groupBy, mapValues, merge, mergeWith, toArray } from 'lodash/fp';
 import { Dictionary } from 'lodash';
 import { reduce } from 'fp-ts/Array';
 import diffInDays from 'date-fns/differenceInCalendarDays';
+import { GetV3Covid19Historical } from './__generated__/GetV3Covid19Historical';
+
 // Set `RestLink` with your endpoint
-export const restLink = new RestLink({ uri: 'https://disease.sh/v3/covid-19' });
+export const restLink = new RestLink({
+  uri: 'https://disease.sh/v3/covid-19',
+});
 
 // Setup your client
 const client = new ApolloClient({
@@ -74,6 +78,21 @@ const QUERY_CONTINENTS = gql`
   }
 `;
 
+const QUERY_HISTORY = gql`
+  query GetV3Covid19Historical {
+    getV3Covid19Historical
+      @rest(type: "[CovidHistoricalListItem]", path: "/historical") {
+      country
+      province
+      timeline {
+        cases
+        deaths
+        recovered
+      }
+    }
+  }
+`;
+
 export const mapCountry = (
   country: GetV3Covid19Countries_getV3Covid19Countries
 ): Country => {
@@ -94,7 +113,7 @@ export const mapCountry = (
 };
 
 export const mapContinent = (
-  continent: getV3Covid19Continents_getV3Covid19Continents
+  continent: GetV3Covid19Continents_getV3Covid19Continents
 ): Continent => {
   return {
     name: continent.continent,
@@ -110,7 +129,7 @@ export const getStatsByCountries: GetStatsByCountries = () => {
 };
 
 export const useStatsByContinents: UseStatsByContinents = () => {
-  const { data, loading, error } = useQuery<getV3Covid19Continents>(
+  const { data, loading, error } = useQuery<GetV3Covid19Continents>(
     QUERY_CONTINENTS,
     {
       client,
@@ -132,14 +151,13 @@ export const useHistoricalData = (date: Date) => {
   const [historicalsData, setHistoricalData] = useState<
     Dictionary<covidHistorical[0]>
   >({});
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
   const lastDay = useMemo(() => calculeLastDay(date, today), [today, date]);
   useEffect(() => {
-    console.log(lastDay);
     getHistoricalStats(lastDay).then((r) => {
       setHistoricalData(sumTimelineByCountry(r));
     });
-  }, [lastDay, date]);
+  }, [lastDay]);
   return historicalsData;
 };
 const useIndexedCountries = (countries: Country[]) => {
@@ -194,8 +212,15 @@ export const useStatsByCountries: UseStatsByCountries = (
   };
 };
 
-export const getHistoricalStats = (lastdays: string = null) => {
-  return Covid19JhucsseService.getCovid19JhucsseService3(lastdays);
+export const getHistoricalStats = async (
+  lastdays: string = null
+): Promise<covidHistorical> => {
+  const response = await client.query<GetV3Covid19Historical>({
+    query: QUERY_HISTORY,
+    variables: { lastdays: lastdays },
+  });
+
+  return response.data.getV3Covid19Historical;
 };
 
 export const getHistoricalIndex = (c: covidHistorical[0]) =>

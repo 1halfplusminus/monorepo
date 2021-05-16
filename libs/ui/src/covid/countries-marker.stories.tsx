@@ -1,4 +1,4 @@
-import React, { FC, lazy, Suspense } from 'react';
+import React from 'react';
 import { CountriesMarker, CountriesMarkerProps } from './countries-marker';
 import { CovidMap } from './map';
 import countries from './__mocks__/countries';
@@ -18,9 +18,10 @@ export const primary: Story<CountriesMarkerProps> = (args) => {
     </CovidMap>
   );
 };
+const date = new Date();
 
 export const Api = (args: CountriesMarkerProps) => {
-  const { countries } = useStatsByCountries();
+  const { countries } = useStatsByCountries(date);
   const { countries: filteredCountries } = useOceaniaCountriesFilter({
     countries,
   });

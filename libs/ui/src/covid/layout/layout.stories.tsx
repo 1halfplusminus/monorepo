@@ -3,7 +3,7 @@ import React from 'react';
 import CovidMap from '../map';
 import StatistiqueCard from '../statistique-card';
 import Stats from '../stats';
-import { Header, Layout, LayoutProps, Page, TwoColumns } from './layout';
+import { LayoutHeader, Layout, LayoutProps, Page, TwoColumns } from './layout';
 
 export default {
   component: Layout,
@@ -55,7 +55,7 @@ primary.args = {
 export const header = () => {
   return (
     <Page debug={true}>
-      <Header />
+      <LayoutHeader />
     </Page>
   );
 };

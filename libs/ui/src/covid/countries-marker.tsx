@@ -1,14 +1,14 @@
-import { LatLngExpression } from 'leaflet';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Tooltip } from 'react-leaflet';
-import { CountryStatistics, Country } from '@halfoneplusminus/covid';
+import { Country, StatisticsKeys } from '@halfoneplusminus/covid';
 import CovidMarker from './marker';
-import { getStatType, useFitBounds } from './utils';
+import { useFitBounds } from './map.hook';
+import { getStatType } from './utils';
 
 export interface CountriesMarkerProps {
   countries?: Country[];
-  displayStat?: CountryStatistics;
+  displayStat?: StatisticsKeys;
   onClick?: (country: Country) => void;
 }
 

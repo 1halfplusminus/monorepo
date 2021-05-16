@@ -1,9 +1,14 @@
 {
   "implicitDependencies": {
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     ".eslintrc.json": "*"
   },
-  "affected": { "defaultBase": "master" },
+  "affected": {
+    "defaultBase": "master"
+  },
   "npmScope": "halfoneplusminus",
   "tasksRunnerOptions": {
     "default": {
@@ -17,10 +22,28 @@
     }
   },
   "projects": {
-    "ui": { "tags": [] },
-    "ui-e2e": { "tags": [], "implicitDependencies": ["ui"] },
-    "covid": { "tags": [] },
-    "typescript-utils": { "tags": [] },
-    "covid-disease.sh": { "tags": [] }
+    "ui": {
+      "tags": []
+    },
+    "ui-e2e": {
+      "tags": [],
+      "implicitDependencies": ["ui"]
+    },
+    "covid": {
+      "tags": []
+    },
+    "typescript-utils": {
+      "tags": []
+    },
+    "covid-disease.sh": {
+      "tags": []
+    },
+    "covid-dashboard": {
+      "tags": []
+    },
+    "covid-dashboard-e2e": {
+      "tags": [],
+      "implicitDependencies": ["covid-dashboard"]
+    }
   }
 }

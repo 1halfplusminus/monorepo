@@ -8,5 +8,10 @@ export default [
     recovered: 0,
     active: 0,
     cases: 100,
+    today: {
+      deaths: 999,
+      recovered: 0,
+      cases: 100,
+    },
   },
 ];

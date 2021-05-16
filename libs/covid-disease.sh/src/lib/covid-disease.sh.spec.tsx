@@ -7,18 +7,27 @@ import {
   getStatsByCountry,
   dateToHistoricalKey,
   getHistoricalStatsForDates,
-  useHistoricalData,
   calculeLastDay,
 } from './covid-disease.sh';
 import { render } from '@testing-library/react';
 import * as React from 'react';
 import { pipe } from 'fp-ts/lib/function';
-import { covidHistorical } from './__generated__';
+import { covidHistorical } from './covidHistorical';
 import { mapValues, toArray, groupBy } from 'lodash/fp';
 import { GetV3Covid19Countries_getV3Covid19Countries } from './__generated__/GetV3Covid19Countries';
-import { renderHook } from '@testing-library/react-hooks';
+import 'cross-fetch/polyfill';
 
 describe('covidDiseaseSh', () => {
+  /* global.fetch = jest.fn(() =>
+    Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          getV3Covid19Countries: mockCountries,
+          getV3Covid19Continents: [{ continent: 'test' }],
+        }),
+    })
+  ) as undefined;
+  global.fetch = fetch as any; */
   const inputDate = new Date(2021, 3, 14);
   const mockHistorical: covidHistorical = [
     {
@@ -93,15 +102,7 @@ describe('covidDiseaseSh', () => {
       active: 698147,
     },
   ];
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      json: () =>
-        Promise.resolve({
-          getV3Covid19Countries: mockCountries,
-          getV3Covid19Continents: [{ continent: 'test' }],
-        }),
-    })
-  ) as undefined;
+
   const mockGetStatsByCountries = pipe(
     mockCountries,
     mapValues(mapCountry),

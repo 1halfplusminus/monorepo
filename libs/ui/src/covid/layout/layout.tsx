@@ -31,7 +31,7 @@ export const Page = styled.main<PageProps>`
 `;
 
 /** Header */
-export const Header = styled.div`
+export const LayoutHeader = styled.div`
   ${tw`flex-auto md:h-20 h-24`}
 `;
 /** MainContent */
@@ -71,7 +71,7 @@ export interface LayoutProps {
 export function Layout({ header, main, debug = false }: LayoutProps) {
   return (
     <Page debug={debug}>
-      <Header>{header}</Header>
+      <LayoutHeader>{header}</LayoutHeader>
       <MainContent>{main}</MainContent>
     </Page>
   );

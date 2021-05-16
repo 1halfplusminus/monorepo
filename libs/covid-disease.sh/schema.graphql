@@ -5,571 +5,417 @@ schema {
 type Query {
   """
   Get global COVID-19 totals for today, yesterday and two days ago
-
+  
   Equivalent to GET /v3/covid-19/all
   """
   getV3Covid19All(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: JSON
   ): CovidAll
   """
   Returns a list of supported country names
-
+  
   Equivalent to GET /v3/covid-19/apple/countries
   """
   getV3Covid19AppleCountries: [String]
   """
   Returns a list of supported subregions in a country where data is available
-
+  
   Equivalent to GET /v3/covid-19/apple/countries/{country}
   """
   getV3Covid19AppleCountriesCountry(
-    """
-    A valid country name from the /v3/covid-19/apple/countries endpoint
-    """
+    """A valid country name from the /v3/covid-19/apple/countries endpoint"""
     country: String!
   ): CovidAppleSubregions
   """
   Returns a list of mobility data entries for subregion(s) every day since January 13th. Each entry has driving, transit, and walking data with an associated number of percentage change since January 13th
-
+  
   Equivalent to GET /v3/covid-19/apple/countries/{country}/{subregions}
   """
   getV3Covid19AppleCountriesCountrySubregions(
-    """
-    A valid country name from the /v3/covid-19/apple/countries endpoint
-    """
+    """A valid country name from the /v3/covid-19/apple/countries endpoint"""
     country: String!
-    """
-    Valid subregion(s) from the /v3/covid-19/apple/countries/{country} endpoint, separated by with commas
-    """
+    """Valid subregion(s) from the /v3/covid-19/apple/countries/{country} endpoint, separated by with commas"""
     subregions: String!
   ): CovidAppleData
   """
   Get COVID-19 totals for all continents
-
+  
   Equivalent to GET /v3/covid-19/continents
   """
   getV3Covid19Continents(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Provided a key (e.g. cases, todayCases, deaths, recovered, active), results will be sorted from greatest to least
-    """
+    """Provided a key (e.g. cases, todayCases, deaths, recovered, active), results will be sorted from greatest to least"""
     sort: Sort2
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): [CovidContinent]
   """
   Get COVID-19 totals for a specific continent
-
+  
   Equivalent to GET /v3/covid-19/continents/{continent}
   """
   getV3Covid19ContinentsContinent(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Continent name
-    """
+    """Continent name"""
     continent: String!
-    """
-    Setting to false gives you the ability to fuzzy search continents (i.e. Oman vs. rOMANia)
-    """
+    """Setting to false gives you the ability to fuzzy search continents (i.e. Oman vs. rOMANia)"""
     strict: Strict
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): CovidContinent
   """
   Get COVID-19 totals for all countries
-
+  
   Equivalent to GET /v3/covid-19/countries
   """
   getV3Covid19Countries(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Provided a key (e.g. cases, todayCases, deaths, recovered, active), the result will be sorted from greatest to least
-    """
+    """Provided a key (e.g. cases, todayCases, deaths, recovered, active), the result will be sorted from greatest to least"""
     sort: Sort2
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): [CovidCountry]
   """
   Get COVID-19 totals for a specific set of countries
-
+  
   Equivalent to GET /v3/covid-19/countries/{countries}
   """
   getV3Covid19CountriesCountries(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Multiple country names, iso2, iso3, or country IDs separated by commas
-    """
+    """Multiple country names, iso2, iso3, or country IDs separated by commas"""
     countries: String!
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): [CovidCountry]
   """
   Get COVID-19 totals for a specific country
-
+  
   Equivalent to GET /v3/covid-19/countries/{country}
   """
   getV3Covid19CountriesCountry(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    A country name, iso2, iso3, or country ID code
-    """
+    """A country name, iso2, iso3, or country ID code"""
     country: String!
-    """
-    Setting to false gives you the ability to fuzzy search countries (i.e. Oman vs. rOMANia)
-    """
+    """Setting to false gives you the ability to fuzzy search countries (i.e. Oman vs. rOMANia)"""
     strict: Strict
-    """
-    Queries data reported two days ago
-    """
+    """Queries data reported two days ago"""
     twoDaysAgo: TwoDaysAgo
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): CovidCountry
   """
   Returns a list of supported country names
-
+  
   Equivalent to GET /v3/covid-19/gov/
   """
   getV3Covid19Gov: [String]
   """
   Get COVID-19 government reported data for a specific country
-
+  
   Equivalent to GET /v3/covid-19/gov/{country}
   """
   getV3Covid19GovCountry(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    A valid country name from the /v3/covid-19/gov endpoint
-    """
+    """A valid country name from the /v3/covid-19/gov endpoint"""
     country: String!
   ): JSON
   """
   Get COVID-19 time series data for all countries and their provinces
-
+  
   Equivalent to GET /v3/covid-19/historical
   """
   getV3Covid19Historical(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [CovidHistoricalListItem]
   """
   Get global accumulated COVID-19 time series data
-
+  
   Equivalent to GET /v3/covid-19/historical/all
   """
   getV3Covid19HistoricalAll(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
   ): CovidHistoricalAll
   """
   Get COVID-19 time series data for a specific set of countries
-
+  
   Equivalent to GET /v3/covid-19/historical/{countries}
   """
   getV3Covid19HistoricalCountries(
-    """
-    Multiple country names, iso2, iso3, or country IDs separated by commas
-    """
+    """Multiple country names, iso2, iso3, or country IDs separated by commas"""
     countries: String!
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
   ): [CovidHistoricalCountry]
   """
   Get COVID-19 time series data for a specific country
-
+  
   Equivalent to GET /v3/covid-19/historical/{country}
   """
   getV3Covid19HistoricalCountry(
-    """
-    A country name, iso2, iso3, or country ID code
-    """
+    """A country name, iso2, iso3, or country ID code"""
     country: String!
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
   ): CovidHistoricalCountry
   """
   Get COVID-19 time series data for a specific province in a country
-
+  
   Equivalent to GET /v3/covid-19/historical/{country}/{province}
   """
   getV3Covid19HistoricalCountryProvince(
-    """
-    A country name, iso2, iso3, or country ID code
-    """
+    """A country name, iso2, iso3, or country ID code"""
     country: String!
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Province name. All available names can be found in the /v3/covid-19/historical/{query} endpoint
-    """
+    """Province name. All available names can be found in the /v3/covid-19/historical/{query} endpoint"""
     province: String!
   ): CovidHistoricalProvince
   """
   Get COVID-19 time series data for a set of provinces in a country
-
+  
   Equivalent to GET /v3/covid-19/historical/{country}/{provinces}
   """
   getV3Covid19HistoricalCountryProvinces(
-    """
-    A country name, iso2, iso3, or country ID code
-    """
+    """A country name, iso2, iso3, or country ID code"""
     country: String!
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Provinces spelled correctly separated by ',' or '|' delimiters, never both in the same query
-    """
+    """Provinces spelled correctly separated by ',' or '|' delimiters, never both in the same query"""
     provinces: String!
   ): [CovidHistoricalProvince]
   """
   Returns a list of US States and provinces
-
+  
   Equivalent to GET /v3/covid-19/historical/usacounties
   """
   getV3Covid19HistoricalUsacounties: [String]
   """
   Get COVID-19 time series data for all counties in a specified US state
-
+  
   Equivalent to GET /v3/covid-19/historical/usacounties/{state}
   """
   getV3Covid19HistoricalUsacountiesState(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
-    """
-    US state name, validated in the array returned from the /v3/covid-19/historical/usacounties endpoint
-    """
+    """US state name, validated in the array returned from the /v3/covid-19/historical/usacounties endpoint"""
     state: String!
   ): [CovidHistoricalUSCountyListItem]
   """
   Get COVID-19 totals for all countries and their provinces
-
+  
   Equivalent to GET /v3/covid-19/jhucsse
   """
   getV3Covid19Jhucsse: CovidJHUCountries
   """
   Get COVID-19 totals for all US counties
-
+  
   Equivalent to GET /v3/covid-19/jhucsse/counties
   """
   getV3Covid19JhucsseCounties: [CovidJHUCounty]
   """
   Get COVID-19 totals for a specific county
-
+  
   Equivalent to GET /v3/covid-19/jhucsse/counties/{county}
   """
   getV3Covid19JhucsseCountiesCounty(
-    """
-    Name of any county in the USA. All counties are listed in the /v3/covid-19/jhucsse/counties/ endpoint
-    """
+    """Name of any county in the USA. All counties are listed in the /v3/covid-19/jhucsse/counties/ endpoint"""
     county: String!
   ): [CovidJHUCounty]
   """
   Get COVID-19 time series data for all available US counties, with an entry for each day since the pandemic began
-
+  
   Equivalent to GET /v3/covid-19/nyt/counties
   """
   getV3Covid19NytCounties(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [CovidNYTCountyListItem]
   """
   Get COVID-19 time series data for a county or set of counties, with an entry for each day since the pandemic began
-
+  
   Equivalent to GET /v3/covid-19/nyt/counties/{county}
   """
   getV3Covid19NytCountiesCounty(
-    """
-    County name(s), separated by commas (e.g. 'Alameda, Humboldt')
-    """
+    """County name(s), separated by commas (e.g. 'Alameda, Humboldt')"""
     county: String!
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [CovidNYTCountyListItem]
   """
   Get COVID-19 time series data for all states, with an entry for each day since the pandemic began
-
+  
   Equivalent to GET /v3/covid-19/nyt/states
   """
   getV3Covid19NytStates(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [CovidNYTStateListItem]
   """
   Get COVID-19 time series data for a state or set of states, with an entry for each day since the pandemic began
-
+  
   Equivalent to GET /v3/covid-19/nyt/states/{state}
   """
   getV3Covid19NytStatesState(
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
-    """
-    State name(s), separated by commas (e.g. 'Illinois, California')
-    """
+    """State name(s), separated by commas (e.g. 'Illinois, California')"""
     state: String!
   ): [CovidNYTStateListItem]
   """
   Get COVID-19 time series data for the entire USA, with an entry for each day since the pandemic began
-
+  
   Equivalent to GET /v3/covid-19/nyt/usa
   """
   getV3Covid19NytUsa: [CovidNYTUSAListItem]
   """
   Get COVID-19 totals for all US States
-
+  
   Equivalent to GET /v3/covid-19/states
   """
   getV3Covid19States(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    Provided a key (e.g. cases, todayCases, deaths, active), result will be sorted from greatest to least
-    """
+    """Provided a key (e.g. cases, todayCases, deaths, active), result will be sorted from greatest to least"""
     sort: Sort
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): [CovidState]
   """
   Get COVID-19 totals for specific US State(s)
-
+  
   Equivalent to GET /v3/covid-19/states/{states}
   """
   getV3Covid19StatesStates(
-    """
-    By default, if a value is missing, it is returned as 0. This allows nulls to be returned
-    """
+    """By default, if a value is missing, it is returned as 0. This allows nulls to be returned"""
     allowNull: AllowNull
-    """
-    State name or comma separated names spelled correctly
-    """
+    """State name or comma separated names spelled correctly"""
     states: String!
-    """
-    Queries data reported a day ago
-    """
+    """Queries data reported a day ago"""
     yesterday: Yesterday2
   ): CovidState
   """
   Get therapeutics trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-therapeutics-tracker
-
+  
   Equivalent to GET /v3/covid-19/therapeutics
   """
   getV3Covid19Therapeutics: Therapeutics
   """
   Get vaccine trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-vaccine-tracker
-
+  
   Equivalent to GET /v3/covid-19/vaccine
   """
   getV3Covid19Vaccine: Vaccines
   """
   Get total global COVID-19 vaccine doses administered. Sourced from https://covid.ourworldindata.org/
-
+  
   Equivalent to GET /v3/covid-19/vaccine/coverage
   """
   getV3Covid19VaccineCoverage(
-    """
-    Flag indicating whether to return data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true).
-    """
+    """Flag indicating whether to return data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true)."""
     fullData: String
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
   ): JSON
   """
   Get COVID-19 vaccine doses administered for all countries that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
-
+  
   Equivalent to GET /v3/covid-19/vaccine/coverage/countries
   """
   getV3Covid19VaccineCoverageCountries(
-    """
-    Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true).
-    """
+    """Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true)."""
     fullData: String
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [VaccineCountryCoverage]
   """
   Get COVID-19 vaccine doses administered for a country that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
-
+  
   Equivalent to GET /v3/covid-19/vaccine/coverage/countries/{country}
   """
   getV3Covid19VaccineCoverageCountriesCountry(
-    """
-    A valid country name, iso2, iso3
-    """
+    """A valid country name, iso2, iso3"""
     country: String!
-    """
-    Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true).
-    """
+    """Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true)."""
     fullData: String
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
   ): VaccineCountryCoverage
   """
   Get COVID-19 vaccine doses administered for all states that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
-
+  
   Equivalent to GET /v3/covid-19/vaccine/coverage/states
   """
   getV3Covid19VaccineCoverageStates(
-    """
-    Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true).
-    """
+    """Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true)."""
     fullData: String
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list
-    """
+    """Auto-generated argument that limits the size of returned list of objects/list, selecting the first `n` elements of the list"""
     limit: Int
   ): [VaccineStateCoverage]
   """
   Get COVID-19 vaccine doses administered for a state that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
-
+  
   Equivalent to GET /v3/covid-19/vaccine/coverage/states/{state}
   """
   getV3Covid19VaccineCoverageStatesState(
-    """
-    Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true).
-    """
+    """Flag indicating whether to return timeline data type as simpleVaccineTimeline (false) or fullVaccineTimeline (true)."""
     fullData: String
-    """
-    Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)
-    """
+    """Number of days to return. Use 'all' for the full data set (e.g. 15, all, 24)"""
     lastdays: String
-    """
-    A valid state name
-    """
+    """A valid state name"""
     state: String!
   ): VaccineStateCoverage
   """
   Get Influenza-like-illness data for the 2019 and 2020 outbreaks from the US Center for Disease Control
-
+  
   Equivalent to GET /v3/influenza/cdc/ILINet
   """
   getV3InfluenzaCdcILINet: InfluenzaILINet
   """
   Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US clinical labs
-
+  
   Equivalent to GET /v3/influenza/cdc/USCL
   """
   getV3InfluenzaCdcUSCL: InfluenzaUSCL
   """
   Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US public health labs
-
+  
   Equivalent to GET /v3/influenza/cdc/USPHL
   """
   getV3InfluenzaCdcUSPHL: InfluenzaUSPHL
@@ -612,13 +458,8 @@ enum TwoDaysAgo {
   _0
 }
 
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
-  @specifiedBy(
-    url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
-  )
+"""The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
 
 type CovidAppleSubregions {
   country: String
@@ -731,67 +572,62 @@ type CountryInfo {
 type CovidHistoricalListItem {
   country: String
   province: String
-  """
-  The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-  """
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
   timeline: Timeline
 }
 
-"""
-The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-"""
+"""The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
 type Timeline {
-  cases: Cases5
-  deaths: Deaths6
-  recovered: Recovered5
+  cases: JSON
+  deaths: JSON
+  recovered: JSON
 }
 
-type Cases5 {
-  date: Float
-}
-
-type Deaths6 {
-  date: Float
-}
-
-type Recovered5 {
-  date: Float
-}
-
-"""
-The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-"""
+"""The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
 type CovidHistoricalAll {
-  cases: Cases5
-  deaths: Deaths6
-  recovered: Recovered5
+  cases: Cases6
+  deaths: Deaths7
+  recovered: Recovered6
+}
+
+type Cases6 {
+  date: Float
+}
+
+type Deaths7 {
+  date: Float
+}
+
+type Recovered6 {
+  date: Float
 }
 
 type CovidHistoricalCountry {
   country: String
   province: [String]
-  """
-  The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-  """
-  timeline: Timeline
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline2
+}
+
+"""The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+type Timeline2 {
+  cases: Cases6
+  deaths: Deaths7
+  recovered: Recovered6
 }
 
 type CovidHistoricalProvince {
   country: String
   province: String
-  """
-  The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-  """
-  timeline: Timeline
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline2
 }
 
 type CovidHistoricalUSCountyListItem {
   county: String
   province: String
-  """
-  The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query
-  """
-  timeline: Timeline
+  """The amount of key-value pairs in 'cases', 'deaths' and 'recovered' is dependent on the 'lastdays' query"""
+  timeline: Timeline2
 }
 
 type CovidJHUCountries {

@@ -9,8 +9,7 @@
     "codegen": "pnpx apollo client:codegen --target=typescript",
     "mesh:serve": "pnpx graphql-mesh serve",
     "generate:mesh": "pnpx graphql-mesh typescript --output ./src/generated/mesh.ts",
-    "generate:sdk": "pnpx graphql-mesh generate-sdk --output ./src/generated/sdk.ts",
-    "generate": "pnpx openapi --input ./openapi-fixed.json --output ./__generated__  --client node"
+    "generate:sdk": "pnpx graphql-mesh generate-sdk --output ./src/generated/sdk.ts"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +19,7 @@
     "@types/leaflet": "^1.7.0",
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.0.3",
+    "cross-fetch": "^3.1.4",
     "graphql-mesh": "^0.0.1",
     "swagger-to-graphql": "^4.0.2"
   },

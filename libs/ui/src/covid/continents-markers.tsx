@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Tooltip } from 'react-leaflet';
 import CovidMarkerPopup from './covid-marker-popup';
 import CovidMarker from './marker';
-import { useFitBounds } from './utils';
+import { useFitBounds } from './map.hook';
 import countries from './__mocks__/countries';
 
 /* eslint-disable-next-line */
