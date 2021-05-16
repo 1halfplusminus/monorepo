@@ -17,7 +17,7 @@ export const primary: Story<StatsProps> = (props) => {
   return (
     <div
       css={css`
-        ${tw`w-96 h-80`}
+        ${tw`w-max h-screen`}
       `}
     >
       <Stats {...props}>

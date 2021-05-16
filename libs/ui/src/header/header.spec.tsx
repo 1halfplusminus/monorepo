@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react';
 import Header, { HeaderProps } from './header';
 import { useHeaderDatePickerState } from './hooks';
+import '@testing-library/jest-dom';
 
 describe('Header', () => {
   const props: HeaderProps = { title: '', onClick: jest.fn() };

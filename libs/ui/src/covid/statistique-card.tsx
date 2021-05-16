@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import NumberFormat from 'react-number-format';
 import { getColor, getStatType, StatType } from './utils';
-import { CountryStatistics } from '@halfoneplusminus/covid';
+import { StatisticsKeys } from '@halfoneplusminus/covid';
 
 export interface StatistiqueCardProps {
-  type: StatType | CountryStatistics;
+  type: StatType | StatisticsKeys;
   value: ReactNode | number;
   variation?: ['-' | '+', number] | ReactNode;
   description: ReactNode;
-  onClick?: (type: StatType | CountryStatistics) => void;
+  onClick?: (type: StatType | StatisticsKeys) => void;
 }
 
 const StatistiqueCardTitle = styled.h4`
@@ -19,7 +19,7 @@ const StatistiqueCardTitle = styled.h4`
 `;
 
 const StatistiqueCardDescription = styled.div`
-  ${tw`w-full text-sm text-center`}
+  ${tw`text-sm text-center w-10/12`}
 `;
 
 const StatistiqueCardVariation = styled(
@@ -59,7 +59,7 @@ const StatistiqueCardVariation = styled(
 `;
 
 const StyledStatistiqueCard = styled.div<{ type: StatType }>`
-  ${tw`cursor-pointer inline-flex flex-col space-y-1 items-center justify-start w-32 h-32 px-1 py-2.5 bg-white border border-gray-300 rounded-xl`}
+  ${tw`cursor-pointer inline-flex flex-col space-y-1 items-center justify-start px-4 py-2.5 bg-white border border-gray-300 rounded-xl`}
   color: ${({ type }) => getColor(type)};
 `;
 
