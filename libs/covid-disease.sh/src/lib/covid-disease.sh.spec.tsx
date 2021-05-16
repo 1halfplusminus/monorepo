@@ -7,6 +7,8 @@ import {
   getStatsByCountry,
   dateToHistoricalKey,
   getHistoricalStatsForDates,
+  useHistoricalData,
+  calculeLastDay,
 } from './covid-disease.sh';
 import { render } from '@testing-library/react';
 import * as React from 'react';
@@ -14,7 +16,8 @@ import { pipe } from 'fp-ts/lib/function';
 import { covidHistorical } from './__generated__';
 import { mapValues, toArray, groupBy } from 'lodash/fp';
 import { GetV3Covid19Countries_getV3Covid19Countries } from './__generated__/GetV3Covid19Countries';
-import { reduce } from 'fp-ts/Array';
+import { renderHook } from '@testing-library/react-hooks';
+
 describe('covidDiseaseSh', () => {
   const inputDate = new Date(2021, 3, 14);
   const mockHistorical: covidHistorical = [
@@ -221,5 +224,11 @@ describe('covidDiseaseSh', () => {
         "recovered": 104044,
       }
     `);
+  });
+  it('should calculate last day correctly', () => {
+    expect(calculeLastDay(inputDate, inputDate)).toBe('30');
+    expect(calculeLastDay(new Date(2021, 2, 30), inputDate)).toBe('60');
+    expect(calculeLastDay(new Date(2021, 2, 14), inputDate)).toBe('90');
+    expect(calculeLastDay(new Date(2021, 2, 1), inputDate)).toBe('90');
   });
 });

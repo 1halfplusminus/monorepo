@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 import { groupBy, mapValues, merge, mergeWith, toArray } from 'lodash/fp';
 import { Dictionary } from 'lodash';
 import { reduce } from 'fp-ts/Array';
-
+import diffInDays from 'date-fns/differenceInCalendarDays';
 // Set `RestLink` with your endpoint
 export const restLink = new RestLink({ uri: 'https://disease.sh/v3/covid-19' });
 
@@ -122,24 +122,32 @@ export const useStatsByContinents: UseStatsByContinents = () => {
     error: !error,
   };
 };
-const useHistoricalData = (date: Date) => {
+export const calculeLastDay = (date: Date, today: Date) => {
+  const diff = diffInDays(today, date) * 2;
+  const mul = Math.trunc(diff / 30);
+  return (mul * 30 + 30).toFixed(0);
+};
+
+export const useHistoricalData = (date: Date) => {
   const [historicalsData, setHistoricalData] = useState<
     Dictionary<covidHistorical[0]>
   >({});
-  const [lastDay] = useState('30');
+  const today = new Date();
+  const lastDay = useMemo(() => calculeLastDay(date, today), [today, date]);
   useEffect(() => {
+    console.log(lastDay);
     getHistoricalStats(lastDay).then((r) => {
       setHistoricalData(sumTimelineByCountry(r));
     });
-  }, []);
+  }, [lastDay, date]);
   return historicalsData;
 };
 const useIndexedCountries = (countries: Country[]) => {
-  const historicalsData = useMemo(
+  const indexedCountries = useMemo(
     () => indexCountriesByCountryName(countries),
     [countries]
   );
-  return historicalsData;
+  return indexedCountries;
 };
 const useHistoricalCountries = ({
   countries,

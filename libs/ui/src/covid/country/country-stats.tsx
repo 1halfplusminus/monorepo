@@ -30,15 +30,20 @@ export const useCountryStats = ({
     setSelectedCountry(country);
   };
   useEffect(() => {
-    setSelectedCountry(country);
-  }, [country?.name]);
+    if (!selectedCountry) {
+      setSelectedCountry(country);
+    }
+  }, [country, selectedCountry]);
   return {
     bindCountriesMarker: () => ({
       displayStat,
       onClick: handleClick,
     }),
-    bindCountryStats: () => ({
-      country: selectedCountry,
+    bindCountryStats: (countries: Country[]) => ({
+      country: {
+        ...(countries?.find((f) => selectedCountry?.name === f?.name) ||
+          selectedCountry),
+      },
       onStatClick: onStatClick,
     }),
   };

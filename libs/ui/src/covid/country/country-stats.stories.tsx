@@ -34,7 +34,7 @@ export const Primary = () => {
             />
           </CovidMap>
         }
-        right={<CountryStats {...bindCountryStats()} />}
+        right={<CountryStats {...bindCountryStats(filteredCountries)} />}
       />
     ),
     header: <Header title="Covid Pacifique" {...datePicker} />,

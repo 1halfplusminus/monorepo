@@ -1,6 +1,7 @@
-import { subDays } from 'date-fns';
-import { addDays } from 'date-fns/esm';
+import { subDays, addDays, isPast } from 'date-fns';
+import { pipe } from 'fp-ts/lib/function';
 import { useState } from 'react';
+import * as either from 'fp-ts/Either';
 
 export type OnDateChange = (direction: 'left' | 'right') => void;
 
@@ -17,14 +18,15 @@ export const useHeaderDatePickerState = ({
     date,
     onClick: (direction) => {
       onDateChange(direction);
-      switch (direction) {
-        case 'left':
-          setDate(addDays(date, 1));
-          break;
-        case 'right':
-          setDate(subDays(date, 1));
-          break;
-      }
+      pipe(
+        direction === 'left' ? either.right(date) : either.left(date),
+        either.mapLeft((d) => subDays(d, 1)),
+        either.map((d) => addDays(d, 1)),
+        either.filterOrElse<Date, Date>(isPast, () => {
+          return date;
+        }),
+        either.fold(setDate, setDate)
+      );
     },
   };
 };

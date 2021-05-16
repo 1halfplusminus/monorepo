@@ -10,6 +10,7 @@ function ChevronLeft(props: React.SVGProps<SVGSVGElement>) {
       fill="none"
       {...props}
     >
+      <title>Left Chevron</title>
       <path
         d="M15 18l-6-6 6-6"
         stroke="#111"
