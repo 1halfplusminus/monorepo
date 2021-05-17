@@ -32,3 +32,7 @@ export interface GetV3Covid19Historical {
    */
   getV3Covid19Historical: (GetV3Covid19Historical_getV3Covid19Historical | null)[] | null;
 }
+
+export interface GetV3Covid19HistoricalVariables {
+  lastdays: string;
+}

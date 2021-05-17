@@ -1,3 +1,5 @@
+import { CountryJSON } from '../covid';
+
 export default [
   {
     timezones: ['America/Aruba'],
@@ -1897,4 +1899,4 @@ export default [
     country_code: 'ZW',
     capital: 'Harare',
   },
-];
+] as CountryJSON[];

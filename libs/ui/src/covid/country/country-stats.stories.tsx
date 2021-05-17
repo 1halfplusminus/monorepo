@@ -10,7 +10,8 @@ export default {
   component: CountryStats,
   title: 'Covid/CountryStats',
 };
-const date = new Date();
+const date = new Date(2021, 3, 17);
+
 export const Primary = () => {
   const {
     bindCountriesMarker,

@@ -22,7 +22,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { covidHistorical } from './covidHistorical';
 import { pipe } from 'fp-ts/function';
 import indexBy from 'lodash/fp/indexBy';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { groupBy, mapValues, merge, mergeWith, toArray } from 'lodash/fp';
 import { Dictionary } from 'lodash';
 import { reduce } from 'fp-ts/Array';
@@ -79,9 +79,12 @@ const QUERY_CONTINENTS = gql`
 `;
 
 const QUERY_HISTORY = gql`
-  query GetV3Covid19Historical {
-    getV3Covid19Historical
-      @rest(type: "[CovidHistoricalListItem]", path: "/historical") {
+  query GetV3Covid19Historical($lastdays: String!) {
+    getV3Covid19Historical(lastdays: $lastdays)
+      @rest(
+        type: "[CovidHistoricalListItem]"
+        path: "/historical?lastdays={args.lastdays}"
+      ) {
       country
       province
       timeline {
@@ -217,7 +220,7 @@ export const getHistoricalStats = async (
 ): Promise<covidHistorical> => {
   const response = await client.query<GetV3Covid19Historical>({
     query: QUERY_HISTORY,
-    variables: { lastdays: lastdays },
+    variables: { lastdays },
   });
 
   return response.data.getV3Covid19Historical;
@@ -288,7 +291,25 @@ export const mapHistoricalToStatistique = (
     cases: timeline.cases[key],
     deaths: timeline.deaths[key],
     recovered: timeline.recovered[key],
+    ...calculateVariation(date, timeline),
   };
+};
+export const calculateVariation = (
+  date: Date,
+  timeline: covidHistorical[0]['timeline']
+) => {
+  const keyToday = dateToHistoricalKey(date);
+  const keyYesterday = dateToHistoricalKey(subDays(date, 1));
+  return timeline.cases[keyToday]
+    ? {
+        today: {
+          cases: timeline.cases[keyToday] - timeline.cases[keyYesterday],
+          deaths: timeline.deaths[keyToday] - timeline.deaths[keyYesterday],
+          recovered:
+            timeline.recovered[keyToday] - timeline.recovered[keyYesterday],
+        },
+      }
+    : null;
 };
 
 export const getStatsByCountry = (date: Date) =>

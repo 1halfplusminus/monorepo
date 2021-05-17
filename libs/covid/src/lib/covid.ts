@@ -6,6 +6,7 @@ export interface CountryJSON {
   latlng: [number, number];
   name: string;
   country_code: string;
+  [key: string]: unknown;
 }
 
 const mapCountry = (country: CountryJSON): Country => {
@@ -33,11 +34,11 @@ export const mapCountries = (countries: CountryJSON[]): Country[] =>
   pipe(mapValues(mapCountry), toArray)(countries);
 
 export const getStatsByCountries: GetStatsByCountries = async () => {
-  return (import('./__mocks__/countries') as Promise<unknown>).then(
-    (value: CountryJSON[]) => {
-      return value.map(mapCountry);
-    }
+  const value = getImportJson<CountryJSON[]>(
+    await import('./__mocks__/countries')
   );
+
+  return value.map(mapCountry);
 };
 
 export const useStatsByCountries: UseStatsByCountries = () => {

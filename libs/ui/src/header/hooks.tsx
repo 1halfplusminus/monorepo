@@ -19,7 +19,7 @@ export const useHeaderDatePickerState = ({
     onClick: (direction) => {
       onDateChange(direction);
       pipe(
-        direction === 'left' ? either.right(date) : either.left(date),
+        direction === 'right' ? either.right(date) : either.left(date),
         either.mapLeft((d) => subDays(d, 1)),
         either.map((d) => addDays(d, 1)),
         either.filterOrElse<Date, Date>(isPast, () => {

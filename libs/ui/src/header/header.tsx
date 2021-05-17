@@ -2,8 +2,8 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import tw from 'twin.macro';
 import { formatDate } from '../covid/utils';
-import ChevronRight from './chevron-left';
-import ChevronLeft from './chevron-right';
+import ChevronLeft from './chevron-left';
+import ChevronRight from './chevron-right';
 import { OnDateChange } from './hooks';
 
 const HeaderContainer = styled.header`
@@ -18,7 +18,7 @@ const HeaderGrowItem = styled.div`
   ${tw`inline-flex flex-grow items-center px-1`}
 `;
 
-const HeaderTitle = styled.h2`
+const HeaderTitle = styled.h1`
   ${tw`flex-1 text-white text-lg text-center`}
 `;
 
@@ -56,11 +56,11 @@ const HeaderDatePicker = ({
         ${tw`inline-flex px-1 items-center`}
       `}
     >
-      <ChevronRight onClick={handleRightClick} css={iconCss} />
+      <ChevronLeft onClick={handleLeftClick} css={iconCss} />
       <span tw="text-white text-center">
         Données au {formatDate(date, 'dd/MM/yyyy')}
-      </span>
-      <ChevronLeft onClick={handleLeftClick} css={iconCss} />
+      </span>{' '}
+      <ChevronRight onClick={handleRightClick} css={iconCss} />
     </div>
   );
 };

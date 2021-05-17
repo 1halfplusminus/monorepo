@@ -36,7 +36,7 @@ export const LayoutHeader = styled.div`
 `;
 /** MainContent */
 
-export const MainContent = styled.main`
+export const MainContent = styled.section`
   ${tw`inline-flex items-start justify-between w-full h-full flex-wrap md:flex-wrap`}
 `;
 

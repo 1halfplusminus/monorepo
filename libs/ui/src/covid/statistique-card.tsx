@@ -33,7 +33,7 @@ const StatistiqueCardVariation = styled(
     const renderVariation = (variation: StatistiqueCardProps['variation']) => {
       return (
         <div {...rest}>
-          {variation && variation[0] !== undefined ? (
+          {variation && variation[1] !== undefined ? (
             <>
               ({variation[0]}{' '}
               {

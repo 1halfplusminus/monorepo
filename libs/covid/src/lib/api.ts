@@ -7,6 +7,7 @@ export class Continent {
 }
 
 export class Country implements Statistics {
+  today: { recovered: number; active?: number; cases: number; deaths: number };
   recovered: number;
   active: number;
   cases: number;
@@ -16,7 +17,6 @@ export class Country implements Statistics {
   id?: string;
   position: LatLngExpression;
   iso?: string;
-  today: Statistics;
 }
 
 export type Statistics = {
@@ -24,6 +24,12 @@ export type Statistics = {
   active?: number;
   cases: number;
   deaths: number;
+  today: {
+    recovered: number;
+    active?: number;
+    cases: number;
+    deaths: number;
+  };
 };
 
 export type StatisticsKeys = keyof Statistics;

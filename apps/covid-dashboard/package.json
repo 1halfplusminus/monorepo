@@ -7,7 +7,5 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "leaflet": "^1.7.1"
-  }
+  "dependencies": {}
 }

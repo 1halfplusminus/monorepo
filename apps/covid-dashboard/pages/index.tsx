@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   Layout,
   useDashboard,
@@ -7,11 +7,21 @@ import {
   CountryStats,
   Header,
 } from '@halfoneplusminus/ui';
-const StyledPage = styled.div`
-  .page {
-  }
-`;
+import dynamic from 'next/dynamic';
+import type {
+  CovidMapProps,
+  CountriesMarkerProps,
+} from '@halfoneplusminus/covid-map';
 
+const Map = dynamic<CovidMapProps>(
+  () => import('@halfoneplusminus/covid-map').then((mod) => mod.CovidMap),
+  { ssr: false }
+);
+const Markers = dynamic<CountriesMarkerProps>(
+  () =>
+    import('@halfoneplusminus/covid-map').then((mod) => mod.CountriesMarker),
+  { ssr: false }
+);
 export function Index() {
   const date = new Date();
   const {
@@ -24,7 +34,11 @@ export function Index() {
     <Layout
       main={
         <TwoColumns
-          left={<></>}
+          left={
+            <Map>
+              <Markers {...bindCountriesMarker()} />
+            </Map>
+          }
           right={<CountryStats {...bindCountryStats()} />}
         />
       }

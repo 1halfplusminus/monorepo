@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Tooltip } from 'react-leaflet';
 import { Country, StatisticsKeys } from '@halfoneplusminus/covid';
@@ -17,7 +17,7 @@ export function CountriesMarker({
   displayStat = 'recovered',
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onClick = () => {},
-}: CountriesMarkerProps) {
+}: PropsWithChildren<CountriesMarkerProps>) {
   const { isVisible } = useFitBounds(countries, {
     visibleAtZoomLevel: [3, 100],
   });
