@@ -24,7 +24,7 @@ export type Statistics = {
   active?: number;
   cases: number;
   deaths: number;
-  today: {
+  today?: {
     recovered: number;
     active?: number;
     cases: number;
@@ -32,7 +32,7 @@ export type Statistics = {
   };
 };
 
-export type StatisticsKeys = keyof Statistics;
+export type StatisticsKeys = 'deaths' | 'recovered' | 'cases' | 'active';
 
 export type GetStatsByCountries = () => Promise<Country[]>;
 

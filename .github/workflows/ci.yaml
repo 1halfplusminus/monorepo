@@ -23,6 +23,8 @@ jobs:
       run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm
     - name: pnpm install
       run: pnpm install
+    - name: build
+      run: pnpm run nx run-many -- --target=build --all=true --with-deps=true
     - name: unit test
       run: pnpm run nx run-many -- --target=test --all=true --parallel=true 
     - name: e2e test
