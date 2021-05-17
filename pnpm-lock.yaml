@@ -134,12 +134,7 @@ importers:
       url-loader: 3.0.0
 
   apps/covid-dashboard:
-    specifiers:
-      jest-next-dynamic: ^1.0.1
-      leaflet: ^1.7.1
-    dependencies:
-      jest-next-dynamic: 1.0.1
-      leaflet: 1.7.1
+    specifiers: {}
 
   libs/covid:
     specifiers:
@@ -13981,10 +13976,6 @@ packages:
       '@jest/types': 26.6.2
       '@types/node': 14.14.33
     dev: true
-
-  /jest-next-dynamic/1.0.1:
-    resolution: {integrity: sha512-peo9yRvUn8u6PZro9AzzjxpgUc+1NZhZMan+1xzk7Bz1vA0d5IC2Iw8E7bkC2cwl9AG3XxTaqPVAXbC3aMbVkw==}
-    dev: false
 
   /jest-pnp-resolver/1.2.2_jest-resolve@26.6.2:
     resolution: {integrity: sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==}
