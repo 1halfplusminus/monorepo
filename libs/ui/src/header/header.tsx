@@ -7,7 +7,7 @@ import ChevronRight from './chevron-right';
 import { OnDateChange } from './hooks';
 
 const HeaderContainer = styled.header`
-  ${tw`p-3 flex bg-blue-600 flex-row flex-wrap`}
+  ${tw`p-3 flex bg-blue-600 flex-row flex-wrap justify-center`}
 `;
 
 const HeaderItem = styled.div`
