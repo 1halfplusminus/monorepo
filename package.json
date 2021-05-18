@@ -24,7 +24,7 @@
     "workspace-generator": "nx workspace-generator",
     "dep-graph": "nx dep-graph",
     "help": "nx help",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm & npm i -g pnpm"
   },
   "private": true,
   "dependencies": {
