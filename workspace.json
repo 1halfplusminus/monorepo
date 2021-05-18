@@ -255,6 +255,83 @@
           }
         }
       }
+    },
+    "piano-app": {
+      "root": "apps/piano-app",
+      "sourceRoot": "apps/piano-app",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/next:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "root": "apps/piano-app",
+            "outputPath": "dist/apps/piano-app"
+          },
+          "configurations": {
+            "production": {}
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/next:server",
+          "options": {
+            "buildTarget": "piano-app:build",
+            "dev": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "piano-app:build:production",
+              "dev": false
+            }
+          }
+        },
+        "export": {
+          "executor": "@nrwl/next:export",
+          "options": {
+            "buildTarget": "piano-app:build:production"
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/piano-app"],
+          "options": {
+            "jestConfig": "apps/piano-app/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/piano-app/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "piano-app-e2e": {
+      "root": "apps/piano-app-e2e",
+      "sourceRoot": "apps/piano-app-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/piano-app-e2e/cypress.json",
+            "tsConfig": "apps/piano-app-e2e/tsconfig.e2e.json",
+            "devServerTarget": "piano-app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "piano-app:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/piano-app-e2e/**/*.{js,ts}"]
+          }
+        }
+      }
     }
   }
 }

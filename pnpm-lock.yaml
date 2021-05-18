@@ -136,6 +136,14 @@ importers:
   apps/covid-dashboard:
     specifiers: {}
 
+  apps/piano-app:
+    specifiers:
+      fp-ts: ^2.10.5
+      soundfont-player: ^0.12.0
+    dependencies:
+      fp-ts: 2.10.5
+      soundfont-player: 0.12.0
+
   libs/covid:
     specifiers:
       '@apollo/client': ^3.3.16
@@ -6903,6 +6911,10 @@ packages:
     engines: {node: '>= 0.12.0'}
     dev: true
 
+  /adsr/1.0.1:
+    resolution: {integrity: sha1-p7wI5e+KceY2SryW/OffHESIHMM=}
+    dev: false
+
   /agent-base/4.3.0:
     resolution: {integrity: sha512-salcGninV0nPrwpGNn4VTXBb1SOuXQBiqbrNXoeizJsHrsL6ERFM2Ne3JUSBWRE6aeNJI2ROP/WEEIDUiDe3cg==}
     engines: {node: '>= 4.0.0'}
@@ -7633,6 +7645,10 @@ packages:
     engines: {node: '>= 4.5.0'}
     hasBin: true
     dev: true
+
+  /audio-loader/0.5.0:
+    resolution: {integrity: sha1-nBJdGyXDPNliYIQFTZ9rfzHdyQg=}
+    dev: false
 
   /auto-bind/4.0.0:
     resolution: {integrity: sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==}
@@ -15101,6 +15117,10 @@ packages:
       braces: 3.0.2
       picomatch: 2.2.3
 
+  /midimessage/1.0.5:
+    resolution: {integrity: sha1-rZnwTYY6BTolY9VTxb81BwtIgCw=}
+    dev: false
+
   /miller-rabin/4.0.1:
     resolution: {integrity: sha512-115fLhvZVqWwHPbClyntxEVfVDfl9DLLTuJvq3g2O/Oxi8AiNouAHvDSzHS0viUJc+V5vm3eq91Xwqn9dp4jRA==}
     hasBin: true
@@ -15650,6 +15670,14 @@ packages:
   /normalize-url/3.3.0:
     resolution: {integrity: sha512-U+JJi7duF1o+u2pynbp2zXDW2/PADgC30f0GsHZtRh+HOcXHnw137TrNlyxxRvWW5fjKd3bcLHPxofWuCjaeZg==}
     engines: {node: '>=6'}
+
+  /note-parser/1.1.0:
+    resolution: {integrity: sha1-EunxflFFDsmU8TZKAZgsImZ7jms=}
+    dev: false
+
+  /note-parser/2.0.1:
+    resolution: {integrity: sha1-JDj9V6RolLQCs6IHF5hmASnI+8E=}
+    dev: false
 
   /npm-bundled/1.1.2:
     resolution: {integrity: sha512-x5DHup0SuyQcmL3s7Rx/YQ8sbw/Hzg0rj48eN0dV7hf5cmQq5PXIeioroH3raV1QC1yh3uTYuMThvEQF3iKgGQ==}
@@ -18506,6 +18534,14 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
+  /sample-player/0.5.5:
+    resolution: {integrity: sha1-vDW+o0Scb6lyUo8CKpu8KHIZVjc=}
+    dependencies:
+      adsr: 1.0.1
+      midimessage: 1.0.5
+      note-parser: 1.1.0
+    dev: false
+
   /sane/4.1.0:
     resolution: {integrity: sha512-hhbzAgTIX8O7SHfp2c8/kREfEn4qO/9q8C9beyY6+tvZ87EpoZ3i1RIEvp27YBswnNbY9mWd6paKVmKbAgLfZA==}
     engines: {node: 6.* || 8.* || >= 10.*}
@@ -18997,6 +19033,14 @@ packages:
     dependencies:
       is-plain-obj: 1.1.0
     dev: true
+
+  /soundfont-player/0.12.0:
+    resolution: {integrity: sha512-8BJIsAt7h1PK3thSZDgF6zecgGhYkK74JnZO8WRZi3h34qG6H/DYlnv7cpRvL7Q9C8N6qld4Qwj7nJsX1gYjEA==}
+    dependencies:
+      audio-loader: 0.5.0
+      note-parser: 2.0.1
+      sample-player: 0.5.5
+    dev: false
 
   /source-list-map/2.0.1:
     resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}

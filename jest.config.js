@@ -7,5 +7,6 @@ module.exports = {
     '<rootDir>/libs/covid-disease.sh',
     '<rootDir>/libs/covid-diseasesh',
     '<rootDir>/apps/covid-dashboard',
+    '<rootDir>/apps/piano-app',
   ],
 };

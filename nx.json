@@ -44,6 +44,13 @@
     "covid-dashboard-e2e": {
       "tags": [],
       "implicitDependencies": ["covid-dashboard"]
+    },
+    "piano-app": {
+      "tags": []
+    },
+    "piano-app-e2e": {
+      "tags": [],
+      "implicitDependencies": ["piano-app"]
     }
   }
 }
