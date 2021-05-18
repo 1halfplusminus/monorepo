@@ -20,7 +20,7 @@ describe('ui: Country Stats', () => {
       .get('div[class*="statistique-card__StatistiqueCardVariation"]:first')
       .as('variation')
       .as('variationText')
-      .get('svg[class*="chevron-left"]')
+      .get('svg[class*="ChevronLeft"]')
       .click()
       .get('@title')
       .should('not.contain', '29 519')
