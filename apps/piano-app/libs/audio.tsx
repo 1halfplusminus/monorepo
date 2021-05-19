@@ -1,0 +1,219 @@
+import {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { instrument, Player, InstrumentName } from 'soundfont-player';
+import * as option from 'fp-ts/Option';
+import * as taskOption from 'fp-ts/TaskOption';
+import type { Option } from 'fp-ts/Option';
+import { pipe } from 'fp-ts/lib/function';
+import { Subject, interval, ReplaySubject } from 'rxjs';
+import {
+  throttleTime,
+  delay,
+  debounceTime,
+  distinctUntilChanged,
+  map as rxMap,
+} from 'rxjs/operators';
+import { map } from 'fp-ts/lib/Array';
+
+const ReactAudioContext = createContext<Option<AudioContext>>(option.none);
+
+export interface UseInstrumentProps {
+  instrumentName: InstrumentName;
+  notes: Option<Note[]>;
+}
+
+export interface UseNotes {
+  startNote: Note;
+  endNote: Note;
+}
+
+const TONES_KEY = {
+  C: 12,
+  'C#': 11,
+  D: 10,
+  'D#': 9,
+  E: 8,
+  F: 7,
+  'F#': 6,
+  G: 5,
+  'G#': 4,
+  A: 3,
+  'A#': 2,
+  B: 1,
+};
+const OCTAVE_NUMBERS = { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '' };
+
+type Tone = keyof typeof TONES_KEY;
+type Octave = keyof typeof OCTAVE_NUMBERS;
+export type Note = [Tone, Octave, boolean?];
+
+const OCTAVES = Object.keys(OCTAVE_NUMBERS).map((a) =>
+  parseInt(a, 10)
+) as Octave[];
+
+const TONES = Object.keys(TONES_KEY) as Tone[];
+
+const TONE_NAME: Partial<{ [key in Tone]: string }> = {
+  C: 'Do',
+  D: 'Ré',
+  E: 'Mi',
+  F: 'Fa',
+  G: 'Sol',
+  A: 'La',
+  B: 'Si',
+};
+
+const isAccidental = (tone: Tone) => tone.endsWith('#');
+export const getToneName = (tone: Tone) => TONE_NAME[tone];
+export const compareTone = (a: Tone, b) => TONES_KEY[a] - TONES_KEY[b];
+export const sortNote = (a: Note, b: Note) =>
+  a[1] === b[1] ? compareTone(b[0], a[0]) : a[1] - b[1];
+
+export const NOTES = OCTAVES.reduce((notes, octaveNumber) => {
+  const notesInOctave = TONES.map((tone) => [
+    tone,
+    octaveNumber,
+    isAccidental(tone),
+  ]) as Note[];
+  return [...notes, ...notesInOctave];
+}, [] as Note[]).sort(sortNote);
+
+const compareNote = (a: Note, b: Note) => sortNote(a, b) === 0;
+
+export const findNote = (b: Note) => (a: Note, index: number) =>
+  compareNote(a, b);
+
+export default function getNotesBetween(startNote: Note, endNote: Note) {
+  const startingIndex = NOTES.findIndex(findNote(startNote));
+  const endingIndex = NOTES.findIndex(findNote(endNote));
+  return NOTES.slice(startingIndex, endingIndex + 1);
+}
+
+export const useNotes = ({ startNote, endNote }: UseNotes) => {
+  return useMemo(() => option.of(getNotesBetween(startNote, endNote)), [
+    startNote,
+    endNote,
+  ]);
+};
+
+export const usePlayNote = ({
+  onPlay,
+  notes = [],
+}: {
+  onPlay: (note: Note, delay?: number) => void;
+  notes?: Note[];
+}) => {
+  const { current: subject } = useRef(new ReplaySubject<Option<Note>>());
+
+  const play = (note: Note) => {
+    subject.next(option.of(note));
+  };
+  const stop = () => {
+    subject.next(option.none);
+  };
+  useEffect(() => {
+    subject
+      .pipe(
+        rxMap((n, index) =>
+          pipe(
+            n,
+            option.map((n) => onPlay(n, index))
+          )
+        )
+      )
+      .subscribe((note) => {
+        pipe(
+          note,
+          option.fold(
+            () => {
+              console.log('stop playing');
+            },
+            (note) => {
+              /*   console.log(`playing : ${note[0]} ${note[1]}`); */
+            }
+          )
+        );
+      });
+  }, [onPlay]);
+  useEffect(() => {
+    pipe(
+      notes,
+      map(option.of),
+      map((n) => {
+        subject.next(n);
+      })
+    );
+  }, []);
+  useEffect(() => {
+    return () => {
+      subject.unsubscribe();
+    };
+  }, []);
+  return { play, stop };
+};
+
+export const useInstrument = ({
+  instrumentName,
+  notes = option.none,
+}: UseInstrumentProps) => {
+  const audioContext = useContext(ReactAudioContext);
+  const [player, setPlayer] = useState<Option<Player>>(option.none);
+  const play = useCallback(
+    ([tone, octave]: Note, delay?: number) =>
+      pipe(
+        player,
+        option.map((p) =>
+          pipe(
+            audioContext,
+            option.map((ao) =>
+              p.play(`${tone}${octave}`, ao.currentTime + delay)
+            )
+          )
+        ),
+        option.map(() => console.log(delay))
+      ),
+    [player, audioContext]
+  );
+  useEffect(() => {
+    pipe(
+      taskOption.fromOption(audioContext),
+      taskOption.chain((c) =>
+        taskOption.tryCatch(() => instrument(c, instrumentName))
+      )
+    )().then((r) => {
+      setPlayer(r);
+    });
+  }, [audioContext, instrumentName]);
+  /* useEffect(() => {
+    pipe(
+      notes,
+      option.filter((n) => n.length > 0),
+      option.map(pipe(array.map(play)))
+    );
+  }, [notes, play]); */
+  return {
+    play,
+  };
+};
+
+export const AudioContextProvider: FC = ({ children }) => {
+  const [audioContext, setAudioContext] = useState<Option<AudioContext>>(
+    option.none
+  );
+  useEffect(() => {
+    setAudioContext(option.of(new AudioContext()));
+  }, []);
+  return (
+    <ReactAudioContext.Provider value={audioContext}>
+      {children}
+    </ReactAudioContext.Provider>
+  );
+};

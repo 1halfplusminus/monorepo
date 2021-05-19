@@ -34,6 +34,7 @@ importers:
       '@types/react-dom': 17.0.3
       '@types/react-is': 17.0.0
       '@types/styled-components': 5.1.9
+      '@types/styled-jsx': 2.2.8
       '@types/testing-library__jest-dom': ^5.9.5
       '@types/webpack': 4.41.21
       '@typescript-eslint/eslint-plugin': 4.19.0
@@ -62,6 +63,7 @@ importers:
       react-is: 17.0.2
       regenerator-runtime: 0.13.7
       styled-components: 5.2.1
+      styled-jsx: 3.4.4
       ts-jest: 26.5.5
       ts-node: ~9.1.1
       tslib: ^2.0.0
@@ -78,6 +80,7 @@ importers:
       react-is: 17.0.2
       regenerator-runtime: 0.13.7
       styled-components: 5.2.1_281a4fa50a045c9112baf635f3bc27a7
+      styled-jsx: 3.4.4_react@17.0.2
       tslib: 2.2.0
     devDependencies:
       '@babel/core': 7.12.13
@@ -109,6 +112,7 @@ importers:
       '@types/react-dom': 17.0.3
       '@types/react-is': 17.0.0
       '@types/styled-components': 5.1.9
+      '@types/styled-jsx': 2.2.8
       '@types/testing-library__jest-dom': 5.9.5
       '@types/webpack': 4.41.21
       '@typescript-eslint/eslint-plugin': 4.19.0_d7037e83e1317c9a8388794edef4baaa
@@ -139,9 +143,11 @@ importers:
   apps/piano-app:
     specifiers:
       fp-ts: ^2.10.5
+      rxjs: ^7.0.1
       soundfont-player: ^0.12.0
     dependencies:
       fp-ts: 2.10.5
+      rxjs: 7.0.1
       soundfont-player: 0.12.0
 
   libs/covid:
@@ -650,6 +656,12 @@ packages:
     dependencies:
       '@babel/types': 7.14.1
     dev: true
+
+  /@babel/helper-module-imports/7.12.5:
+    resolution: {integrity: sha512-SR713Ogqg6++uexFRORf/+nPXMmWIn80TALu0uaFb+iQIUoR7bOC7zBWyzBs5b3tBBJXuyD0cRu1F15GyzjOWA==}
+    dependencies:
+      '@babel/types': 7.14.2
+    dev: false
 
   /@babel/helper-module-imports/7.13.12:
     resolution: {integrity: sha512-4cVvR2/1B693IuOvSI20xqqa/+bl7lqAMR59R4iu39R9aOX8/JoYY1sFaNvUMyMBGnHdwvJgUrzNLoUZxXypxA==}
@@ -6436,6 +6448,12 @@ packages:
       '@types/hoist-non-react-statics': 3.3.1
       '@types/react': 17.0.3
       csstype: 3.0.8
+    dev: true
+
+  /@types/styled-jsx/2.2.8:
+    resolution: {integrity: sha512-Yjye9VwMdYeXfS71ihueWRSxrruuXTwKCbzue4+5b2rjnQ//AtyM7myZ1BEhNhBQ/nL/RE7bdToUoLln2miKvg==}
+    dependencies:
+      '@types/react': 17.0.3
     dev: true
 
   /@types/tapable/1.0.7:
@@ -18511,6 +18529,12 @@ packages:
     dependencies:
       tslib: 1.14.1
 
+  /rxjs/7.0.1:
+    resolution: {integrity: sha512-wViQ4Vgps1xJwqWIBooMNN44usCSthL7wCUl4qWqrVjhGfWyVyXcxlYzfDKkJKACQvZMTOft/jJ3RkbwK1j9QQ==}
+    dependencies:
+      tslib: 2.1.0
+    dev: false
+
   /safe-buffer/5.1.1:
     resolution: {integrity: sha512-kKvNJn6Mm93gAczWVJg7wH+wGYWNrDHdWvpUmHyEsgCtIwwo3bqPtV4tR5tuPaUhTOo/kvhVwd8XwwOllGYkbg==}
     dev: true
@@ -19558,6 +19582,23 @@ packages:
     peerDependencies:
       react: 15.x.x || 16.x.x || 17.x.x
     dependencies:
+      '@babel/types': 7.8.3
+      babel-plugin-syntax-jsx: 6.18.0
+      convert-source-map: 1.7.0
+      loader-utils: 1.2.3
+      react: 17.0.2
+      source-map: 0.7.3
+      string-hash: 1.1.3
+      stylis: 3.5.4
+      stylis-rule-sheet: 0.0.10_stylis@3.5.4
+    dev: false
+
+  /styled-jsx/3.4.4_react@17.0.2:
+    resolution: {integrity: sha512-PkZi/col7R4cpwSPY2n4JjpcTYfBgaWg/1mt0+1E/pmkXL+Pik5Kr/snYMWj90+N3kDw+BqfnJOogdRw4621GQ==}
+    peerDependencies:
+      react: 15.x.x || 16.x.x || 17.x.x
+    dependencies:
+      '@babel/helper-module-imports': 7.12.5
       '@babel/types': 7.8.3
       babel-plugin-syntax-jsx: 6.18.0
       convert-source-map: 1.7.0

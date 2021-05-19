@@ -9,6 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "fp-ts": "^2.10.5",
+    "rxjs": "^7.0.1",
     "soundfont-player": "^0.12.0"
   }
 }
