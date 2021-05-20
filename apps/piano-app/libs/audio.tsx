@@ -7,21 +7,15 @@ import {
   useMemo,
   useRef,
   useState,
+  useLayoutEffect,
 } from 'react';
 import { instrument, Player, InstrumentName } from 'soundfont-player';
 import * as option from 'fp-ts/Option';
 import * as taskOption from 'fp-ts/TaskOption';
 import type { Option } from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
-import { Subject, interval, ReplaySubject } from 'rxjs';
-import {
-  throttleTime,
-  delay,
-  debounceTime,
-  distinctUntilChanged,
-  map as rxMap,
-} from 'rxjs/operators';
-import { map } from 'fp-ts/lib/Array';
+import { from, Subject, of, Subscription } from 'rxjs';
+import { delay, concatMap, throttleTime } from 'rxjs/operators';
 
 const ReactAudioContext = createContext<Option<AudioContext>>(option.none);
 
@@ -50,6 +44,12 @@ const TONES_KEY = {
   B: 1,
 };
 const OCTAVE_NUMBERS = { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '' };
+
+export type NoteHotkeys = Partial<
+  {
+    [Partkeys in Tone]: Partial<{ [keys in Octave]: string }>;
+  }
+>;
 
 type Tone = keyof typeof TONES_KEY;
 type Octave = keyof typeof OCTAVE_NUMBERS;
@@ -103,6 +103,10 @@ export const useNotes = ({ startNote, endNote }: UseNotes) => {
     endNote,
   ]);
 };
+const subject = new Subject<Option<[Note, number]>>();
+const observer = subject.pipe(
+  concatMap((item) => of(item).pipe(throttleTime(50)))
+);
 
 export const usePlayNote = ({
   onPlay,
@@ -111,52 +115,64 @@ export const usePlayNote = ({
   onPlay: (note: Note, delay?: number) => void;
   notes?: Note[];
 }) => {
-  const { current: subject } = useRef(new ReplaySubject<Option<Note>>());
-
-  const play = (note: Note) => {
-    subject.next(option.of(note));
-  };
+  const audioContext = useContext(ReactAudioContext);
+  const [notesToPlay] = useState(notes);
+  const subRef = useRef<Option<Subscription>>(option.none);
+  const play = useCallback(
+    (note: Note, delay?: number) =>
+      pipe(
+        audioContext,
+        option.map((ao) => {
+          subject.next(option.of([note, ao.currentTime + delay]));
+        })
+      ),
+    [audioContext]
+  );
   const stop = () => {
     subject.next(option.none);
   };
   useEffect(() => {
-    subject
-      .pipe(
-        rxMap((n, index) =>
-          pipe(
-            n,
-            option.map((n) => onPlay(n, index))
-          )
-        )
-      )
-      .subscribe((note) => {
-        pipe(
-          note,
-          option.fold(
-            () => {
-              console.log('stop playing');
-            },
-            (note) => {
-              /*   console.log(`playing : ${note[0]} ${note[1]}`); */
-            }
-          )
-        );
-      });
+    if (onPlay) {
+      subRef.current = pipe(
+        subject
+          .pipe(concatMap((item) => of(item).pipe(throttleTime(50))))
+          .subscribe((note) => {
+            pipe(
+              note,
+              option.fold(
+                () => {
+                  console.log('stop playing');
+                },
+                (note) => {
+                  console.log(Date.now() + ` playing : ${note[0]} ${note[1]}`);
+                  onPlay(note[0]);
+                }
+              )
+            );
+          }),
+        option.of
+      );
+    }
+
+    return () => {
+      pipe(
+        subRef.current,
+        option.map((s) => s.unsubscribe())
+      );
+    };
   }, [onPlay]);
   useEffect(() => {
-    pipe(
-      notes,
-      map(option.of),
-      map((n) => {
-        subject.next(n);
-      })
-    );
-  }, []);
-  useEffect(() => {
-    return () => {
-      subject.unsubscribe();
-    };
-  }, []);
+    if (play) {
+      const concatMapDelay = from(notesToPlay).pipe(
+        concatMap((item) => of(item).pipe(delay(1000)))
+      );
+
+      concatMapDelay.subscribe((x) => {
+        play(x);
+      });
+    }
+  }, [notesToPlay, play]);
+
   return { play, stop };
 };
 
@@ -166,39 +182,27 @@ export const useInstrument = ({
 }: UseInstrumentProps) => {
   const audioContext = useContext(ReactAudioContext);
   const [player, setPlayer] = useState<Option<Player>>(option.none);
-  const play = useCallback(
-    ([tone, octave]: Note, delay?: number) =>
-      pipe(
-        player,
-        option.map((p) =>
-          pipe(
-            audioContext,
-            option.map((ao) =>
-              p.play(`${tone}${octave}`, ao.currentTime + delay)
-            )
-          )
-        ),
-        option.map(() => console.log(delay))
-      ),
-    [player, audioContext]
-  );
+  const play = ([tone, octave]: Note, time: number = null) =>
+    pipe(
+      player,
+      option.map((p) =>
+        pipe(
+          audioContext,
+          option.map((ao) => p.play(`${tone}${octave}`, ao.currentTime))
+        )
+      )
+    );
   useEffect(() => {
     pipe(
       taskOption.fromOption(audioContext),
       taskOption.chain((c) =>
         taskOption.tryCatch(() => instrument(c, instrumentName))
       )
-    )().then((r) => {
-      setPlayer(r);
+    )().then((p) => {
+      setPlayer(p);
     });
   }, [audioContext, instrumentName]);
-  /* useEffect(() => {
-    pipe(
-      notes,
-      option.filter((n) => n.length > 0),
-      option.map(pipe(array.map(play)))
-    );
-  }, [notes, play]); */
+
   return {
     play,
   };
@@ -208,8 +212,29 @@ export const AudioContextProvider: FC = ({ children }) => {
   const [audioContext, setAudioContext] = useState<Option<AudioContext>>(
     option.none
   );
-  useEffect(() => {
-    setAudioContext(option.of(new AudioContext()));
+  useLayoutEffect(() => {
+    const audioContext = new AudioContext();
+    setAudioContext(option.of(audioContext));
+    /* navigator.getUserMedia(
+      // contraintes - cette app nécessite seulement l'audio
+      {
+        audio: true,
+      },
+      // fonction de rappel en cas de succès
+      function (flux) {
+        const gainNode = audioContext.createGain();
+
+        const source = audioContext.createMediaStreamSource(flux);
+        source.connect(gainNode);
+        source.connect(audioContext.destination);
+      },
+      // fonction de rappel en cas d'erreur
+      function (erreur) {
+        console.log(
+          "L'erreur à la noix suivante vient de se produire : " + erreur
+        );
+      }
+    ); */
   }, []);
   return (
     <ReactAudioContext.Provider value={audioContext}>

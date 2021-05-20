@@ -1,12 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
 import Touch from '../piano/touch/touch';
-import { Note, useInstrument, useNotes, usePlayNote } from '../libs/audio';
+import {
+  Note,
+  NoteHotkeys,
+  useInstrument,
+  useNotes,
+  usePlayNote,
+} from '../libs/audio';
 import PianoLayout from '../piano/piano-layout';
 import Notes from '../components/notes';
-import useLongPress from '../libs/utils';
 
 const StyledPage = styled.div``;
+
+const hotKeys: NoteHotkeys = {
+  C: {
+    4: 'Q',
+  },
+  'C#': {
+    4: '2',
+  },
+  D: {
+    4: 'W',
+  },
+  'D#': {
+    4: '3',
+  },
+  G: {
+    4: 'T',
+  },
+  E: {
+    4: 'E',
+  },
+  A: {
+    4: 'I',
+  },
+  B: {
+    4: 'U',
+  },
+};
 
 export function Index() {
   const startNote: Note = ['C', 4];
@@ -16,32 +48,32 @@ export function Index() {
     instrumentName: 'acoustic_grand_piano',
     notes,
   });
-  const { play, stop } = usePlayNote({
+  const { play } = usePlayNote({
     onPlay: (n, delay) => {
       playInstrument(n, delay);
     },
     notes: [
-      ['B', 5],
-      ['B', 5],
-      ['A', 5],
-      ['A', 5],
-      ['B', 5],
-      ['B', 5],
-      ['A', 5],
-      ['B', 5],
-      ['B', 5],
-      ['A', 5],
-      ['A', 5],
-      ['B', 5],
-      ['B', 5],
-      ['A', 5],
-      ['G', 5],
-      ['G', 5],
-      ['A', 5],
-      ['G', 5],
-      ['A', 5],
-      ['B', 5],
-      ['G', 5],
+      /*      ['B', 4],
+      ['B', 4],
+      ['A', 4],
+      ['A', 4],
+      ['B', 4],
+      ['B', 4],
+      ['A', 4],
+      ['B', 4],
+      ['B', 4],
+      ['A', 4],
+      ['A', 4],
+      ['B', 4],
+      ['B', 4],
+      ['A', 4],
+      ['G', 4],
+      ['G', 4],
+      ['A', 4],
+      ['G', 4],
+      ['A', 4],
+      ['B', 4],
+      ['G', 4], */
     ],
   });
 
@@ -57,8 +89,8 @@ export function Index() {
               <Touch
                 key={note[0] + note[1]}
                 note={note}
-                // eslint-disable-next-line react-hooks/rules-of-hooks
                 onMouseUp={playNote(note)}
+                hotkeys={hotKeys[note[0]]?.[note[1]]}
               />
             )}
           </Notes>

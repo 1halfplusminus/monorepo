@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { useHotkeys, useIsHotkeyPressed } from 'react-hotkeys-hook';
 
 import styled, { css } from 'styled-components';
 import { getToneName, Note } from '../../libs/audio';
@@ -8,14 +9,26 @@ export interface TouchProps {
   onMouseDown?: () => void;
   onMouseUp: () => void;
   note: Note;
+  hotkeys?: string;
 }
 
-const StyledTouch = styled.button<{ accidental: boolean }>`
+const StyledTouch = styled.button<{ accidental: boolean; pressed: boolean }>`
+  --pressed-color: blue;
   overflow-y: visible;
   width: calc(var(--note-width));
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   cursor: pointer;
+  justify-content: space-between;
+  ${({ pressed }) =>
+    pressed
+      ? css`
+          background-color: var(--pressed-color);
+        `
+      : css`
+          transition: background-color 500ms cubic-bezier(0.19, 1, 0.22, 1);
+          background-color: inherit;
+        `}
   ${({ accidental }) =>
     accidental
       ? css`
@@ -42,16 +55,69 @@ export function Touch({
   onMouseUp,
   onMouseDown,
   note: [tone, octave, accidental],
+  hotkeys,
   ...rest
 }: TouchProps) {
+  const isPressedHotkeyPressed = useIsHotkeyPressed();
+  const [isPressed, setPressed] = useState(false);
+  const handleMouseOver = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    if (e.buttons === 1) {
+      handleMouseUp(e);
+    }
+  };
+  const handleMouseUp = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    setPressed(false);
+    onMouseUp();
+  };
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    if (e.buttons === 1) {
+      setPressed(true);
+    }
+    if (onMouseDown) {
+      onMouseDown();
+    }
+  };
+  useHotkeys(
+    hotkeys,
+    (e) => {
+      if (e.type === 'keyup') {
+        handleMouseUp(e);
+        console.log('hotkeys pressed');
+      } else {
+        handleMouseDown(e);
+        console.log('hotkeys released');
+      }
+    },
+    { enabled: hotkeys ? true : false, keyup: true, keydown: true },
+    [handleMouseUp, handleMouseDown, isPressedHotkeyPressed]
+  );
+
   return (
     <StyledTouch
+      pressed={isPressed}
       accidental={accidental}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseOver={handleMouseOver}
+      onMouseLeave={() => setPressed(false)}
       {...rest}
     >
-      {!accidental && `${getToneName(tone)} ${octave}`}
+      {!accidental && (
+        <>
+          <span unselectable="on">{hotkeys?.toUpperCase()}</span>
+          <span unselectable="on">
+            {getToneName(tone)} {octave}
+          </span>
+        </>
+      )}
     </StyledTouch>
   );
 }
