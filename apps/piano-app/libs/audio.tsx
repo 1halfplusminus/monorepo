@@ -196,7 +196,9 @@ export const useInstrument = ({
     pipe(
       taskOption.fromOption(audioContext),
       taskOption.chain((c) =>
-        taskOption.tryCatch(() => instrument(c, instrumentName))
+        taskOption.tryCatch(() =>
+          instrument(c, instrumentName, { gain: 1, soundfont: 'FluidR3_GM' })
+        )
       )
     )().then((p) => {
       setPlayer(p);
@@ -215,26 +217,6 @@ export const AudioContextProvider: FC = ({ children }) => {
   useLayoutEffect(() => {
     const audioContext = new AudioContext();
     setAudioContext(option.of(audioContext));
-    /* navigator.getUserMedia(
-      // contraintes - cette app nécessite seulement l'audio
-      {
-        audio: true,
-      },
-      // fonction de rappel en cas de succès
-      function (flux) {
-        const gainNode = audioContext.createGain();
-
-        const source = audioContext.createMediaStreamSource(flux);
-        source.connect(gainNode);
-        source.connect(audioContext.destination);
-      },
-      // fonction de rappel en cas d'erreur
-      function (erreur) {
-        console.log(
-          "L'erreur à la noix suivante vient de se produire : " + erreur
-        );
-      }
-    ); */
   }, []);
   return (
     <ReactAudioContext.Provider value={audioContext}>

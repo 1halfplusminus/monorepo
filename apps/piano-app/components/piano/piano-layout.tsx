@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
 import styled, { css } from 'styled-components';
-import { Note } from '../libs/audio';
+import { Note } from '../../libs/audio';
 
 /* eslint-disable-next-line */
 export interface PianoLayoutProps {

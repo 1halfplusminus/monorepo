@@ -1,13 +1,11 @@
 {
   "editor.formatOnSave": true,
-  "typescript.suggest.paths": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
   "jest.jestCommandLine": "pnpm run nx run-many -- --target=test --all=true",
   "jestrunner.jestCommand": "pnpx jest --",
   "scss.validate": false,
-  "editor.quickSuggestions": {
+  /* "editor.quickSuggestions": {
     "strings": true
-  },
+  }, */
   "editor.autoClosingQuotes": "always",
   "tailwindCSS.experimental.classRegex": [
     "tw`([^`]*)", // tw`...`
@@ -19,5 +17,6 @@
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
     "typescriptreact": "javascript"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

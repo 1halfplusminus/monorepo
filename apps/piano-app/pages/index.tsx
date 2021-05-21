@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Touch from '../piano/touch/touch';
+import Touch from '../components/piano/touch/touch';
 import {
   Note,
   NoteHotkeys,
@@ -8,7 +8,7 @@ import {
   useNotes,
   usePlayNote,
 } from '../libs/audio';
-import PianoLayout from '../piano/piano-layout';
+import PianoLayout from '../components/piano/piano-layout';
 import Notes from '../components/notes';
 
 const StyledPage = styled.div``;
@@ -45,7 +45,7 @@ export function Index() {
   const endNote: Note = ['B', 5];
   const notes = useNotes({ startNote, endNote });
   const { play: playInstrument } = useInstrument({
-    instrumentName: 'acoustic_grand_piano',
+    instrumentName: 'trumpet',
     notes,
   });
   const { play } = usePlayNote({

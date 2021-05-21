@@ -5,7 +5,10 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["apps/piano-app/tsconfig(.*)?.json"]
+        "project": [
+          "apps/piano-app/tsconfig(.*)?.json",
+          "apps/piano-app/.storybook/tsconfig.json"
+        ]
       },
       "rules": {}
     },

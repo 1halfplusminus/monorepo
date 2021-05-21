@@ -442,7 +442,7 @@ describe('Audio', () => {
   });
 
   it('should find index correctly', () => {
-    expect(NOTES.findIndex(findNote(['B', 1]))).toBe(12);
+    expect(NOTES.findIndex(findNote(['B', 1]))).toBe(11);
   });
   it('should get note correctly', () => {
     const startNote: Note = ['C', 1];

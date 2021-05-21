@@ -1,8 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useHotkeys, useIsHotkeyPressed } from 'react-hotkeys-hook';
 
 import styled, { css } from 'styled-components';
-import { getToneName, Note } from '../../libs/audio';
+import { getToneName, Note } from '../../../libs/audio';
 
 /* eslint-disable-next-line */
 export interface TouchProps {
@@ -13,13 +13,14 @@ export interface TouchProps {
 }
 
 const StyledTouch = styled.button<{ accidental: boolean; pressed: boolean }>`
-  --pressed-color: blue;
+  --pressed-color: #2549d1b3;
   overflow-y: visible;
   width: calc(var(--note-width));
   display: flex;
   flex-direction: column;
   cursor: pointer;
   justify-content: space-between;
+  align-items: center;
   ${({ pressed }) =>
     pressed
       ? css`
@@ -78,9 +79,7 @@ export function Touch({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (e.buttons === 1) {
-      setPressed(true);
-    }
+    setPressed(true);
     if (onMouseDown) {
       onMouseDown();
     }
@@ -97,7 +96,7 @@ export function Touch({
       }
     },
     { enabled: hotkeys ? true : false, keyup: true, keydown: true },
-    [handleMouseUp, handleMouseDown, isPressedHotkeyPressed]
+    [handleMouseUp, handleMouseDown]
   );
 
   return (
@@ -114,7 +113,7 @@ export function Touch({
         <>
           <span unselectable="on">{hotkeys?.toUpperCase()}</span>
           <span unselectable="on">
-            {getToneName(tone)} {octave}
+            {getToneName(tone)} <br /> {octave}
           </span>
         </>
       )}
