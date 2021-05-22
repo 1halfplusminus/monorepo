@@ -12,4 +12,4 @@ function MusicIllustration(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const MemoMusicIllustration = React.memo(MusicIllustration);
-export default MemoMusicIllustration;
+export default MusicIllustration;

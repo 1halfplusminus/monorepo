@@ -15,10 +15,10 @@ const StyledHeader = styled.header`
 `;
 
 export const HeaderLogo = styled.div`
+  width: 3rem;
+  height: 3rem;
   svg {
     fill: white;
-    width: 3rem;
-    height: 3rem;
   }
 `;
 

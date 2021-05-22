@@ -210,7 +210,7 @@ export const AudioContextProvider: FC = ({ children }) => {
   const [audioContext, setAudioContext] = useState<Option<AudioContext>>(
     option.none
   );
-  useLayoutEffect(() => {
+  useEffect(() => {
     const audioContext = new AudioContext();
     setAudioContext(option.of(audioContext));
   }, []);
