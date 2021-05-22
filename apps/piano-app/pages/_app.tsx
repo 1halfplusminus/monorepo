@@ -3,21 +3,37 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import './styles.css';
 import { AudioContextProvider } from '../libs/audio';
+import PageLayout, {
+  HeaderLayout,
+  MainLayout,
+} from '../components/page-layout/page-layout';
+import Header, { HeaderLogo, HeaderTitle } from '../components/header/header';
+import MemoMusicIllustration from '../components/header/music-illustration';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
     <AudioContextProvider>
       <Head>
         <title>Piano</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;600&display=swap"
+          rel="stylesheet"
+        />
       </Head>
-      <div className="app">
-        <header className="flex">
-          <h1>Welcome to piano-app!</h1>
-        </header>
-        <main>
+      <PageLayout>
+        <HeaderLayout>
+          <Header>
+            <HeaderLogo>
+              <MemoMusicIllustration />
+            </HeaderLogo>
+            <HeaderTitle> Piano Application</HeaderTitle>
+          </Header>
+        </HeaderLayout>
+        <MainLayout>
           <Component {...pageProps} />
-        </main>
-      </div>
+        </MainLayout>
+      </PageLayout>
     </AudioContextProvider>
   );
 }

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useHotkeys, useIsHotkeyPressed } from 'react-hotkeys-hook';
-
 import styled, { css } from 'styled-components';
 import { getToneName, Note } from '../../../libs/audio';
 
-/* eslint-disable-next-line */
 export interface TouchProps {
   onMouseDown?: () => void;
   onMouseUp: () => void;
@@ -21,6 +19,12 @@ const StyledTouch = styled.button<{ accidental: boolean; pressed: boolean }>`
   cursor: pointer;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  ${({ accidental }) =>
+    !accidental &&
+    css`
+      padding: 1rem;
+    `}
   ${({ pressed }) =>
     pressed
       ? css`
@@ -35,7 +39,7 @@ const StyledTouch = styled.button<{ accidental: boolean; pressed: boolean }>`
       ? css`
       position: relative;
       z-index: 999;
-      background-color: black;
+      background-color: #262629;
       color: white;
       position: : relative;
       left: calc(var(--note-accidental-width-half) - var(--note-width-half));
@@ -59,7 +63,6 @@ export function Touch({
   hotkeys,
   ...rest
 }: TouchProps) {
-  const isPressedHotkeyPressed = useIsHotkeyPressed();
   const [isPressed, setPressed] = useState(false);
   const handleMouseOver = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>

@@ -9,24 +9,25 @@ export interface EffectButtonProps {
 }
 
 const StyledEffectButton = styled.div<Pick<EffectButtonProps, 'checked'>>`
-  width: 5.5rem;
-  height: 5.5rem;
+  max-width: 3.2rem;
+  max-width: 3.2rem;
   border-radius: 5%;
-  padding: 0.35em;
-  background-color: #bcbcc0d6;
+  padding: 0.15em;
+  background-color: #262629;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   align-content: center;
+  border: 0.3rem solid #2f2e2f;
   svg {
     width: 100%;
     height: 100%;
-    fill: currentColor;
+    fill: #6c7e90;
     ${({ checked }) =>
       checked &&
       css`
-        fill: #0075ff;
+        fill: #6782ae;
       `}
   }
 `;
@@ -49,7 +50,12 @@ export function EffectButton({
   }, [checkedProp]);
   return (
     <StyledEffectButton checked={checked}>
-      <input type="radio" onClick={toggle} checked={checked} />
+      <input
+        onChange={() => {}}
+        type="radio"
+        onClick={toggle}
+        checked={checked}
+      />
       {children}
     </StyledEffectButton>
   );

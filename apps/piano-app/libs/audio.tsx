@@ -21,7 +21,6 @@ const ReactAudioContext = createContext<Option<AudioContext>>(option.none);
 
 export interface UseInstrumentProps {
   instrumentName: InstrumentName;
-  notes: Option<Note[]>;
 }
 
 export interface UseNotes {
@@ -176,10 +175,7 @@ export const usePlayNote = ({
   return { play, stop };
 };
 
-export const useInstrument = ({
-  instrumentName,
-  notes = option.none,
-}: UseInstrumentProps) => {
+export const useInstrument = ({ instrumentName }: UseInstrumentProps) => {
   const audioContext = useContext(ReactAudioContext);
   const [player, setPlayer] = useState<Option<Player>>(option.none);
   const play = ([tone, octave]: Note, time: number = null) =>

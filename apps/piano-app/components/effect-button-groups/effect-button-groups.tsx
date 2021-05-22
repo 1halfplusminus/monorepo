@@ -1,7 +1,5 @@
-import React, { PropsWithChildren, ReactNode, useState } from 'react';
-
+import React, { ReactNode, useState } from 'react';
 import styled from 'styled-components';
-
 import * as option from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
 
@@ -11,6 +9,7 @@ export interface EffectButtonGroupsProps {
     selected: number | null,
     select: (index: number) => () => void
   ) => ReactNode;
+  selected?: number;
 }
 
 const StyledEffectButtonGroups = styled.div`
@@ -19,17 +18,18 @@ const StyledEffectButtonGroups = styled.div`
   column-gap: 1rem;
 `;
 
-export function EffectButtonGroups({ children }: EffectButtonGroupsProps) {
-  const [selected, setSelected] = useState<option.Option<number>>(option.none);
+export function EffectButtonGroups({
+  children,
+  selected: initialSelected,
+}: EffectButtonGroupsProps) {
+  const [selected, setSelected] = useState<option.Option<number>>(
+    initialSelected !== null ? option.of(initialSelected) : option.none
+  );
   const select = (index: number) => () => {
     setSelected(option.of(index));
   };
 
-  return (
-    <StyledEffectButtonGroups>
-      {children(pipe(selected, option.toNullable), select)}
-    </StyledEffectButtonGroups>
-  );
+  return <>{children(pipe(selected, option.toNullable), select)}</>;
 }
 
 export default EffectButtonGroups;

@@ -3,35 +3,15 @@ import MemoBassEffectIcon from '../effect-button/bass-effect-icon';
 import EffectButton, {
   EffectButtonProps,
 } from '../effect-button/effect-button';
-import MemoPianoEffectIcon from '../effect-button/piano-effect-icon';
-import MemoXylophoneEffectIcon from '../effect-button/xylophone-effect-icon';
-import {
-  EffectButtonGroups,
-  EffectButtonGroupsProps,
-} from './effect-button-groups';
+import { EffectButtonBass } from '../effect-button/effect-button-bass';
+import EffectButtonPiano from '../effect-button/effect-button-piano';
+import EffectButtonXylo from '../effect-button/effect-button-xylo';
+import { EffectButtonGroups } from './effect-button-groups';
 
 export default {
   component: EffectButtonGroups,
   title: 'EffectButtonGroups',
 };
-
-const EffectButtonPiano = (props: EffectButtonProps) => (
-  <EffectButton {...props}>
-    <MemoPianoEffectIcon />
-  </EffectButton>
-);
-
-const EffectButtonXylo = (props: EffectButtonProps) => (
-  <EffectButton {...props}>
-    <MemoXylophoneEffectIcon />
-  </EffectButton>
-);
-
-const EffectButtonBass = (props: EffectButtonProps) => (
-  <EffectButton {...props}>
-    <MemoBassEffectIcon />
-  </EffectButton>
-);
 
 export const primary = () => {
   return (

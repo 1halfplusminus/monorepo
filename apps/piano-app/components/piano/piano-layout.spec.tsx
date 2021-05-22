@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 
-import PianoLayout from './piano-layout';
+import PianoKeyboardLayout from './piano-layout';
 
 describe('PianoLayout', () => {
   it('should render successfully', () => {
