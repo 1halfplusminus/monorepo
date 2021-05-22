@@ -5,7 +5,8 @@ import Touch from './touch';
 describe('Touch', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
-      <Touch onTouch={() => {}} note={['A', 1]} />
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      <Touch onMouseUp={() => {}} onMouseDown={() => {}} note={['A', 1]} />
     );
     expect(baseElement).toBeTruthy();
   });

@@ -68,20 +68,14 @@ export function Touch({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     if (e.buttons === 1) {
-      handleMouseUp(e);
+      handleMouseUp();
     }
   };
-  const handleMouseUp = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const handleMouseUp = () => {
     setPressed(false);
     onMouseUp();
   };
-  const handleMouseDown = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const handleMouseDown = () => {
     setPressed(true);
     if (onMouseDown) {
       onMouseDown();
@@ -91,10 +85,10 @@ export function Touch({
     hotkeys,
     (e) => {
       if (e.type === 'keyup') {
-        handleMouseUp(e);
+        handleMouseUp();
         console.log('hotkeys pressed');
       } else {
-        handleMouseDown(e);
+        handleMouseDown();
         console.log('hotkeys released');
       }
     },

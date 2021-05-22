@@ -1,14 +1,14 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactElement, ReactNode, useState } from 'react';
 import styled from 'styled-components';
 import * as option from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
 
 /* eslint-disable-next-line */
 export interface EffectButtonGroupsProps {
-  children: (
+  children?: (
     selected: number | null,
     select: (index: number) => () => void
-  ) => ReactNode;
+  ) => ReactElement;
   selected?: number;
 }
 
@@ -29,7 +29,7 @@ export function EffectButtonGroups({
     setSelected(option.of(index));
   };
 
-  return <>{children(pipe(selected, option.toNullable), select)}</>;
+  return children ? children(pipe(selected, option.toNullable), select) : null;
 }
 
 export default EffectButtonGroups;

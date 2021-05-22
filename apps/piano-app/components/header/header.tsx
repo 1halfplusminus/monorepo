@@ -22,7 +22,7 @@ export const HeaderLogo = styled.div`
   }
 `;
 
-export const HeaderTitle = styled.div`
+export const HeaderTitle = styled.h1`
   font-size: 1.6em;
 `;
 

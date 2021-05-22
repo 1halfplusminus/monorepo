@@ -121,9 +121,9 @@ export const usePlayNote = ({
     (note: Note, delay?: number) =>
       pipe(
         audioContext,
-        option.map((ao) => {
-          subject.next(option.of([note, ao.currentTime + delay]));
-        })
+        option.map((ao) =>
+          subject.next(option.of([note, ao.currentTime + delay]))
+        )
       ),
     [audioContext]
   );

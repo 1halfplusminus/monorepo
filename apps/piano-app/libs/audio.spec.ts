@@ -438,7 +438,7 @@ describe('Audio', () => {
     expect(compareTone('C', 'B')).toBe(12 - 1);
   });
   it('should sort notes correctly', () => {
-    expect(sortNote(['C', 1], ['B', 1])).toBe(12 - 1);
+    expect(sortNote(['C', 1], ['B', 1])).toBe(1 - 12);
   });
 
   it('should find index correctly', () => {
