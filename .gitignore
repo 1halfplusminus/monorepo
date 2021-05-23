@@ -37,3 +37,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+libs/redcross-swap-contract/artifacts/build-info/f1892bb53b5d63816ccd0417084bdc74.json
+libs/redcross-swap-contract/artifacts/contracts/Box.sol/Box.dbg.json
+libs/redcross-swap-contract/artifacts/contracts/Box.sol/Box.json
+libs/redcross-swap-contract/cache/solidity-files-cache.json

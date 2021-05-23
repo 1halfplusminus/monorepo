@@ -1,0 +1,5 @@
+# chainlink:
+#   hash: "0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311"
+#   node:
+#     address: "0xff7f0177A36382f33DB5fa1C1e28e518c6B33754"
+#   localNode: true

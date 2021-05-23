@@ -1,21 +1,13 @@
 {
   "version": 2,
-  "cli": {
-    "defaultCollection": "@nrwl/react"
-  },
+  "cli": { "defaultCollection": "@nrwl/react" },
   "defaultProject": "covid-dashboard",
   "generators": {
-    "@nrwl/react": {
-      "application": {
-        "babel": true
-      }
-    },
+    "@nrwl/react": { "application": { "babel": true } },
     "@nrwl/next": {
-      "application": {
-        "style": "styled-components",
-        "linter": "eslint"
-      }
-    }
+      "application": { "style": "styled-components", "linter": "eslint" }
+    },
+    "@nx-plugin/hardhat": {}
   },
   "projects": {
     "ui": {
@@ -25,9 +17,7 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"]
-          }
+          "options": { "lintFilePatterns": ["libs/ui/**/*.{ts,tsx,js,jsx}"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -42,15 +32,9 @@
           "options": {
             "uiFramework": "@storybook/react",
             "port": 4400,
-            "config": {
-              "configFolder": "libs/ui/.storybook"
-            }
+            "config": { "configFolder": "libs/ui/.storybook" }
           },
-          "configurations": {
-            "ci": {
-              "quiet": true
-            }
-          }
+          "configurations": { "ci": { "quiet": true } }
         },
         "build-storybook": {
           "executor": "@nrwl/storybook:build",
@@ -58,15 +42,9 @@
           "options": {
             "uiFramework": "@storybook/react",
             "outputPath": "dist/storybook/ui",
-            "config": {
-              "configFolder": "libs/ui/.storybook"
-            }
+            "config": { "configFolder": "libs/ui/.storybook" }
           },
-          "configurations": {
-            "ci": {
-              "quiet": true
-            }
-          }
+          "configurations": { "ci": { "quiet": true } }
         }
       }
     },
@@ -82,17 +60,11 @@
             "tsConfig": "apps/ui-e2e/tsconfig.e2e.json",
             "devServerTarget": "ui:storybook"
           },
-          "configurations": {
-            "ci": {
-              "devServerTarget": "ui:storybook:ci"
-            }
-          }
+          "configurations": { "ci": { "devServerTarget": "ui:storybook:ci" } }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/ui-e2e/**/*.{js,ts}"]
-          }
+          "options": { "lintFilePatterns": ["apps/ui-e2e/**/*.{js,ts}"] }
         }
       }
     },
@@ -113,9 +85,7 @@
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/covid/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["libs/covid/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -134,9 +104,7 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/typescript/utils/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["libs/typescript/utils/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -165,9 +133,7 @@
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/covid-disease.sh/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["libs/covid-disease.sh/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -191,16 +157,11 @@
             "root": "apps/covid-dashboard",
             "outputPath": "dist/apps/covid-dashboard"
           },
-          "configurations": {
-            "production": {}
-          }
+          "configurations": { "production": {} }
         },
         "serve": {
           "executor": "@nrwl/next:server",
-          "options": {
-            "buildTarget": "covid-dashboard:build",
-            "dev": true
-          },
+          "options": { "buildTarget": "covid-dashboard:build", "dev": true },
           "configurations": {
             "production": {
               "buildTarget": "covid-dashboard:build:production",
@@ -210,9 +171,7 @@
         },
         "export": {
           "executor": "@nrwl/next:export",
-          "options": {
-            "buildTarget": "covid-dashboard:build:production"
-          }
+          "options": { "buildTarget": "covid-dashboard:build:production" }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -268,16 +227,11 @@
             "root": "apps/piano-app",
             "outputPath": "dist/apps/piano-app"
           },
-          "configurations": {
-            "production": {}
-          }
+          "configurations": { "production": {} }
         },
         "serve": {
           "executor": "@nrwl/next:server",
-          "options": {
-            "buildTarget": "piano-app:build",
-            "dev": true
-          },
+          "options": { "buildTarget": "piano-app:build", "dev": true },
           "configurations": {
             "production": {
               "buildTarget": "piano-app:build:production",
@@ -287,9 +241,7 @@
         },
         "export": {
           "executor": "@nrwl/next:export",
-          "options": {
-            "buildTarget": "piano-app:build:production"
-          }
+          "options": { "buildTarget": "piano-app:build:production" }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -310,15 +262,9 @@
           "options": {
             "uiFramework": "@storybook/react",
             "port": 4400,
-            "config": {
-              "configFolder": "apps/piano-app/.storybook"
-            }
+            "config": { "configFolder": "apps/piano-app/.storybook" }
           },
-          "configurations": {
-            "ci": {
-              "quiet": true
-            }
-          }
+          "configurations": { "ci": { "quiet": true } }
         },
         "build-storybook": {
           "executor": "@nrwl/storybook:build",
@@ -326,15 +272,9 @@
           "options": {
             "uiFramework": "@storybook/react",
             "outputPath": "dist/storybook/piano-app",
-            "config": {
-              "configFolder": "apps/piano-app/.storybook"
-            }
+            "config": { "configFolder": "apps/piano-app/.storybook" }
           },
-          "configurations": {
-            "ci": {
-              "quiet": true
-            }
-          }
+          "configurations": { "ci": { "quiet": true } }
         }
       }
     },
@@ -351,15 +291,24 @@
             "devServerTarget": "piano-app:serve"
           },
           "configurations": {
-            "production": {
-              "devServerTarget": "piano-app:serve:production"
-            }
+            "production": { "devServerTarget": "piano-app:serve:production" }
           }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
+          "options": { "lintFilePatterns": ["apps/piano-app-e2e/**/*.{js,ts}"] }
+        }
+      }
+    },
+    "redcross-swap-contract": {
+      "root": "libs/redcross-swap-contract",
+      "projectType": "library",
+      "sourceRoot": "libs/redcross-swap-contract/src",
+      "targets": {
+        "build": {
+          "executor": "@nx-plugin/hardhat:build",
           "options": {
-            "lintFilePatterns": ["apps/piano-app-e2e/**/*.{js,ts}"]
+            "config": "/home/dartuchiwa/Github/nx-plugin/dist/packages/hardhat/src/generators/init/files/hardhat.config.ts"
           }
         }
       }

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "types": ["hardhat-deploy"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["./scripts", "./test", "./typechain", "./libs", "./deploy"],
+  "files": ["./hardhat.config.ts"]
+}
