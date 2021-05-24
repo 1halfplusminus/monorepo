@@ -23,7 +23,8 @@
       ],
       "@halfoneplusminus/covid-disease.sh": [
         "libs/covid-disease.sh/src/index.ts"
-      ]
+      ],
+      "@halfoneplusminus/hardhat-utils": ["libs/hardhat-utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

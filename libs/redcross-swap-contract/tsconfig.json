@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "CommonJS",
@@ -12,6 +13,6 @@
     "types": ["hardhat-deploy"],
     "allowSyntheticDefaultImports": true
   },
-  "include": ["./scripts", "./test", "./typechain", "./libs", "./deploy"],
+  "include": ["./scripts", "./test", "./typechain", "scripts", "./deploy"],
   "files": ["./hardhat.config.ts"]
 }

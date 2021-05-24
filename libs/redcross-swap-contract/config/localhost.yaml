@@ -5,3 +5,5 @@
 #   localNode: true
 # mocks:
 #   VRFCoordinator: VRFCoordinatorMock
+ipfs:
+  node: /ip4/127.0.0.1/tcp/5002

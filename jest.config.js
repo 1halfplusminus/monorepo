@@ -8,5 +8,6 @@ module.exports = {
     '<rootDir>/libs/covid-diseasesh',
     '<rootDir>/apps/covid-dashboard',
     '<rootDir>/apps/piano-app',
+    '<rootDir>/libs/hardhat-utils',
   ],
 };

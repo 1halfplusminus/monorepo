@@ -2,24 +2,21 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Signer, Contract, ContractFactory, Overrides } from 'ethers';
-import { Provider, TransactionRequest } from '@ethersproject/providers';
+import { Signer } from "ethers";
+import { Provider, TransactionRequest } from "@ethersproject/providers";
+import { Contract, ContractFactory, Overrides } from "@ethersproject/contracts";
 
-import type { Box } from '../Box';
+import type { Box } from "../Box";
 
 export class Box__factory extends ContractFactory {
   constructor(signer?: Signer) {
     super(_abi, _bytecode, signer);
   }
 
-  deploy(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<Box> {
+  deploy(overrides?: Overrides): Promise<Box> {
     return super.deploy(overrides || {}) as Promise<Box>;
   }
-  getDeployTransaction(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): TransactionRequest {
+  getDeployTransaction(overrides?: Overrides): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }
   attach(address: string): Box {
@@ -36,31 +33,31 @@ export class Box__factory extends ContractFactory {
 const _abi = [
   {
     inputs: [],
-    name: 'getValue',
+    name: "getValue",
     outputs: [
       {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'value',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
       },
     ],
-    name: 'store',
+    name: "store",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 
 const _bytecode =
-  '0x608060405234801561001057600080fd5b5060c78061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c8063209652551460375780636057361d146053575b600080fd5b603d607e565b6040518082815260200191505060405180910390f35b607c60048036036020811015606757600080fd5b81019080803590602001909291905050506087565b005b60008054905090565b806000819055505056fea264697066735822122065d02e44d23889be91b709ffbedb0b1559e4376c19d0dbf2004ab64608ea07e964736f6c63430006060033';
+  "0x608060405234801561001057600080fd5b5061012f806100206000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c8063209652551460375780636057361d146051575b600080fd5b603d6069565b6040516048919060c2565b60405180910390f35b6067600480360381019060639190608f565b6072565b005b60008054905090565b8060008190555050565b60008135905060898160e5565b92915050565b60006020828403121560a057600080fd5b600060ac84828501607c565b91505092915050565b60bc8160db565b82525050565b600060208201905060d5600083018460b5565b92915050565b6000819050919050565b60ec8160db565b811460f657600080fd5b5056fea26469706673582212208793c952483c46a6e903bc0e1ada5eaa5fa9bdc1fd1aa91355dfb1c6e77e1e1d64736f6c63430008000033";

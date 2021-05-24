@@ -1,9 +1,14 @@
 {
   "implicitDependencies": {
-    "package.json": { "dependencies": "*", "devDependencies": "*" },
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
     ".eslintrc.json": "*"
   },
-  "affected": { "defaultBase": "master" },
+  "affected": {
+    "defaultBase": "master"
+  },
   "npmScope": "halfoneplusminus",
   "tasksRunnerOptions": {
     "default": {
@@ -17,18 +22,41 @@
     }
   },
   "projects": {
-    "ui": { "tags": [] },
-    "ui-e2e": { "tags": [], "implicitDependencies": ["ui"] },
-    "covid": { "tags": [] },
-    "typescript-utils": { "tags": [] },
-    "covid-disease.sh": { "tags": [] },
-    "covid-dashboard": { "tags": [] },
+    "ui": {
+      "tags": []
+    },
+    "ui-e2e": {
+      "tags": [],
+      "implicitDependencies": ["ui"]
+    },
+    "covid": {
+      "tags": []
+    },
+    "typescript-utils": {
+      "tags": []
+    },
+    "covid-disease.sh": {
+      "tags": []
+    },
+    "covid-dashboard": {
+      "tags": []
+    },
     "covid-dashboard-e2e": {
       "tags": [],
       "implicitDependencies": ["covid-dashboard"]
     },
-    "piano-app": { "tags": [] },
-    "piano-app-e2e": { "tags": [], "implicitDependencies": ["piano-app"] },
-    "redcross-swap-contract": { "tags": [] }
+    "piano-app": {
+      "tags": []
+    },
+    "piano-app-e2e": {
+      "tags": [],
+      "implicitDependencies": ["piano-app"]
+    },
+    "redcross-swap-contract": {
+      "tags": []
+    },
+    "hardhat-utils": {
+      "tags": []
+    }
   }
 }
