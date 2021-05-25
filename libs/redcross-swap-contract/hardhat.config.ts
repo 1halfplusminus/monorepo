@@ -7,7 +7,44 @@ import '@nomiclabs/hardhat-waffle';
 import 'hardhat-typechain';
 import { HardhatUserConfig } from 'hardhat/types';
 import * as bip39 from 'bip39';
+const LOW_OPTIMIZER_COMPILER_SETTINGS = {
+  version: '0.7.6',
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 2_000,
+    },
+    metadata: {
+      bytecodeHash: 'none',
+    },
+  },
+};
 
+const LOWEST_OPTIMIZER_COMPILER_SETTINGS = {
+  version: '0.7.6',
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 1_000,
+    },
+    metadata: {
+      bytecodeHash: 'none',
+    },
+  },
+};
+
+const DEFAULT_COMPILER_SETTINGS = {
+  version: '0.7.6',
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 1_000_000,
+    },
+    metadata: {
+      bytecodeHash: 'none',
+    },
+  },
+};
 const mnemonic = process.env.MNEMONIC || bip39.generateMnemonic();
 
 const accounts = {
@@ -23,22 +60,14 @@ const {
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   solidity: {
-    compilers: [
-      {
-        version: '0.8.0',
-        settings: {},
-      },
-      {
-        version: '0.6.2',
-        settings: {},
-      },
-      {
-        version: '0.6.6',
-        settings: {},
-      },
-      { version: '0.4.11', settings: {} },
-      { version: '0.4.24', settings: {} },
-    ],
+    compilers: [DEFAULT_COMPILER_SETTINGS],
+    overrides: {
+      'contracts/NonfungiblePositionManager.sol': LOW_OPTIMIZER_COMPILER_SETTINGS,
+      'contracts/test/MockTimeNonfungiblePositionManager.sol': LOW_OPTIMIZER_COMPILER_SETTINGS,
+      'contracts/test/NFTDescriptorTest.sol': LOWEST_OPTIMIZER_COMPILER_SETTINGS,
+      'contracts/NonfungibleTokenPositionDescriptor.sol': LOWEST_OPTIMIZER_COMPILER_SETTINGS,
+      'contracts/libraries/NFTDescriptor.sol': LOWEST_OPTIMIZER_COMPILER_SETTINGS,
+    },
   },
   networks: {
     hardhat: {

@@ -18,5 +18,6 @@
     "typescript": "javascript",
     "typescriptreact": "javascript"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "solidity.packageDefaultDependenciesDirectory": "./libs/redcross-swap-contract/node_modules"
 }

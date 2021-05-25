@@ -1,8 +1,11 @@
 {
   "dependencies": {
-    "@openzeppelin/contracts": "^4.1.0",
-    "ipfs-http-client": "^50.0.0",
+    "@openzeppelin/contracts": "3.4.1-solc-0.7-2",
+    "@uniswap/v3-core": "^1.0.0",
+    "@uniswap/v3-periphery": "^1.0.1",
+    "bignumber.js": "^9.0.1",
     "ipfs": "^0.55.1",
+    "ipfs-http-client": "^50.0.0",
     "it-all": "^1.0.4",
     "uint8arrays": "^2.1.3"
   },

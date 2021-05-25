@@ -290,13 +290,19 @@ importers:
 
   libs/redcross-swap-contract:
     specifiers:
-      '@openzeppelin/contracts': ^4.1.0
+      '@openzeppelin/contracts': 3.4.1-solc-0.7-2
+      '@uniswap/v3-core': ^1.0.0
+      '@uniswap/v3-periphery': ^1.0.1
+      bignumber.js: ^9.0.1
       ipfs: ^0.55.1
       ipfs-http-client: ^50.0.0
       it-all: ^1.0.4
       uint8arrays: ^2.1.3
     dependencies:
-      '@openzeppelin/contracts': 4.1.0
+      '@openzeppelin/contracts': 3.4.1-solc-0.7-2
+      '@uniswap/v3-core': 1.0.0
+      '@uniswap/v3-periphery': 1.0.1
+      bignumber.js: 9.0.1
       ipfs: 0.55.1
       ipfs-http-client: 50.0.0
       it-all: 1.0.5
@@ -6270,8 +6276,8 @@ packages:
     resolution: {integrity: sha512-cUriqMauq1ylzP2TxePNdPqkwI7Le3Annh4K9rrpvKfSBB/bdW+Iu1ihBaTIABTAAJ85LmKL5SSPPL9ry8d1gQ==}
     dev: true
 
-  /@openzeppelin/contracts/4.1.0:
-    resolution: {integrity: sha512-TihZitscnaHNcZgXGj9zDLDyCqjziytB4tMCwXq0XimfWkAjBYyk5/pOsDbbwcavhlc79HhpTEpQcrMnPVa1mw==}
+  /@openzeppelin/contracts/3.4.1-solc-0.7-2:
+    resolution: {integrity: sha512-tAG9LWg8+M2CMu7hIsqHPaTyG4uDzjr6mhvH96LvOpLZZj6tgzTluBt+LsCf1/QaYrlis6pITvpIaIhE+iZB+Q==}
     dev: false
 
   /@openzeppelin/test-environment/0.1.9:
@@ -8046,7 +8052,7 @@ packages:
   /@types/bn.js/4.11.6:
     resolution: {integrity: sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==}
     dependencies:
-      '@types/node': 15.6.0
+      '@types/node': 15.6.1
 
   /@types/bn.js/5.1.0:
     resolution: {integrity: sha512-QSSVYj7pYFN49kW77o2s9xTCwZ8F2xLbjLLSEVh8D2F4JUhZtPAGOFLTD+ffqksBx/u4cE/KImFjyhqCjn/LIA==}
@@ -8293,6 +8299,10 @@ packages:
 
   /@types/node/15.6.0:
     resolution: {integrity: sha512-gCYSfQpy+LYhOFTKAeE8BkyGqaxmlFxe+n4DKM6DR0wzw/HISUE/hAmkC/KT8Sw5PCJblqg062b3z9gucv3k0A==}
+    dev: false
+
+  /@types/node/15.6.1:
+    resolution: {integrity: sha512-7EIraBEyRHEe7CH+Fm1XvgqU6uwZN8Q7jppJGcqjROMT29qhAuuOxYB1uEY5UMYQKEmA5D+5tBnhdaPXSsLONA==}
 
   /@types/normalize-package-data/2.4.0:
     resolution: {integrity: sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==}
@@ -8700,6 +8710,32 @@ packages:
       '@typescript-eslint/types': 4.23.0
       eslint-visitor-keys: 2.1.0
     dev: true
+
+  /@uniswap/lib/4.0.1-alpha:
+    resolution: {integrity: sha512-f6UIliwBbRsgVLxIaBANF6w09tYqc6Y/qXdsrbEmXHyFA7ILiKrIwRFXe1yOg8M3cksgVsO9N7yuL2DdCGQKBA==}
+    engines: {node: '>=10'}
+    dev: false
+
+  /@uniswap/v2-core/1.0.1:
+    resolution: {integrity: sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==}
+    engines: {node: '>=10'}
+    dev: false
+
+  /@uniswap/v3-core/1.0.0:
+    resolution: {integrity: sha512-kSC4djMGKMHj7sLMYVnn61k9nu+lHjMIxgg9CDQT+s2QYLoA56GbSK9Oxr+qJXzzygbkrmuY6cwgP6cW2JXPFA==}
+    engines: {node: '>=10'}
+    dev: false
+
+  /@uniswap/v3-periphery/1.0.1:
+    resolution: {integrity: sha512-1Q4DVWNWfRumbNrBJgebLOUULGng5g3uky5suu4Cc7GtA1+JmEnw3J2VOrJSv2zn1LOPjURhZgU5T7NiIl2yeA==}
+    engines: {node: '>=10'}
+    dependencies:
+      '@openzeppelin/contracts': 3.4.1-solc-0.7-2
+      '@uniswap/lib': 4.0.1-alpha
+      '@uniswap/v2-core': 1.0.1
+      '@uniswap/v3-core': 1.0.0
+      base64-sol: 1.0.1
+    dev: false
 
   /@vascosantos/moving-average/1.1.0:
     resolution: {integrity: sha512-MVEJ4vWAPNbrGLjz7ITnHYg+YXZ6ijAqtH5/cHwSoCpbvuJ98aLXwFfPKAUfZpJMQR5uXB58UJajbY130IRF/w==}
@@ -10778,6 +10814,10 @@ packages:
 
   /base64-js/1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
+
+  /base64-sol/1.0.1:
+    resolution: {integrity: sha512-ld3cCNMeXt4uJXmLZBHFGMvVpK9KsLVEhPpFRXnvSVAqABKbuNZg/+dsq3NuM+wxFLb/UrVkz7m1ciWmkMfTbg==}
+    dev: false
 
   /base64id/2.0.0:
     resolution: {integrity: sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==}
@@ -26640,7 +26680,7 @@ packages:
     dependencies:
       '@types/cookie': 0.4.0
       '@types/cors': 2.8.10
-      '@types/node': 15.6.0
+      '@types/node': 15.6.1
       accepts: 1.3.7
       base64id: 2.0.0
       debug: 4.3.1
