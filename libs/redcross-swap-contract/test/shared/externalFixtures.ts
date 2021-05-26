@@ -8,6 +8,7 @@ import { IUniswapV3Factory } from '../../typechain/IUniswapV3Factory';
 import { Contract, Signer } from 'ethers/lib/ethers';
 import WETH9 from '../contracts/WETH9.json';
 import {
+  IERC20,
   INonfungiblePositionManager,
   INonfungiblePositionManager__factory,
   ISwapRouter,
@@ -31,6 +32,8 @@ import { INonfungibleTokenPositionDescriptor } from '../../typechain/INonfungibl
 import { constants } from 'ethers';
 import { linkLibraries } from './linkLibraries';
 import NFTDescriptor from '@uniswap/v3-periphery/artifacts/contracts/libraries/NFTDescriptor.sol/NFTDescriptor.json';
+import Quoter from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json';
+import { IQuoter } from '../../typechain/IQuoter';
 
 export const wethFixture = async (signer: Signer) =>
   (await new ethers.ContractFactory(
@@ -106,14 +109,26 @@ export const nftPositionManagerFixture = async (
   return nftPositionManager;
 };
 
-export const testTokensFixture = async () => {
+export const testTokensFixture = async (addedTokens: IERC20[] = []) => {
   const tokenFactory = await ethers.getContractFactory('TestERC20');
   const tokens = (await Promise.all([
     tokenFactory.deploy(constants.MaxUint256.div(2)), // do not use maxu256 to avoid overflowing
     tokenFactory.deploy(constants.MaxUint256.div(2)),
     tokenFactory.deploy(constants.MaxUint256.div(2)),
   ])) as [TestERC20, TestERC20, TestERC20];
-  return tokens.sort((a, b) =>
+  return [...addedTokens, ...tokens].sort((a, b) =>
     a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1
   );
+};
+
+export const quoterFixture = async (
+  signer: Signer,
+  factory: IUniswapV3Factory,
+  weth9: IWETH9
+) => {
+  return (await new ethers.ContractFactory(
+    Quoter.abi,
+    Quoter.bytecode,
+    signer
+  ).deploy(factory.address, weth9.address)) as IQuoter;
 };

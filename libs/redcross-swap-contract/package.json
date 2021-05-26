@@ -4,6 +4,7 @@
     "@uniswap/v3-core": "^1.0.0",
     "@uniswap/v3-periphery": "^1.0.1",
     "bignumber.js": "^9.0.1",
+    "hardhat": "^2.3.0",
     "ipfs": "^0.55.1",
     "ipfs-http-client": "^50.0.0",
     "it-all": "^1.0.4",
