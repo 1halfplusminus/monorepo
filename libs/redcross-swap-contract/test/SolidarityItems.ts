@@ -1,6 +1,6 @@
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
-import { BigNumber, constants, Transaction, utils } from 'ethers';
+import { BigNumber, constants, Signer, Transaction, utils } from 'ethers';
 import { ethers } from 'hardhat';
 import {
   ERC1155__factory,
@@ -42,9 +42,10 @@ describe('An ERC1155 contract for solidarity item', () => {
   let tokens: IERC20[];
   let signers: SignerWithAddress[];
   let quoter: IQuoter;
+  let sardine: IERC20;
   before(async () => {
     signers = await ethers.getSigners();
-    const [wallet, other] = signers;
+    const [wallet, donator] = signers;
     const weth = await wethFixture(wallet);
     v3CoreFactory = await v3CoreFactoryFixture(wallet);
     router = await v3RouterFixture(wallet, v3CoreFactory, weth);
@@ -60,60 +61,47 @@ describe('An ERC1155 contract for solidarity item', () => {
     SolidarityItemFactory = (await ethers.getContractFactory(
       'SolidatiryItems'
     )) as SolidatiryItems__factory;
-    const deploy = await SolidarityItemFactory.deploy();
-    await deploy.init();
-    const erc1155 = ERC1155__factory.connect(deploy.address, wallet);
-    const cloneAddress = await deploy.clone();
-    const clone = ERC20__factory.connect(cloneAddress, wallet);
-    console.log(
-      'Balance from clone',
-      (await clone.balanceOf(wallet.address)).toString()
+    solidityItem = await SolidarityItemFactory.deploy(
+      router.address,
+      quoter.address
     );
-    const balance = await erc1155.balanceOf(wallet.address, 0);
-    console.log('Balance of', balance.toString());
-    await erc1155.setApprovalForAll(clone.address, true);
-    console.log(
-      'Balance after transfer from clone',
-      (await clone.balanceOf(wallet.address)).toString()
-    );
-    tokens = await testTokensFixture([clone]);
+    await solidityItem.init();
+    const erc1155 = ERC1155__factory.connect(solidityItem.address, wallet);
+    const cloneAddress = await solidityItem.clone();
+    sardine = ERC20__factory.connect(cloneAddress, wallet);
+    await erc1155.setApprovalForAll(sardine.address, true);
+    await erc1155.connect(donator).setApprovalForAll(sardine.address, true);
+    await erc1155.connect(wallet).setApprovalForAll(sardine.address, true);
+    tokens = await testTokensFixture([sardine]);
   });
   beforeEach(async () => {
-    const [wallet, other] = signers;
+    const [wallet, signerother] = signers;
     // approve & fund wallets
     for (const token of tokens) {
-      await token.approve(nft.address, constants.MaxUint256);
-      await token.connect(other).approve(nft.address, constants.MaxUint256);
-      await token.connect(other).approve(router.address, constants.MaxUint256);
-      await token.transfer(other.address, expandTo18Decimals(1_000_000));
+      for (const signer of signers) {
+        await token
+          .connect(signer)
+          .approve(router.address, constants.MaxUint256);
+        await token.connect(signer).approve(nft.address, constants.MaxUint256);
+        await token
+          .connect(signer)
+          .approve(solidityItem.address, constants.MaxUint256);
+      }
     }
-    // Deploy metadata ?
-    /*     solidityItem = await SolidarityItemFactory.deploy(); */
   });
-
+  interface Donation {
+    id: number;
+    amount: BigNumber;
+  }
   it('It should mint correctly', async () => {
-    const [wallet, other] = signers;
-    await expect(
-      nft.createAndInitializePoolIfNecessary(
-        tokens[0].address,
-        tokens[1].address,
-        FeeAmount.MEDIUM,
-        encodePriceSqrt(1364, 1)
-      )
-    ).to.not.reverted;
-    const liquidityParams: Parameters<typeof nft.mint>[0] = {
-      token0: tokens[0].address,
-      token1: tokens[1].address,
-      fee: FeeAmount.MEDIUM,
-      tickLower: getMinTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
-      tickUpper: getMaxTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
-      recipient: wallet.address,
-      amount0Desired: utils.parseEther('1'),
-      amount1Desired: utils.parseEther('1').mul(1705),
-      amount0Min: 0,
-      amount1Min: 0,
-      deadline: +Date.now(),
-    };
+    const [admin, donator, poor] = signers;
+    const [eth, sardine] = tokens;
+
+    const sardineFullPrice = encodePriceSqrt(1700, 1);
+    const sardine1PSplipageFullPrice = encodePriceSqrt(169000, 100);
+    const sardineDonationPrice = encodePriceSqrt(70000, 100);
+    // calcule the donation without executing it
+    const quoteDonation = (signer: Signer, donation: Donation[]) => {};
     const waitIncreseLiquidity = () =>
       new Promise<BigNumber>((resolve, reject) => {
         ethers.provider.on(
@@ -121,8 +109,8 @@ describe('An ERC1155 contract for solidarity item', () => {
           (e) => {
             const log = nft.interface.parseLog(e);
             console.log(
-              utils.formatEther(log.args['amount0']),
-              utils.formatEther(log.args['amount1'])
+              'Amount0: ' + utils.formatEther(log.args['amount0']),
+              'Amount1: ' + utils.formatEther(log.args['amount1'])
             );
             const tokenId = log.args['tokenId'];
 
@@ -130,16 +118,169 @@ describe('An ERC1155 contract for solidarity item', () => {
           }
         );
       });
-    const waitTokenId = waitIncreseLiquidity();
-    const transaction = await nft.mint(liquidityParams);
-    await transaction.wait();
-    const tokenId = await waitTokenId;
-    const owner = await nft.ownerOf(tokenId);
-    console.log(owner === wallet.address);
-    console.log(
-      'Balance before : ' +
-        (await tokens[1].balanceOf(other.address)).toString()
-    );
+    const give1EthToDonator = async () => {
+      await eth.transfer(donator.address, utils.parseEther('1'));
+    };
+    const checkIfDonatorHaveNoSardine = async () => {
+      expect(await sardine.balanceOf(donator.address)).to.eq(0);
+    };
+    const checkIfDonatorHaveSardine = async () => {
+      expect(await sardine.balanceOf(donator.address)).to.not.eq(0);
+    };
+    const createDonationPool = async () => {
+      await nft.createAndInitializePoolIfNecessary(
+        eth.address,
+        sardine.address,
+        FeeAmount.MEDIUM,
+        sardineFullPrice
+      );
+      await addSardineToPool(admin, BigNumber.from(1), BigNumber.from(1700));
+      await waitIncreseLiquidity();
+    };
+    const mintSardine = async () => {};
+    const addSardineToPool = async (
+      signer: SignerWithAddress,
+      ethValue: BigNumber,
+      quote: BigNumber
+    ) => {
+      await sardine
+        .connect(router.address)
+        .transferFrom(signer.address, donator.address, quote);
+      eth.connect(signer).approve(router.address, ethValue);
+      sardine.connect(signer).approve(router.address, quote);
+      const liquidityParams: Parameters<typeof nft.mint>[0] = {
+        token0: eth.address,
+        token1: sardine.address,
+        fee: FeeAmount.MEDIUM,
+        tickLower: getMinTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+        tickUpper: getMaxTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+        recipient: signer.address,
+        amount0Desired: ethValue,
+        amount1Desired: quote,
+        amount0Min: 0,
+        amount1Min: 0,
+        deadline: +Date.now(),
+      };
+      const transaction = await nft.connect(signer).mint(liquidityParams);
+      await transaction.wait();
+    };
+    const donate = async (signer: Signer, donations: Donation[]) => {
+      // quote the amount of sardine
+      // const quote = await quoter
+      //   .connect(donator)
+      //   .callStatic.quoteExactInputSingle(
+      //     eth.address,
+      //     sardine.address,
+      //     FeeAmount.MEDIUM,
+      //     ethValue,
+      //     encodePriceSqrt(102, 100)
+      //   );
+      // console.info(
+      //   'If you give ' +
+      //     utils.formatEther(ethValue) +
+      //     ' eth you will have: ' +
+      //     utils.formatEther(quote) +
+      //     ' sardine'
+      // );
+      const donation = donations[0];
+      const quote = await quoter
+        .connect(donator)
+        .callStatic.quoteExactOutputSingle(
+          eth.address,
+          sardine.address,
+          FeeAmount.MEDIUM,
+          donation.amount,
+          encodePriceSqrt(100, 102)
+        );
+      console.info(
+        'If want ' +
+          utils.formatEther(donation.amount) +
+          ' sardine you will have to give: ' +
+          utils.formatEther(quote) +
+          ' eth'
+      );
+      await (
+        await solidityItem
+          .connect(signer)
+          .donate(
+            [donation.id],
+            [donation.amount],
+            quote,
+            eth.address,
+            encodePriceSqrt(102, 100),
+            FeeAmount.MEDIUM
+          )
+      ).wait();
+      expect(await sardine.balanceOf(solidityItem.address)).to.not.eq(0);
+      await router.connect(solidityItem.address).exactInputSingle({
+        tokenIn: eth.address,
+        tokenOut: sardine.address,
+        amountIn: quote,
+        amountOutMinimum: donation.amount,
+        fee: FeeAmount.MEDIUM,
+        deadline: +Date.now(),
+        sqrtPriceLimitX96: encodePriceSqrt(100, 200),
+        recipient: solidityItem.address,
+      });
+      /*       router.connect(solidityItem.address). */
+      /* await mintSardine();
+      await checkIfDonatorHaveSardine(); */
+      /*  await addSardineToPool(donator, ethValue, quote); */
+      await checkIfDonatorHaveNoSardine();
+    };
+    await give1EthToDonator();
+    await checkIfDonatorHaveNoSardine();
+    await createDonationPool();
+    console.info('Donation pool created');
+    await donate(donator, [{ id: 0, amount: utils.parseEther('1') }]);
+    // mint sardine with eth
+    // await expect(
+    //   nft.createAndInitializePoolIfNecessary(
+    //     tokens[0].address,
+    //     tokens[1].address,
+    //     FeeAmount.MEDIUM,
+    //     encodePriceSqrt(1364, 1)
+    //   )
+    // ).to.not.reverted;
+    // const liquidityParams: Parameters<typeof nft.mint>[0] = {
+    //   token0: tokens[0].address,
+    //   token1: tokens[1].address,
+    //   fee: FeeAmount.MEDIUM,
+    //   tickLower: getMinTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+    //   tickUpper: getMaxTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+    //   recipient: wallet.address,
+    //   amount0Desired: utils.parseEther('1'),
+    //   amount1Desired: utils.parseEther('1').mul(1705),
+    //   amount0Min: 0,
+    //   amount1Min: 0,
+    //   deadline: +Date.now(),
+    // };
+    // const waitIncreseLiquidity = () =>
+    //   new Promise<BigNumber>((resolve, reject) => {
+    //     ethers.provider.on(
+    //       nft.filters.IncreaseLiquidity(null, null, null, null),
+    //       (e) => {
+    //         const log = nft.interface.parseLog(e);
+    //         console.log(
+    //           utils.formatEther(log.args['amount0']),
+    //           utils.formatEther(log.args['amount1'])
+    //         );
+    //         const tokenId = log.args['tokenId'];
+
+    //         resolve(tokenId);
+    //       }
+    //     );
+    //   });
+    // const waitTokenId = waitIncreseLiquidity();
+    // const transaction = await nft.mint(liquidityParams);
+    // await transaction.wait();
+    // const tokenId = await waitTokenId;
+    // const owner = await nft.ownerOf(tokenId);
+    // console.log(owner === wallet.address);
+    // console.log(
+    //   'Balance before : ' +
+    //     (await tokens[1].balanceOf(donator.address)).toString()
+    // );
     /*    const result = await router.connect(other).exactInputSingle({
       tokenIn: tokens[0].address,
       tokenOut: tokens[1].address,
@@ -160,14 +301,14 @@ describe('An ERC1155 contract for solidarity item', () => {
       tokens[1].address,
       FeeAmount.MEDIUM
     ); */
-    const quote = await quoter.callStatic.quoteExactInputSingle(
-      tokens[0].address,
-      tokens[1].address,
-      FeeAmount.MEDIUM,
-      utils.parseEther('0.1'),
-      encodePriceSqrt(99, 100)
-    );
-    console.log(utils.formatEther(quote));
+    // const quote = await quoter.callStatic.quoteExactInputSingle(
+    //   tokens[0].address,
+    //   tokens[1].address,
+    //   FeeAmount.MEDIUM,
+    //   utils.parseEther('0.1'),
+    //   encodePriceSqrt(99, 100)
+    // );
+    // console.log(utils.formatEther(quote));
     // Create un metadata file on ipfs
     // Pin the metadata
     // Create the token in blockchain
