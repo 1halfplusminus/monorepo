@@ -13,6 +13,8 @@ import {
   INonfungiblePositionManager__factory,
   ISwapRouter,
   IWETH9,
+  SolidatiryToken,
+  SolidatiryToken__factory,
   TestERC20,
 } from '../../typechain';
 import {
@@ -109,11 +111,17 @@ export const nftPositionManagerFixture = async (
   return nftPositionManager;
 };
 
-export const testTokensFixture = async (addedTokens: IERC20[] = []) => {
-  const tokenFactory = await ethers.getContractFactory('TestERC20');
+export const testTokensFixture = async (
+  router: ISwapRouter,
+  addedTokens: SolidatiryToken[] = []
+) => {
+  const tokenFactory = (await ethers.getContractFactory(
+    'SolidatiryToken'
+  )) as SolidatiryToken__factory;
   const tokens = (await Promise.all([
-    tokenFactory.deploy(constants.MaxUint256.div(2)), // do not use maxu256 to avoid overflowing
-  ])) as [TestERC20];
+    tokenFactory.deploy('Sardine', 'SDN', router.address),
+    tokenFactory.deploy('Poo', 'POO', router.address),
+  ])) as [SolidatiryToken, SolidatiryToken];
   return [...addedTokens, ...tokens].sort((a, b) =>
     a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1
   );
