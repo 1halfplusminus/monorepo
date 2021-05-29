@@ -57,6 +57,20 @@
     },
     "hardhat-utils": {
       "tags": []
+    },
+    "swap-ui": {
+      "tags": []
+    },
+    "swap-ui-e2e": {
+      "tags": [],
+      "implicitDependencies": ["swap-ui"]
+    },
+    "redcross-swap": {
+      "tags": []
+    },
+    "redcross-swap-e2e": {
+      "tags": [],
+      "implicitDependencies": ["redcross-swap"]
     }
   }
 }

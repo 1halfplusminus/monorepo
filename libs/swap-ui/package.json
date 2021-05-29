@@ -1,0 +1,25 @@
+{
+  "name": "@halfoneplusminus/swap-ui",
+  "version": "1.0.0",
+  "description": "This library was generated with [Nx](https://nx.dev).",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@testing-library/user-event": "^13.1.8",
+    "color": "^3.1.3",
+    "date-fns": "^2.21.3",
+    "fp-ts": "^2.10.5",
+    "jest-svg-transformer": "^1.0.0",
+    "react-error-boundary": "^3.1.3",
+    "react-number-format": "^4.5.5",
+    "tailwindcss": "^2.1.2",
+    "twin.macro": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/color": "^3.0.1",
+    "@types/leaflet": "^1.7.0"
+  }
+}

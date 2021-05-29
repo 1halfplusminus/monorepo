@@ -1,0 +1,8 @@
+{
+  "presets": ["@nrwl/next/babel"],
+  "plugins": [
+    ["import", { "libraryName": "antd", "style": true }],
+    "babel-plugin-macros",
+    ["styled-components", { "pure": true, "ssr": true }]
+  ]
+}

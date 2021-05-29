@@ -9,5 +9,10 @@ module.exports = {
     '<rootDir>/apps/covid-dashboard',
     '<rootDir>/apps/piano-app',
     '<rootDir>/libs/hardhat-utils',
+    '<rootDir>/libs/swap-ui',
+    '<rootDir>/apps/redcross-swap',
+  ],
+  transformIgnorePatterns: [
+    '/node_modules/(?!antd|@ant-design|rc-.+?|@babel/runtime).+(js|jsx)$',
   ],
 };
