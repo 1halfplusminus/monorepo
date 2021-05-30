@@ -7,11 +7,15 @@ import { isNone, none, Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import Maybe from '../../core/maybe/maybe';
 import TokenSymbol from '../token-symbol/token-symbol';
-import Popup from '../popup/popup';
+import { DarkModal } from '../popup/popup';
 import SearchToken from '../search-token/search-token';
+import { useModal } from '../popup/hooks';
+
 /* eslint-disable-next-line */
 export interface TokenSelectProps {
   selected: Option<Token>;
+  commonBases?: Token[];
+  tokens: Token[];
 }
 
 const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
@@ -32,8 +36,13 @@ const TokenItem = styled.div`
   ${tw`flex gap-1 justify-center items-center`}
 `;
 
-export function TokenSelect({ selected = none }: TokenSelectProps) {
+export function TokenSelect({
+  selected = none,
+  commonBases,
+  tokens,
+}: TokenSelectProps) {
   const noSelection = useMemo(() => isNone(selected), [selected]);
+  const { showModal, isModalVisible, handleCancel } = useModal();
   return (
     <StyledTokenSelectWrapper noSelection={noSelection}>
       <Maybe option={selected} onNone={() => <Text>Select a token </Text>}>
@@ -44,13 +53,15 @@ export function TokenSelect({ selected = none }: TokenSelectProps) {
           </TokenItem>
         )}
       </Maybe>
-
-      <Popup
+      <CaretDown onClick={showModal} />
+      <DarkModal
+        onCancel={handleCancel}
         title="Select a token"
-        renderButton={(showModal) => <CaretDown onClick={showModal} />}
+        visible={isModalVisible}
+        footer={null}
       >
-        <SearchToken />
-      </Popup>
+        <SearchToken commonBases={commonBases} tokens={tokens} />
+      </DarkModal>
     </StyledTokenSelectWrapper>
   );
 }

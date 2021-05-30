@@ -1,6 +1,5 @@
-import React, { ReactNode, useState } from 'react';
-import styles from 'styled-components';
-import { Modal, Button } from 'antd';
+import React, { ReactNode } from 'react';
+import { Modal } from 'antd';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
@@ -11,7 +10,7 @@ export interface PopupProps {
   children?: ReactNode;
 }
 
-const StyledModal = styled(Modal)`
+export const DarkModal = styled(Modal)`
   .anticon svg {
     ${tw`text-white`}
   }
@@ -25,30 +24,3 @@ const StyledModal = styled(Modal)`
     ${tw`bg-gray-800`}
   }
 `;
-
-export function Popup({ children, renderButton, title }: PopupProps) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  return (
-    <>
-      {renderButton ? renderButton(showModal) : null}
-      <StyledModal title={title} visible={isModalVisible} footer={null}>
-        {children}
-      </StyledModal>
-    </>
-  );
-}
-
-export default Popup;
