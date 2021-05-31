@@ -5,6 +5,7 @@ import tw from 'twin.macro';
 import { Tooltip } from 'antd';
 import { Token } from '../types';
 import TokenSymbol from '../token-symbol/token-symbol';
+import TokenList, { TokenListItem } from '../token-list/token-list';
 
 /* eslint-disable-next-line */
 export interface SearchTokenProps {
@@ -45,44 +46,14 @@ const TokenTags = styled.section`
 export interface TokenTag {
   token: Token;
 }
-const StyledTag = styled(Tag)``;
+
 const TokenTag = ({ token }: TokenTag) => (
   <Tag key={token.name}>
     <TokenSymbol src={token.symbol} />
     {token.name}
   </Tag>
 );
-const StyledList = styled(List)`
-  .ant-list-item-meta-title {
-    ${tw`text-white`}
-  }
-  .ant-list-item-meta-description {
-    ${tw`text-gray-400`}
-  }
-  .ant-list-item {
-    ${tw`cursor-pointer`}
-  }
-  .ant-list-item:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-  }
-`;
-export interface TokenListItem {
-  token: Token;
-  onClick: () => void;
-}
-const TokenListItem = ({ token, onClick }: TokenListItem) => (
-  <List.Item
-    onClick={() => {
-      onClick();
-    }}
-  >
-    <List.Item.Meta
-      avatar={<Avatar src={token.symbol} />}
-      title={token.name}
-      description={token.fullName}
-    />
-  </List.Item>
-);
+
 export function SearchToken({
   commonBases = [],
   tokens,
@@ -109,7 +80,7 @@ export function SearchToken({
           <TokenTag token={t} />
         ))}
       </TokenTags>
-      <StyledList
+      <TokenList
         itemLayout="horizontal"
         dataSource={tokens}
         renderItem={(item: Token) => (
