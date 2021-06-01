@@ -8,5 +8,13 @@ export const ETH = {
 export const DAI = {
   address: '11851841918818',
   name: 'DAI',
-  symbol: '',
+  symbol:
+    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+};
+
+export const USDC = {
+  address: '1xaeazeaz0e0zae',
+  name: 'USDC',
+  symbol:
+    'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
 };

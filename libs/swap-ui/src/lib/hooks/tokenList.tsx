@@ -1,37 +1,98 @@
-import { SemigroupAll } from 'fp-ts/lib/boolean';
 import { Eq, fromEquals } from 'fp-ts/lib/Eq';
-
 import { pipe } from 'fp-ts/lib/function';
 import { Ord, fromCompare } from 'fp-ts/lib/Ord';
-import { first, max, min } from 'fp-ts/lib/Semigroup';
-import { flatten, intersection, tail, head, append } from 'fp-ts/lib/Array';
-import { union } from 'fp-ts/lib/Set';
-import { getSemigroup } from 'fp-ts/lib/These';
+import { max, min } from 'fp-ts/lib/Semigroup';
+import { intersection, head, append, dropLeft } from 'fp-ts/lib/Array';
 import { Token } from '../types';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
 import { isNonEmpty } from 'fp-ts/lib/ReadonlyArray';
+
+import { useState } from 'react';
+import { toArray, fromArray, remove } from 'fp-ts/lib/Set';
+
 declare type UseTokenProps = {
   commonlyUsed: Option<Token[]>;
   tokens: Array<Token>;
   selected: Option<Token[]>;
 };
 declare type UseToken = {
-  selected: Token[];
+  selected: Option<Token[]>;
   isSelected: (token: Token) => boolean;
+  select: (token: Token) => void;
 };
 declare type UseTokenHook = (props: UseTokenProps) => UseToken;
 
-const useSelectToken: UseTokenHook = ({
+export const useSelectToken: UseTokenHook = ({
   commonlyUsed,
   tokens,
   selected: defaultSelected,
 }) => {
+  const [selected, setSelected] = useState(
+    selectedOrFirstCommonlyUsed(tokens, defaultSelected, commonlyUsed)
+  );
   return {
-    selected: defaultSelected,
-    isSelected: () => true,
+    selected: selected,
+    isSelected: (token: Token) =>
+      pipe(
+        selected,
+        options.fold(
+          () => false,
+          (a) => isSelected(a)(token)
+        )
+      ),
+    select: (token: Token) =>
+      setSelected(
+        pipe(
+          selected,
+          options.fold(
+            () => options.some([token]),
+            (selected) =>
+              pipe(
+                selected,
+                findToken(token),
+                options.fold(
+                  () => options.some(selected),
+                  () => options.none
+                ),
+                options.fold(
+                  () =>
+                    pipe(
+                      selected,
+                      fromArray(eqToken),
+                      remove(eqToken)(token),
+                      toArray(ordToken)
+                    ),
+                  (tokens) => append(token)(tokens)
+                ),
+                (t) => (t.length > 2 ? dropLeft(1)(t) : t),
+                options.some
+              )
+          )
+        )
+      ),
   };
 };
+
+export const findToken = (token: Token) => (tokens: Token[]) =>
+  pipe(
+    token,
+    options.fromPredicate((t) => elem(eqToken)(t, tokens))
+  );
+
+export const selectedOrFirstCommonlyUsed = (
+  tokens: Token[],
+  selected: Option<Token[]>,
+  commonlyUsed: Option<Token[]>
+) =>
+  pipe(
+    selected,
+    defaultSelected(tokens),
+    options.fold(
+      () => selectFirst(tokens)(commonlyUsed),
+      (t) => options.some(t)
+    )
+  );
 
 const nonEmptyTokens = options.fromPredicate((tokens: Token[]) =>
   isNonEmpty(tokens)
@@ -58,7 +119,7 @@ const isSelected: (tokens: Token[]) => (token: Token) => boolean = (tokens) => (
   token
 ) => elem(eqToken)(token, tokens);
 
-const eqToken = fromEquals<Token>((x, y) => x.name === y.name);
+const eqToken = fromEquals<Token>((x, y) => x.address === y.address);
 
 const intersectionToken = intersection(eqToken);
 const ordToken: Ord<Token> = fromCompare((x, y) =>

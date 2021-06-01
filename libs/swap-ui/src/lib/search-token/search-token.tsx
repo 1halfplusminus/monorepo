@@ -1,17 +1,20 @@
 import React from 'react';
-import { Avatar, Input, List, Space, Tag } from 'antd';
-import styled, { css } from 'styled-components';
+import { Input, Space, Tag } from 'antd';
+import styled from 'styled-components';
 import tw from 'twin.macro';
 import { Tooltip } from 'antd';
 import { Token } from '../types';
 import TokenSymbol from '../token-symbol/token-symbol';
 import TokenList, { TokenListItem } from '../token-list/token-list';
+import { none, Option } from 'fp-ts/Option';
+import Maybe from '../../core/maybe/maybe';
 
 /* eslint-disable-next-line */
 export interface SearchTokenProps {
-  commonBases?: Token[];
+  commonBases: Option<Token[]>;
   tokens: Token[];
   onSelected?: (token: Token) => void;
+  isSelected: (token: Token) => boolean;
 }
 
 const StyledSearchToken = styled.div`
@@ -40,27 +43,37 @@ const QuestionMark = styled.span`
 const TokenTags = styled.section`
   ${tw`flex flex-row`}
   .ant-tag {
-    ${tw`inline-flex flex-row  bg-gray-900 p-2 gap-2 border-0 text-white text-lg items-center`}
   }
 `;
 export interface TokenTag {
   token: Token;
+  selected?: boolean;
 }
 
-const TokenTag = ({ token }: TokenTag) => (
-  <Tag key={token.name}>
+const StyledTag = styled(Tag)<{ selected?: boolean }>`
+  ${tw`inline-flex flex-row  bg-gray-900 p-2 gap-2 border-0 text-white text-lg items-center cursor-pointer`}
+  ${({ selected }) =>
+    selected &&
+    tw`
+    text-gray-400 bg-gray-400 bg-opacity-10
+  `}
+`;
+const TokenTag = ({ token, selected }: TokenTag) => (
+  <StyledTag selected={selected} key={token.name}>
     <TokenSymbol src={token.symbol} />
     {token.name}
-  </Tag>
+  </StyledTag>
 );
 
 export function SearchToken({
-  commonBases = [],
+  commonBases = none,
   tokens,
   onSelected,
+  isSelected,
 }: SearchTokenProps) {
   const handleClick = (token: Token) => () => {
     if (onSelected) {
+      console.log('here');
       onSelected(token);
     }
   };
@@ -69,22 +82,33 @@ export function SearchToken({
       <Space direction="vertical">
         <StyledSearch placeholder="Search name" />
       </Space>
-      <Title>
-        Common base
-        <Tooltip title="These token are commenly paired with another token">
-          <QuestionMark />
-        </Tooltip>
-      </Title>
-      <TokenTags>
-        {commonBases.map((t) => (
-          <TokenTag token={t} />
-        ))}
-      </TokenTags>
+      <Maybe option={commonBases}>
+        {(commonBases) => (
+          <>
+            <Title>
+              Common base
+              <Tooltip title="These token are commenly paired with another token">
+                <QuestionMark />
+              </Tooltip>
+            </Title>
+            <TokenTags>
+              {commonBases.map((t) => (
+                <TokenTag key={t.address} selected={isSelected(t)} token={t} />
+              ))}
+            </TokenTags>
+          </>
+        )}
+      </Maybe>
+
       <TokenList
         itemLayout="horizontal"
         dataSource={tokens}
         renderItem={(item: Token) => (
-          <TokenListItem onClick={handleClick(item)} token={item} />
+          <TokenListItem
+            selected={isSelected(item)}
+            onClick={handleClick(item)}
+            token={item}
+          />
         )}
       />
     </StyledSearchToken>
