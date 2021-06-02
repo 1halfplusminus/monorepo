@@ -14,8 +14,9 @@ import { useModal } from '../popup/hooks';
 /* eslint-disable-next-line */
 export interface TokenSelectProps {
   selected: Option<Token>;
-  commonBases?: Token[];
+  commonBases: Option<Token[]>;
   tokens: Token[];
+  isSelected: (token: Token) => boolean;
 }
 
 const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
@@ -40,6 +41,7 @@ export function TokenSelect({
   selected = none,
   commonBases,
   tokens,
+  isSelected,
 }: TokenSelectProps) {
   const noSelection = useMemo(() => isNone(selected), [selected]);
   const { showModal, isModalVisible, handleCancel } = useModal();
@@ -60,7 +62,11 @@ export function TokenSelect({
         visible={isModalVisible}
         footer={null}
       >
-        <SearchToken commonBases={commonBases} tokens={tokens} />
+        <SearchToken
+          isSelected={isSelected}
+          commonBases={commonBases}
+          tokens={tokens}
+        />
       </DarkModal>
     </StyledTokenSelectWrapper>
   );

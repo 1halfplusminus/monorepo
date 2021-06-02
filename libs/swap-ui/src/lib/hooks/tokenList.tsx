@@ -8,7 +8,7 @@ import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
 import { isNonEmpty } from 'fp-ts/lib/ReadonlyArray';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toArray, fromArray, remove } from 'fp-ts/lib/Set';
 
 declare type UseTokenProps = {
@@ -31,16 +31,24 @@ export const useSelectToken: UseTokenHook = ({
   const [selected, setSelected] = useState(
     selectedOrFirstCommonlyUsed(tokens, defaultSelected, commonlyUsed)
   );
-  return {
-    selected: selected,
-    isSelected: (token: Token) =>
+  const isSelected = useCallback(
+    (token: Token) =>
       pipe(
         selected,
         options.fold(
           () => false,
-          (a) => isSelected(a)(token)
-        )
+          (a) => isTokenSelected(a)(token)
+        ),
+        (t) => {
+          console.log(t);
+          return t;
+        }
       ),
+    [selected]
+  );
+  return {
+    selected: selected,
+    isSelected,
     select: (token: Token) =>
       setSelected(
         pipe(
@@ -115,9 +123,9 @@ export const defaultSelected = (tokens: Token[]) => (
     options.chain((tokens) => nonEmptyTokens(tokens))
   );
 
-const isSelected: (tokens: Token[]) => (token: Token) => boolean = (tokens) => (
-  token
-) => elem(eqToken)(token, tokens);
+const isTokenSelected: (tokens: Token[]) => (token: Token) => boolean = (
+  tokens
+) => (token) => elem(eqToken)(token, tokens);
 
 const eqToken = fromEquals<Token>((x, y) => x.address === y.address);
 

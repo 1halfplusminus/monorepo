@@ -1,3 +1,4 @@
+export * from './lib/connect-wallet/connect-wallet';
 export * from './lib/token-list/token-list';
 export * from './lib/search-token/search-token';
 export * from './lib/popup/popup';

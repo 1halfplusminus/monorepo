@@ -71,6 +71,9 @@
     "redcross-swap-e2e": {
       "tags": [],
       "implicitDependencies": ["redcross-swap"]
+    },
+    "swap-lib": {
+      "tags": []
     }
   }
 }

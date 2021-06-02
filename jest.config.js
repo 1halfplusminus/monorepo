@@ -11,6 +11,7 @@ module.exports = {
     '<rootDir>/libs/hardhat-utils',
     '<rootDir>/libs/swap-ui',
     '<rootDir>/apps/redcross-swap',
+    '<rootDir>/libs/swap-lib',
   ],
   transformIgnorePatterns: [
     '/node_modules/(?!antd|@ant-design|rc-.+?|@babel/runtime).+(js|jsx)$',

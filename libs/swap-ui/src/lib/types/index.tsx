@@ -4,3 +4,10 @@ export interface Token {
   name: string;
   fullName?: string;
 }
+
+export type WalletProvider =
+  | 'metamask'
+  | 'walletconnect'
+  | 'coinbase'
+  | 'fortmatic'
+  | 'portis';

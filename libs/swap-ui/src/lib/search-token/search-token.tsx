@@ -73,7 +73,6 @@ export function SearchToken({
 }: SearchTokenProps) {
   const handleClick = (token: Token) => () => {
     if (onSelected) {
-      console.log('here');
       onSelected(token);
     }
   };

@@ -37,7 +37,7 @@ export const WithState: Story<SearchTokenProps> = (props) => {
   });
   return (
     <Wrapper>
-      <SearchToken onSelected={select} {...props} isSelected={isSelected} />
+      <SearchToken {...props} onSelected={select} isSelected={isSelected} />
     </Wrapper>
   );
 };

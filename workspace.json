@@ -553,6 +553,27 @@
           }
         }
       }
+    },
+    "swap-lib": {
+      "root": "libs/swap-lib",
+      "sourceRoot": "libs/swap-lib/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/swap-lib/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/swap-lib"],
+          "options": {
+            "jestConfig": "libs/swap-lib/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   }
 }
