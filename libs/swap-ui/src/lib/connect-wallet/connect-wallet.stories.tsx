@@ -8,12 +8,8 @@ export default {
   title: 'ConnectWallet',
 } as Meta;
 
-const WalletProvider = ({ children }: { children: ReactNode }) => (
-  <Web3WalletProvider>{children}</Web3WalletProvider>
-);
-
 const ConnectedWallet = (props: ConnectWalletProps) => {
-  const { connect, isConnecting } = useWallets();
+  const { connect, isConnecting, isConnected } = useWallets();
 
   return (
     <ConnectWallet
@@ -22,6 +18,7 @@ const ConnectedWallet = (props: ConnectWalletProps) => {
         connect(provider);
       }}
       isConnecting={isConnecting}
+      isConnected={isConnected}
     />
   );
 };
@@ -31,10 +28,13 @@ export const primary: Story<ConnectWalletProps> = (props) => {
 export const connecting: Story<ConnectWalletProps> = (props) => {
   return <ConnectWallet {...props} isConnecting={() => true} />;
 };
+export const connected: Story<ConnectWalletProps> = (props) => {
+  return <ConnectWallet {...props} isConnected={() => true} />;
+};
 export const Metamask: Story<ConnectWalletProps> = (props) => {
   return (
-    <WalletProvider>
+    <Web3WalletProvider>
       <ConnectedWallet {...props} />
-    </WalletProvider>
+    </Web3WalletProvider>
   );
 };

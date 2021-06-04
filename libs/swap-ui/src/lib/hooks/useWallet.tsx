@@ -5,9 +5,10 @@ import * as options from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
-import { injected } from './connectors';
+import { connectors, injected } from './connectors';
 import { none, some } from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
+import { filterWithIndex } from 'fp-ts/lib/Array';
 
 function getLibrary(provider, connector) {
   return new ethers.providers.Web3Provider(provider);
@@ -65,11 +66,27 @@ export const useWallets = () => {
       ),
     [connecting]
   );
+  const isConnected = useCallback(
+    (provider: WalletProvider) => {
+      for (const key in connectors) {
+        if (Object.prototype.hasOwnProperty.call(connectors, key)) {
+          const element = connectors[key];
+          if (connector === element && provider === key) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    [connector]
+  );
+  useEagerConnect();
   return {
     connect,
     isConnecting,
     provider: (callback: (provider: WalletProvider) => void) =>
       pipe(provider, options.map(callback)),
+    isConnected,
   };
 };
 
@@ -140,4 +157,7 @@ export function useInactiveListener(suppress: boolean) {
       };
     }
   }, [active, error, suppress, activate]);
+}
+function useMemo(arg0: () => any, arg1: undefined[]) {
+  throw new Error('Function not implemented.');
 }

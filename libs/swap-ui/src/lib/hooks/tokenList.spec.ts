@@ -6,6 +6,7 @@ import {
 } from './tokenList';
 import { DAI, ETH } from './../__mocks__/tokens';
 import { Token } from '../types';
+import { selectAtIndex } from './tokenList';
 const NO_EXISTING_TOKEN: Token = {
   name: '',
   address: '',
@@ -14,37 +15,53 @@ const NO_EXISTING_TOKEN: Token = {
 };
 describe('Token selection', () => {
   it('it should select default correctly', () => {
-    expect(defaultSelected([ETH])(none)).toEqual(none);
+    expect(defaultSelected(some([some(ETH)]))(none)).toEqual(none);
     expect(
-      defaultSelected([ETH, DAI])(some([ETH, NO_EXISTING_TOKEN]))
-    ).toStrictEqual(some([ETH]));
+      defaultSelected(some([some(ETH), some(DAI)]))(
+        some([some(ETH), some(NO_EXISTING_TOKEN)])
+      )
+    ).toStrictEqual(some([some(ETH)]));
     expect(
-      defaultSelected([ETH, DAI])(some([ETH, NO_EXISTING_TOKEN]))
-    ).toStrictEqual(some([ETH]));
-    expect(defaultSelected([ETH, DAI])(some([NO_EXISTING_TOKEN]))).toEqual(
-      none
-    );
+      defaultSelected(some([some(ETH), some(DAI)]))(
+        some([some(ETH), some(NO_EXISTING_TOKEN)])
+      )
+    ).toStrictEqual(some([some(ETH)]));
+    expect(
+      defaultSelected(some([some(ETH), some(DAI)]))(
+        some([some(NO_EXISTING_TOKEN)])
+      )
+    ).toEqual(none);
   });
   it('it should select first token from commonly used as default', () => {
-    expect(selectFirst([ETH])(none)).toEqual(none);
-    expect(selectFirst([ETH, DAI])(some([DAI, ETH]))).toStrictEqual(
-      some([DAI])
-    );
+    expect(selectFirst(some([some(ETH)]))(none)).toEqual(none);
+    expect(
+      selectFirst(some([some(ETH), some(DAI)]))(some([some(DAI), some(ETH)]))
+    ).toStrictEqual(some([some(DAI)]));
   });
 
   it('it should select default correctly', () => {
-    const tokens = [ETH, DAI];
+    const tokens = some([some(ETH), some(DAI)]);
     const commenlyUsed = none;
-    const selected = some([DAI]);
+    const selected = some([some(DAI)]);
     expect(
       selectedOrFirstCommonlyUsed(tokens, selected, commenlyUsed)
-    ).toStrictEqual(some([DAI]));
+    ).toStrictEqual(some([some(DAI)]));
     expect(
-      selectedOrFirstCommonlyUsed(tokens, none, some([ETH, DAI]))
-    ).toStrictEqual(some([ETH]));
+      selectedOrFirstCommonlyUsed(tokens, none, some([some(ETH), some(DAI)]))
+    ).toStrictEqual(some([some(ETH)]));
     expect(
-      selectedOrFirstCommonlyUsed(tokens, none, some([ETH]))
-    ).toStrictEqual(some([ETH]));
+      selectedOrFirstCommonlyUsed(tokens, none, some([some(ETH)]))
+    ).toStrictEqual(some([some(ETH)]));
     expect(selectedOrFirstCommonlyUsed(tokens, none, none)).toStrictEqual(none);
+  });
+  it('it should select at index correctly', () => {
+    const selected = some([some(ETH), none]);
+    expect(selectAtIndex(selected)(DAI, 1)).toStrictEqual(
+      some([some(ETH), some(DAI)])
+    );
+    expect(selectAtIndex(selected)(DAI, 0)).toStrictEqual(
+      some([some(DAI), none])
+    );
+    expect(selectAtIndex(selected)(ETH, 0)).toStrictEqual(some([none, none]));
   });
 });

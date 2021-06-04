@@ -3,14 +3,17 @@ import Button from 'antd/lib/button/button';
 import styled from 'styled-components';
 import { useModal } from '../popup/hooks';
 import { DarkModal } from '../popup/popup';
-import ConnectWallet from '../connect-wallet/connect-wallet';
+import ConnectWallet, {
+  ConnectWalletProps,
+} from '../connect-wallet/connect-wallet';
 /* eslint-disable-next-line */
-export interface ConnectButtonProps {}
+export type ConnectButtonProps = ConnectWalletProps;
 
 const StyledButton = styled(Button)``;
 
 export function ConnectButton({
   children,
+  ...props
 }: PropsWithChildren<ConnectButtonProps>) {
   const { showModal, isModalVisible, handleCancel } = useModal();
 
@@ -23,7 +26,7 @@ export function ConnectButton({
         visible={isModalVisible}
         footer={null}
       >
-        <ConnectWallet />
+        <ConnectWallet {...props} />
       </DarkModal>
     </>
   );

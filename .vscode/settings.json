@@ -1,4 +1,5 @@
 {
+  "security.workspace.trust.enabled": true,
   "editor.formatOnSave": true,
   "jest.jestCommandLine": "pnpm run nx run-many -- --target=test --all=true",
   "jestrunner.jestCommand": "pnpx jest --",

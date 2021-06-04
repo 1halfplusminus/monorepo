@@ -17,6 +17,7 @@ export interface TokenSelectProps {
   commonBases: Option<Token[]>;
   tokens: Token[];
   isSelected: (token: Token) => boolean;
+  onSelected: (token: Token) => void;
 }
 
 const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
@@ -24,7 +25,7 @@ const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
   ${({ noSelection }) => (noSelection ? tw`bg-blue-400 ` : tw`bg-gray-800`)}
 `;
 
-const Text = styled.span`
+const Text = styled.div`
   ${tw`text-white`}
 `;
 
@@ -42,9 +43,13 @@ export function TokenSelect({
   commonBases,
   tokens,
   isSelected,
+  onSelected,
 }: TokenSelectProps) {
   const noSelection = useMemo(() => isNone(selected), [selected]);
   const { showModal, isModalVisible, handleCancel } = useModal();
+  const handleCarretDown = () => {
+    showModal();
+  };
   return (
     <StyledTokenSelectWrapper noSelection={noSelection}>
       <Maybe option={selected} onNone={() => <Text>Select a token </Text>}>
@@ -55,7 +60,7 @@ export function TokenSelect({
           </TokenItem>
         )}
       </Maybe>
-      <CaretDown onClick={showModal} />
+      <CaretDown onClick={handleCarretDown} />
       <DarkModal
         onCancel={handleCancel}
         title="Select a token"
@@ -66,6 +71,7 @@ export function TokenSelect({
           isSelected={isSelected}
           commonBases={commonBases}
           tokens={tokens}
+          onSelected={onSelected}
         />
       </DarkModal>
     </StyledTokenSelectWrapper>

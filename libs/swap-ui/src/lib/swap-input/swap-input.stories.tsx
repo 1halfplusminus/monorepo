@@ -10,7 +10,7 @@ export default {
 } as Meta;
 
 const Wrapper = styled.div`
-  ${tw` h-60 w-72 bg-gray-800 flex flex-col justify-center justify-items-center`}
+  ${tw` h-60 w-96 bg-gray-800 flex flex-col justify-center justify-items-center`}
 `;
 
 export const primary: Story<SwapInputProps> = (props) => {

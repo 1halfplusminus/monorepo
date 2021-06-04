@@ -5,4 +5,7 @@ module.exports = {
     ...options,
     plugins: ['@babel/plugin-proposal-class-properties'],
   }),
+  typescript: {
+    reactDocgen: 'none',
+  },
 };
