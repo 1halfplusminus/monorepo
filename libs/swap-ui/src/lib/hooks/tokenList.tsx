@@ -8,6 +8,7 @@ import {
   lookup,
   updateAt,
   dropLeft,
+  findIndex,
 } from 'fp-ts/lib/Array';
 import { Token } from '../types';
 import type { Option } from 'fp-ts/Option';
@@ -15,9 +16,10 @@ import * as options from 'fp-ts/Option';
 
 import { useCallback, useState } from 'react';
 import { toArray, fromArray, remove } from 'fp-ts/lib/Set';
-import { none } from 'fp-ts/Option';
 
-declare type TokenList = Option<Array<Option<Token>>>;
+import { useEffect } from 'react';
+
+export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;
 declare type UseTokenProps = {
   commonlyUsed: TokenList;
@@ -40,16 +42,37 @@ export const selectAtIndex = (selected: TokenList) => (
   pipe(
     selected,
     findToken(token),
-    options.map((s) => pipe(s, updateAt(index, none))),
-    options.fold(
-      () =>
-        pipe(
-          selected,
-          options.chain((selected) =>
-            updateAt(index, options.some(token))(selected)
+    options.chain((s) =>
+      pipe(
+        s,
+        findIndex((a) => eqOptionToken.equals(a, options.some(token))),
+        options.map((foundIndex) =>
+          pipe(
+            s,
+            updateAt<Option<Token>>(
+              foundIndex,
+              pipe(
+                lookup(index)(s),
+                options.filter(() => index !== foundIndex),
+                options.chain((v) => v)
+              )
+            ),
+            options.chain((r) =>
+              index !== foundIndex
+                ? updateAt(index, options.some(token))(r)
+                : options.some(r)
+            )
           )
-        ),
-      (v) => v
+        )
+      )
+    ),
+    options.getOrElse(() =>
+      pipe(
+        selected,
+        options.chain((selected) =>
+          updateAt(index, options.some(token))(selected)
+        )
+      )
     )
   );
 export const useSelectToken: UseTokenHook = ({
@@ -62,17 +85,12 @@ export const useSelectToken: UseTokenHook = ({
   );
 
   const isSelected = useCallback(
-    (token: Token) =>
-      pipe(
-        selected,
-        options.fold(
-          () => false,
-          (a) => isTokenSelected(a)(token)
-        )
-      ),
+    (token: Token) => pipe(selected, isTokenSelected(token)),
     [selected]
   );
-
+  useEffect(() => {
+    console.log(selected);
+  }, [selected]);
   return {
     selected: selected,
     isSelected,
@@ -133,10 +151,28 @@ export const selectedOrFirstCommonlyUsed = (
   pipe(
     selected,
     defaultSelected(tokens),
-
     options.fold(
-      () => pipe(commonlyUsed, selectFirst(tokens)),
-      (t) => options.some(t)
+      () =>
+        pipe(
+          commonlyUsed,
+          options.chain((commonlyUsed) => lookup(0)(commonlyUsed)),
+          options.map((r) => [r])
+        ),
+      (t) =>
+        pipe(
+          t,
+          lookup(0),
+          options.filter((o) => options.isSome(o)),
+          options.fold(
+            () =>
+              pipe(
+                commonlyUsed,
+                options.chain((commonlyUsed) => lookup(0)(commonlyUsed)),
+                options.chain((r) => updateAt(0, r)(t))
+              ),
+            () => options.some(t)
+          )
+        )
     )
   );
 
@@ -158,16 +194,16 @@ export const defaultSelected = (tokens: TokenList) => (selected: TokenList) =>
     options.map((tokens) =>
       pipe(
         selected,
-        options.map(intersectionToken(tokens)),
+        /*         options.map(intersectionToken(tokens)), */
         options.filter((f) => f.length > 0)
       )
     ),
     options.chain((v) => v)
   );
 
-const isTokenSelected: (tokens: TokenList) => (token: Token) => boolean = (
-  tokens
-) => (token) =>
+const isTokenSelected: (token: Token) => (tokens: TokenList) => boolean = (
+  token
+) => (tokens) =>
   pipe(
     tokens,
     options.map((tokens) => elem(eqOptionToken)(options.some(token), tokens)),

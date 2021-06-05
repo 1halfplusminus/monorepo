@@ -10,12 +10,13 @@ import TokenSymbol from '../token-symbol/token-symbol';
 import { DarkModal } from '../popup/popup';
 import SearchToken from '../search-token/search-token';
 import { useModal } from '../popup/hooks';
+import { TokenList } from '../hooks/tokenList';
 
 /* eslint-disable-next-line */
 export interface TokenSelectProps {
   selected: Option<Token>;
-  commonBases: Option<Token[]>;
-  tokens: Token[];
+  commonBases: TokenList;
+  tokens: TokenList;
   isSelected: (token: Token) => boolean;
   onSelected: (token: Token) => void;
 }

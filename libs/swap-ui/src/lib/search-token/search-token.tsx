@@ -8,11 +8,11 @@ import TokenSymbol from '../token-symbol/token-symbol';
 import TokenList, { TokenListItem } from '../token-list/token-list';
 import { none, Option } from 'fp-ts/Option';
 import Maybe from '../../core/maybe/maybe';
-
+import type { TokenList as ITokenList } from '../hooks/tokenList';
 /* eslint-disable-next-line */
 export interface SearchTokenProps {
-  commonBases: Option<Token[]>;
-  tokens: Token[];
+  commonBases: ITokenList;
+  tokens: ITokenList;
   onSelected?: (token: Token) => void;
   isSelected: (token: Token) => boolean;
 }
@@ -92,24 +92,40 @@ export function SearchToken({
             </Title>
             <TokenTags>
               {commonBases.map((t) => (
-                <TokenTag key={t.address} selected={isSelected(t)} token={t} />
+                <Maybe option={t}>
+                  {(t) => (
+                    <TokenTag
+                      key={t.address}
+                      selected={isSelected(t)}
+                      token={t}
+                    />
+                  )}
+                </Maybe>
               ))}
             </TokenTags>
           </>
         )}
       </Maybe>
-
-      <TokenList
-        itemLayout="horizontal"
-        dataSource={tokens}
-        renderItem={(item: Token) => (
-          <TokenListItem
-            selected={isSelected(item)}
-            onClick={handleClick(item)}
-            token={item}
+      <Maybe option={tokens}>
+        {(tokens) => (
+          <TokenList
+            itemLayout="horizontal"
+            dataSource={tokens}
+            renderItem={(item: Option<Token>) => (
+              <Maybe option={item}>
+                {(item) => (
+                  <TokenListItem
+                    key={item.address}
+                    selected={isSelected(item)}
+                    onClick={handleClick(item)}
+                    token={item}
+                  />
+                )}
+              </Maybe>
+            )}
           />
         )}
-      />
+      </Maybe>
     </StyledSearchToken>
   );
 }

@@ -10,17 +10,17 @@ export default {
   title: 'SwapForm',
 } as Meta;
 
-const commonBases = some([ETH, DAI]);
-const tokens = [ETH, DAI, USDC];
+const commonBases = some([some(ETH), some(DAI)]);
+const tokens = some([some(ETH), some(DAI), some(USDC)]);
 export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
 };
 
 export const WithState: Story<SwapFormProps> = (props) => {
   const { isSelected, first, last, selectAtIndex } = useSelectToken({
-    commonlyUsed: commonBases,
+    commonlyUsed: some([some(DAI)]),
     tokens: tokens,
-    selected: none,
+    selected: some([none, none]),
   });
   return (
     <SwapForm
@@ -36,7 +36,7 @@ export const WithState: Story<SwapFormProps> = (props) => {
         isSelected,
         selected: last,
         onSelected: (token) => {
-          console.log('here');
+          console.log(first);
           selectAtIndex(token, 1);
         },
       }}
