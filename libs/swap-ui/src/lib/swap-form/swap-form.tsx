@@ -10,6 +10,7 @@ export interface SwapFormProps {
   inputB: UsedSwapInputProps;
   tokens: SwapInputProps['tokens'];
   commonBases: SwapInputProps['commonBases'];
+  onSearch: SwapInputProps['onSearch'];
 }
 
 const StyledSwapSurface = styled.div`
@@ -27,12 +28,23 @@ export function SwapForm({
   inputB,
   tokens,
   commonBases,
+  onSearch,
 }: SwapFormProps) {
   return (
     <StyledSwapSurface>
       <Title>Permuter</Title>
-      <SwapInput {...inputA} tokens={tokens} commonBases={commonBases} />
-      <SwapInput {...inputB} tokens={tokens} commonBases={commonBases} />
+      <SwapInput
+        {...inputA}
+        onSearch={onSearch}
+        tokens={tokens}
+        commonBases={commonBases}
+      />
+      <SwapInput
+        {...inputB}
+        onSearch={onSearch}
+        tokens={tokens}
+        commonBases={commonBases}
+      />
     </StyledSwapSurface>
   );
 }

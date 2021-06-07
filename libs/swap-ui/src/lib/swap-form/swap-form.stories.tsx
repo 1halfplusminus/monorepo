@@ -3,7 +3,7 @@ import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
-import { useSelectToken } from '../hooks/tokenList';
+import { useSearch, useSelectToken } from '../hooks/tokenList';
 
 export default {
   component: SwapForm,
@@ -17,14 +17,17 @@ export const primary: Story<SwapFormProps> = (props) => {
 };
 
 export const WithState: Story<SwapFormProps> = (props) => {
+  const { filteredTokenList, search } = useSearch(props.tokens);
   const { isSelected, first, last, selectAtIndex } = useSelectToken({
     commonlyUsed: some([some(DAI)]),
-    tokens: tokens,
+    tokens: filteredTokenList,
     selected: some([none, none]),
   });
   return (
     <SwapForm
       {...props}
+      tokens={filteredTokenList}
+      onSearch={search}
       inputA={{
         isSelected,
         selected: first,

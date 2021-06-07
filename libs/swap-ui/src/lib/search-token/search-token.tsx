@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { Input, Space, Tag } from 'antd';
 import styled from 'styled-components';
 import tw from 'twin.macro';
@@ -15,6 +15,7 @@ export interface SearchTokenProps {
   tokens: ITokenList;
   onSelected?: (token: Token) => void;
   isSelected: (token: Token) => boolean;
+  onSearch?: (query: string) => void;
 }
 
 const StyledSearchToken = styled.div`
@@ -70,16 +71,22 @@ export function SearchToken({
   tokens,
   onSelected,
   isSelected,
+  onSearch,
 }: SearchTokenProps) {
   const handleClick = (token: Token) => () => {
     if (onSelected) {
       onSelected(token);
     }
   };
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    if (onSearch) {
+      onSearch(e.target.value);
+    }
+  };
   return (
     <StyledSearchToken>
       <Space direction="vertical">
-        <StyledSearch placeholder="Search name" />
+        <StyledSearch onChange={handleSearch} placeholder="Search name" />
       </Space>
       <Maybe option={commonBases}>
         {(commonBases) => (

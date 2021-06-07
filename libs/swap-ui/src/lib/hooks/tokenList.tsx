@@ -9,15 +9,16 @@ import {
   updateAt,
   dropLeft,
   findIndex,
+  filter,
 } from 'fp-ts/lib/Array';
 import { Token } from '../types';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
 
 import { useCallback, useState } from 'react';
-import { toArray, fromArray, remove } from 'fp-ts/lib/Set';
+import { toArray, fromArray, remove } from 'fp-ts/Set';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;
@@ -211,20 +212,63 @@ const isTokenSelected: (token: Token) => (tokens: TokenList) => boolean = (
   );
 
 const eqToken = fromEquals<Token>((x, y) => x.address === y.address);
+
 const eqOptionToken = options.getEq(eqToken);
 
-const intersectionToken = intersection(eqOptionToken);
 const ordToken: Ord<Token> = fromCompare((x, y) =>
   x.name < y.name ? -1 : x.name > y.name ? 1 : 0
 );
 const ordOptionToken = options.getOrd(ordToken);
 
-/** Takes the minimum of two values */
-const semigroupMin = min(ordToken);
-
-/** Takes the maximum of two values  */
-const semigroupMax = max(ordToken);
-
 function elem<A>(E: Eq<A>): (a: A, as: Array<A>) => boolean {
   return (a, as) => as.some((item) => E.equals(item, a));
 }
+const fullTextSearchToken = (token: Token) => (query: string) =>
+  token.name.toLowerCase().includes(query.toLowerCase());
+
+const fullTextSearchOptionToken = (token: Option<Token>) => (query: string) =>
+  pipe(
+    token,
+    options.map((t) => fullTextSearchToken(t)(query)),
+    options.getOrElse(() => false)
+  );
+
+export const searchToken = (tokens: TokenList) => (query: string) =>
+  pipe(
+    tokens,
+    options.map((tokens) =>
+      pipe(
+        tokens,
+        filter((token) => fullTextSearchOptionToken(token)(query))
+      )
+    ),
+    options.filter((tokens) => tokens.length > 0)
+  );
+
+export const useSearch = (
+  tokenList: TokenList,
+  initialQuery: Option<string> = options.none
+) => {
+  const [query, setQuery] = useState<Option<string>>(initialQuery);
+  const search = (query: string) => {
+    setQuery(
+      pipe(
+        query,
+        options.fromPredicate(() => query.length > 0)
+      )
+    );
+  };
+  const filteredTokenList = useMemo(
+    () =>
+      pipe(
+        query,
+        options.map((query) => searchToken(tokenList)(query)),
+        options.getOrElse(() => tokenList)
+      ),
+    [tokenList, query]
+  );
+  return {
+    filteredTokenList,
+    search,
+  };
+};

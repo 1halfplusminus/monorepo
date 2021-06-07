@@ -19,6 +19,7 @@ export interface TokenSelectProps {
   tokens: TokenList;
   isSelected: (token: Token) => boolean;
   onSelected: (token: Token) => void;
+  onSearch?: (query: string) => void;
 }
 
 const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
@@ -45,6 +46,7 @@ export function TokenSelect({
   tokens,
   isSelected,
   onSelected,
+  onSearch,
 }: TokenSelectProps) {
   const noSelection = useMemo(() => isNone(selected), [selected]);
   const { showModal, isModalVisible, handleCancel } = useModal();
@@ -73,6 +75,7 @@ export function TokenSelect({
           commonBases={commonBases}
           tokens={tokens}
           onSelected={onSelected}
+          onSearch={onSearch}
         />
       </DarkModal>
     </StyledTokenSelectWrapper>

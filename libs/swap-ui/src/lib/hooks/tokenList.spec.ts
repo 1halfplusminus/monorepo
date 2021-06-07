@@ -6,31 +6,16 @@ import {
 } from './tokenList';
 import { DAI, ETH } from './../__mocks__/tokens';
 import { Token } from '../types';
-import { selectAtIndex } from './tokenList';
-const NO_EXISTING_TOKEN: Token = {
-  name: '',
-  address: '',
-  symbol: '',
-  fullName: '',
-};
+import { selectAtIndex, searchToken } from './tokenList';
+
 describe('Token selection', () => {
+  it('it should search token correctly', () => {
+    const tokens = some([some(ETH), some(DAI)]);
+    expect(searchToken(tokens)('zzzz')).toStrictEqual(none);
+    expect(searchToken(tokens)('eth')).toStrictEqual(some([some(ETH)]));
+  });
   it('it should select default correctly', () => {
     expect(defaultSelected(some([some(ETH)]))(none)).toEqual(none);
-    /* expect(
-      defaultSelected(some([some(ETH), some(DAI)]))(
-        some([some(ETH), some(NO_EXISTING_TOKEN)])
-      )
-    ).toStrictEqual(some([some(ETH)])); */
-    /*   expect(
-      defaultSelected(some([some(ETH), some(DAI)]))(
-        some([some(ETH), some(NO_EXISTING_TOKEN)])
-      )
-    ).toStrictEqual(some([some(ETH)])); */
-    /*   expect(
-      defaultSelected(some([some(ETH), some(DAI)]))(
-        some([some(NO_EXISTING_TOKEN)])
-      )
-    ).toEqual(none); */
   });
   it('it should select first token from commonly used as default', () => {
     expect(selectFirst(some([some(ETH)]))(none)).toEqual(none);

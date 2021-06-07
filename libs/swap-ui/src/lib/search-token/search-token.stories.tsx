@@ -4,11 +4,12 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
 import { SearchToken, SearchTokenProps } from './search-token';
-import { useSelectToken } from '../hooks/tokenList';
+import { useSearch, useSelectToken } from '../hooks/tokenList';
 import { none, some } from 'fp-ts/lib/Option';
 export default {
   component: SearchToken,
   title: 'SearchToken',
+  parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;
 
 const Wrapper = styled.div`
@@ -24,25 +25,32 @@ export const primary: Story<SearchTokenProps> = (props) => {
 };
 
 primary.args = {
-  commonBases: some([ETH]),
-  tokens: [ETH],
+  commonBases: some([some(ETH)]),
+  tokens: some([some(ETH)]),
   isSelected: () => false,
 };
 
 export const WithState: Story<SearchTokenProps> = (props) => {
+  const { filteredTokenList, search } = useSearch(props.tokens);
   const { isSelected, select } = useSelectToken({
     commonlyUsed: props.commonBases,
-    tokens: props.tokens,
+    tokens: filteredTokenList,
     selected: none,
   });
   return (
     <Wrapper>
-      <SearchToken {...props} onSelected={select} isSelected={isSelected} />
+      <SearchToken
+        {...props}
+        tokens={filteredTokenList}
+        onSelected={select}
+        isSelected={isSelected}
+        onSearch={(query) => search(query)}
+      />
     </Wrapper>
   );
 };
 
 WithState.args = {
-  commonBases: some([ETH]),
-  tokens: [ETH, DAI, USDC],
+  commonBases: some([some(ETH)]),
+  tokens: some([some(ETH), some(DAI), some(USDC)]),
 };
