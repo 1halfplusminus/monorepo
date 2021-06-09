@@ -1,9 +1,8 @@
 import { Eq, fromEquals } from 'fp-ts/lib/Eq';
 import { pipe } from 'fp-ts/lib/function';
 import { Ord, fromCompare } from 'fp-ts/lib/Ord';
-import { max, min } from 'fp-ts/lib/Semigroup';
+
 import {
-  intersection,
   head,
   lookup,
   updateAt,
@@ -79,7 +78,7 @@ export const selectAtIndex = (selected: TokenList) => (
 export const useSelectToken: UseTokenHook = ({
   commonlyUsed,
   tokens,
-  selected: defaultSelected,
+  selected: defaultSelected = options.none,
 }) => {
   const [selected, setSelected] = useState(
     selectedOrFirstCommonlyUsed(tokens, defaultSelected, commonlyUsed)
@@ -89,9 +88,7 @@ export const useSelectToken: UseTokenHook = ({
     (token: Token) => pipe(selected, isTokenSelected(token)),
     [selected]
   );
-  useEffect(() => {
-    console.log(selected);
-  }, [selected]);
+
   return {
     selected: selected,
     isSelected,
@@ -211,7 +208,7 @@ const isTokenSelected: (token: Token) => (tokens: TokenList) => boolean = (
     options.getOrElse(() => false)
   );
 
-const eqToken = fromEquals<Token>((x, y) => x.address === y.address);
+export const eqToken = fromEquals<Token>((x, y) => x.address === y.address);
 
 const eqOptionToken = options.getEq(eqToken);
 

@@ -3,10 +3,15 @@ import { Meta, Story } from '@storybook/react';
 import { SwapInput, SwapInputProps } from './swap-input';
 import styled from 'styled-components';
 import tw from 'twin.macro';
+import { getOrElse, useTokenValues } from '../hooks/useTokenValue';
+import { none, some } from 'fp-ts/Option';
+import { pipe } from 'fp-ts/function';
+import { ETH } from '../__mocks__/tokens';
 
 export default {
   component: SwapInput,
   title: 'SwapInput',
+  parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;
 
 const Wrapper = styled.div`
@@ -19,4 +24,25 @@ export const primary: Story<SwapInputProps> = (props) => {
       <SwapInput {...props} />
     </Wrapper>
   );
+};
+primary.args = {
+  selected: none,
+};
+export const WithState: Story<SwapInputProps> = (props) => {
+  const { lookup, modifyAt } = useTokenValues({
+    valueByToken: some(new Map()),
+  });
+  return (
+    <Wrapper>
+      <SwapInput
+        {...props}
+        value={getOrElse(lookup(props.selected))}
+        onValueChange={modifyAt}
+      />
+    </Wrapper>
+  );
+};
+
+WithState.args = {
+  selected: some(ETH),
 };

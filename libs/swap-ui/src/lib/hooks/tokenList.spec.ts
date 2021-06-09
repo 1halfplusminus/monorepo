@@ -5,7 +5,6 @@ import {
   selectFirst,
 } from './tokenList';
 import { DAI, ETH } from './../__mocks__/tokens';
-import { Token } from '../types';
 import { selectAtIndex, searchToken } from './tokenList';
 
 describe('Token selection', () => {

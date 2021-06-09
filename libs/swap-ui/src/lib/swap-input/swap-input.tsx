@@ -1,10 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import NumberFormat from 'react-number-format';
+import NumberFormat, { NumberFormatValues } from 'react-number-format';
 import TokenSelect, { TokenSelectProps } from '../token-select/token-select';
+import { Token } from '../types';
+import * as options from 'fp-ts/Option';
+import type { Option } from 'fp-ts/Option';
+import { pipe } from 'fp-ts/function';
+import { isEmpty } from 'fp-ts/string';
 /* eslint-disable-next-line */
-export type SwapInputProps = TokenSelectProps;
+export type SwapInputProps = TokenSelectProps & {
+  onValueChange: (token: Option<Token>, value: string) => void;
+  value: string;
+};
 
 const StyledSwapInputWrapper = styled.div`
   ${tw`
@@ -20,11 +28,42 @@ const StyledSwapInputWrapper = styled.div`
   }
 `;
 
-export function SwapInput(props: SwapInputProps) {
+export function SwapInput({
+  value = '0.0',
+  onValueChange,
+  ...props
+}: SwapInputProps) {
+  const handleValueChange = ({ value }: NumberFormatValues) => {
+    pipe(
+      onValueChange,
+      options.fromNullable,
+      options.chain((callback) =>
+        pipe(
+          value,
+          options.fromPredicate((v) => !isEmpty(v) && v !== '0.0'),
+          options.map((value) => callback(props.selected, value))
+        )
+      )
+    );
+  };
   return (
     <StyledSwapInputWrapper>
       <TokenSelect {...props} />
-      <NumberFormat allowNegative={false} value={'0.0'} />
+      <NumberFormat
+        allowNegative={false}
+        value={value}
+        onValueChange={handleValueChange}
+        disabled={
+          props.selected &&
+          pipe(
+            props.selected,
+            options.fold(
+              () => true,
+              () => false
+            )
+          )
+        }
+      />
     </StyledSwapInputWrapper>
   );
 }
