@@ -1,5 +1,5 @@
 import { Eq, fromEquals } from 'fp-ts/lib/Eq';
-import { pipe } from 'fp-ts/lib/function';
+import { flow, pipe } from 'fp-ts/lib/function';
 import { Ord, fromCompare } from 'fp-ts/lib/Ord';
 
 import {
@@ -18,6 +18,7 @@ import { useCallback, useState } from 'react';
 import { toArray, fromArray, remove } from 'fp-ts/Set';
 
 import { useEffect, useMemo } from 'react';
+import { chain } from 'fp-ts';
 
 export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;
@@ -33,6 +34,7 @@ declare type UseToken = {
   selectAtIndex: (token: Token, index: Index) => void;
   first: Option<Token>;
   last: Option<Token>;
+  inverse: () => void;
 };
 declare type UseTokenHook = (props: UseTokenProps) => UseToken;
 export const selectAtIndex = (selected: TokenList) => (
@@ -88,7 +90,45 @@ export const useSelectToken: UseTokenHook = ({
     (token: Token) => pipe(selected, isTokenSelected(token)),
     [selected]
   );
-
+  const setSelectedAtIndex = useCallback(
+    (token: Token, index: Index) =>
+      setSelected(selectAtIndex(selected)(token, index)),
+    [selected]
+  );
+  const last = useMemo(
+    () =>
+      pipe(
+        selected,
+        options.chain((tokens) => lookup(1)(tokens)),
+        options.chain((t) => t)
+      ),
+    [selected]
+  );
+  const first = useMemo(
+    () =>
+      pipe(
+        selected,
+        options.chain((tokens) => lookup(0)(tokens)),
+        options.chain((t) => t)
+      ),
+    [selected]
+  );
+  const inverse = useCallback(
+    () =>
+      flow(
+        () =>
+          pipe(
+            last,
+            options.map((last) => setSelectedAtIndex(last, 0))
+          ),
+        () =>
+          pipe(
+            first,
+            options.map((first) => setSelectedAtIndex(first, 1))
+          )
+      )(),
+    [last, first, setSelectedAtIndex]
+  );
   return {
     selected: selected,
     isSelected,
@@ -113,18 +153,10 @@ export const useSelectToken: UseTokenHook = ({
           )
         )
       ),
-    selectAtIndex: (token: Token, index: Index) =>
-      setSelected(selectAtIndex(selected)(token, index)),
-    first: pipe(
-      selected,
-      options.chain((tokens) => lookup(0)(tokens)),
-      options.chain((t) => t)
-    ),
-    last: pipe(
-      selected,
-      options.chain((tokens) => lookup(1)(tokens)),
-      options.chain((t) => t)
-    ),
+    selectAtIndex: setSelectedAtIndex,
+    first,
+    last,
+    inverse,
   };
 };
 
