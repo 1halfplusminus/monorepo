@@ -6,17 +6,23 @@ import TokenSelect, { TokenSelectProps } from '../token-select/token-select';
 import { Token } from '../types';
 import * as options from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+import { flow, pipe } from 'fp-ts/function';
 import { isEmpty } from 'fp-ts/string';
+import * as option from 'fp-ts/Option';
+import * as arrays from 'fp-ts/Array';
+import Maybe from '../../core/maybe/maybe';
+import { BigNumberish } from 'ethers';
+
 /* eslint-disable-next-line */
 export type SwapInputProps = TokenSelectProps & {
   onValueChange: (token: Option<Token>, value: string) => void;
   value: string;
+  sold: Option<BigNumberish>;
 };
 
 const StyledSwapInputWrapper = styled.div`
   ${tw`
-  text-blue-700 h-16 bg-gray-700 flex flex-row p-4 rounded-md border-gray-300 border-2`}
+  text-blue-700  bg-gray-700 flex flex-col p-4 rounded-md border-gray-300 border-2 gap-2`}
   input {
     background-color: transparent;
     border: none;
@@ -27,10 +33,35 @@ const StyledSwapInputWrapper = styled.div`
     flex: 1 1 auto;
   }
 `;
+const Col = styled.div`
+  ${tw`inline-flex flex-col`}
+`;
+const Row = styled.div`
+  ${tw`flex flex-row flex-1`}
+`;
+
+const SoldDisplay = styled(
+  ({ token, sold, ...rest }: { token: Token; sold: string }) => (
+    <div {...rest}>
+      Solde: {sold} {token.name}{' '}
+    </div>
+  )
+)`
+  ${tw`text-white text-base`}
+`;
+
+const isSelected = flow(
+  options.fromNullable,
+  options.fold(
+    () => true,
+    () => false
+  )
+);
 
 export function SwapInput({
   value = '0.0',
   onValueChange,
+  sold,
   ...props
 }: SwapInputProps) {
   const handleValueChange = ({ value }: NumberFormatValues) => {
@@ -46,24 +77,27 @@ export function SwapInput({
       )
     );
   };
+
   return (
     <StyledSwapInputWrapper>
-      <TokenSelect {...props} />
-      <NumberFormat
-        allowNegative={false}
-        value={value}
-        onValueChange={handleValueChange}
-        disabled={
-          props.selected &&
-          pipe(
-            props.selected,
-            options.fold(
-              () => true,
-              () => false
-            )
-          )
-        }
-      />
+      <Row>
+        <TokenSelect {...props} />
+        <NumberFormat
+          allowNegative={false}
+          value={value}
+          onValueChange={handleValueChange}
+          disabled={isSelected(props.selected)}
+        />
+      </Row>
+      <Col>
+        <Maybe option={props.selected}>
+          {(token) => (
+            <Maybe option={sold}>
+              {(sold) => <SoldDisplay token={token} sold={sold} />}
+            </Maybe>
+          )}
+        </Maybe>
+      </Col>
     </StyledSwapInputWrapper>
   );
 }

@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
+import * as arrays from 'fp-ts/Array';
 /* eslint-disable-next-line */
 export interface MaybeProps<T> {
   children?: (some: T) => ReactNode;

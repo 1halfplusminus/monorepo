@@ -4,9 +4,20 @@ import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
 import { useSearch, useSelectToken } from '../hooks/tokenList';
-import { useTokenValues, getOrElse } from '../hooks/useTokenValue';
+import {
+  useTokenValues,
+  getOrElse,
+  modifyAtTaskEither,
+} from '../hooks/useTokenValue';
 import FormSubmitButton from './form-submit-button';
-
+import {
+  fetchBalance,
+  fetchBalanceOption,
+  useWallets,
+  Web3WalletProvider,
+} from '../hooks/useWallet';
+import { pipe } from 'fp-ts/function';
+import * as options from 'fp-ts/Option';
 export default {
   component: SwapForm,
   title: 'SwapForm/Form',
@@ -20,7 +31,8 @@ export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
 };
 
-export const WithState: Story<SwapFormProps> = (props) => {
+const ConnectedForm = (props: SwapFormProps) => {
+  const { library, connected, isConnected, connect, account } = useWallets();
   const { filteredTokenList, search } = useSearch(props.tokens);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
     commonlyUsed: some([some(DAI)]),
@@ -28,6 +40,9 @@ export const WithState: Story<SwapFormProps> = (props) => {
     selected: some([none, none]),
   });
   const { lookup, modifyAt } = useTokenValues({
+    valueByToken: some(new Map()),
+  });
+  const sold = useTokenValues({
     valueByToken: some(new Map()),
   });
   return (
@@ -41,11 +56,24 @@ export const WithState: Story<SwapFormProps> = (props) => {
         selected: first,
         onSelected: (token) => {
           selectAtIndex(token, 0);
+          pipe(
+            library,
+            options.map((p) =>
+              pipe(
+                modifyAtTaskEither(
+                  fetchBalance(p)(token, account),
+                  sold.modifyAt,
+                  some(token)
+                )()
+              )
+            )
+          );
         },
         value: getOrElse(lookup(first)),
         onValueChange: (t, v) => {
           modifyAt(t, v);
         },
+        sold: sold.lookup(first),
       }}
       inputB={{
         isSelected,
@@ -57,10 +85,22 @@ export const WithState: Story<SwapFormProps> = (props) => {
         onValueChange: (t, v) => {
           modifyAt(t, v);
         },
+        sold: sold.lookup(last),
       }}
     >
-      <FormSubmitButton tokens={none} connected={none} />
+      <FormSubmitButton
+        connectButton={{ isConnected: isConnected, connect: connect }}
+        tokens={none}
+        connected={connected}
+      />
     </SwapForm>
+  );
+};
+export const WithState: Story<SwapFormProps> = (props) => {
+  return (
+    <Web3WalletProvider>
+      <ConnectedForm {...props} />
+    </Web3WalletProvider>
   );
 };
 WithState.args = {

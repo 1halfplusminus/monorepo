@@ -1,16 +1,23 @@
-import { WalletProvider } from '../types';
+import { Token, WalletProvider } from '../types';
 
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import * as options from 'fp-ts/Option';
-import { pipe } from 'fp-ts/lib/function';
+import { flow, pipe } from 'fp-ts/function';
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { connectors, injected } from './connectors';
 import { none, some } from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
-import { filterWithIndex } from 'fp-ts/lib/Array';
+import * as taskEither from 'fp-ts/TaskEither';
+import { Contract } from 'ethers/lib/ethers';
 
-function getLibrary(provider, connector) {
+function getLibrary(provider: unknown, connector: unknown) {
   return new ethers.providers.Web3Provider(provider);
 }
 
@@ -80,6 +87,14 @@ export const useWallets = () => {
     },
     [connector]
   );
+  const connected = useMemo(
+    () =>
+      pipe(
+        options.fromNullable(connector),
+        options.map((c) => !!c)
+      ),
+    [connector]
+  );
   useEagerConnect();
   return {
     connect,
@@ -87,6 +102,9 @@ export const useWallets = () => {
     provider: (callback: (provider: WalletProvider) => void) =>
       pipe(provider, options.map(callback)),
     isConnected,
+    library: options.fromNullable(library),
+    connected,
+    account: options.fromNullable(account),
   };
 };
 
@@ -158,6 +176,53 @@ export function useInactiveListener(suppress: boolean) {
     }
   }, [active, error, suppress, activate]);
 }
-function useMemo(arg0: () => any, arg1: undefined[]) {
-  throw new Error('Function not implemented.');
-}
+const ERC20ABI = [
+  // Read-Only Functions
+  'function balanceOf(address owner) view returns (uint256)',
+  'function decimals() view returns (uint8)',
+  'function symbol() view returns (string)',
+
+  // Authenticated Functions
+  'function transfer(address to, uint amount) returns (boolean)',
+
+  // Events
+  'event Transfer(address indexed from, address indexed to, uint amount)',
+];
+export const fetchBalance = (p: ethers.providers.Web3Provider) =>
+  flow((token: Token, account: Option<string>) =>
+    taskEither.tryCatch(
+      async () =>
+        (!token.isNative
+          ? await new Contract(token?.address, ERC20ABI, p).balanceOf(
+              pipe(
+                account,
+                options.fold(
+                  () => '',
+                  (account) => account
+                )
+              )
+            )
+          : await p.getBalance(
+              pipe(
+                account,
+                options.fold(
+                  () => '',
+                  (account) => account
+                )
+              )
+            )
+        ).toString(),
+      () => ''
+    )
+  );
+
+export const fetchBalanceOption = (p: ethers.providers.Web3Provider) => (
+  token: Option<Token>
+) =>
+  pipe(
+    token,
+    options.fold(
+      () => taskEither.left(''),
+      (t) => fetchBalance(p)(t)
+    )
+  );

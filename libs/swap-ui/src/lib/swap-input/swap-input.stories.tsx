@@ -28,6 +28,18 @@ export const primary: Story<SwapInputProps> = (props) => {
 primary.args = {
   selected: none,
 };
+export const withSold: Story<SwapInputProps> = (props) => {
+  return (
+    <Wrapper>
+      <SwapInput {...props} />
+    </Wrapper>
+  );
+};
+
+withSold.args = {
+  sold: some('10'),
+  selected: some(ETH),
+};
 export const WithState: Story<SwapInputProps> = (props) => {
   const { lookup, modifyAt } = useTokenValues({
     valueByToken: some(new Map()),

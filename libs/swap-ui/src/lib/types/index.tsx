@@ -3,6 +3,7 @@ export interface Token {
   address: string;
   name: string;
   fullName?: string;
+  isNative?: boolean;
 }
 
 export type WalletProvider =

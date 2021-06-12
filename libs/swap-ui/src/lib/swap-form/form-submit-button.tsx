@@ -12,7 +12,7 @@ import { BigNumberish } from 'ethers';
 export interface FormSubmitButtonProps {
   connected: Option<boolean>;
   connectButton?: ConnectButtonProps;
-  button: Pick<ButtonProps, 'disabled'>;
+  button?: Pick<ButtonProps, 'disabled'>;
   tokens: Option<Array<[Option<Token>, Option<BigNumberish>]>>;
   onSwap?: () => void;
 }

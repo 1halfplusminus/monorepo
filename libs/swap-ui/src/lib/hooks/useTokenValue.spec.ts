@@ -4,11 +4,16 @@ import {
   modifyAt,
   lookupOption,
   modifyAtOption,
+  modifyAtTaskEither,
 } from './useTokenValue';
 import { none, some } from 'fp-ts/Option';
-
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
+import * as taskEither from 'fp-ts/TaskEither';
 
+const fetchBalance = taskEither.tryCatch(
+  async () => 4,
+  () => 'error'
+);
 describe('UseTokenValue', () => {
   it('should get value correctly', () => {
     const tokens: MapTokenValue = some(
@@ -35,5 +40,7 @@ describe('UseTokenValue', () => {
     expect(
       lookupOption(modifyAtOption(tokens)(some(ETH), 1000))(some(ETH))
     ).toStrictEqual(some(1000));
+
+    modifyAtTaskEither(fetchBalance, modifyAt(tokens), ETH)();
   });
 });
