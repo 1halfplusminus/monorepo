@@ -24,8 +24,6 @@ jobs:
     - run: git config --global url."https://${{ secrets.PA }}@github.com/".insteadOf git+ssh://git@github.com
     - name: Install pnpm
       run: curl -f https://get.pnpm.io/v6.js | node - add --global pnpm
-    - name: Install global pnpm
-      run: npm install -g solc
     - name: pnpm install
       run: pnpm install
     - name: build
