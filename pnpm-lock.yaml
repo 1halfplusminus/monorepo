@@ -27,7 +27,7 @@ importers:
       '@nrwl/tao': 12.3.6
       '@nrwl/web': 12.3.6
       '@nrwl/workspace': 12.3.6
-      '@nx-plugin/hardhat': 1halfplusminus/nx-plugin
+      '@nx-plugin/hardhat': 1halfplusminus/hardhat-plugin
       '@openzeppelin/contracts': ^3.4.1
       '@openzeppelin/test-environment': ^0.1.9
       '@openzeppelin/test-helpers': ^0.5.11
@@ -151,7 +151,7 @@ importers:
       '@nrwl/tao': 12.3.6
       '@nrwl/web': 12.3.6_4320331efdedc12b7484e3a575ff3c71
       '@nrwl/workspace': 12.3.6_prettier@2.2.1
-      '@nx-plugin/hardhat': github.com/1halfplusminus/nx-plugin/f66ea0683e71a3de399f08676719acc4dbfcf2ec
+      '@nx-plugin/hardhat': github.com/1halfplusminus/hardhat-plugin/6734b4d5d9556337a3650857015cb65ee38ea690_hardhat@2.3.3
       '@openzeppelin/contracts': 3.4.1
       '@openzeppelin/test-helpers': 0.5.11
       '@storybook/addon-essentials': 6.2.9_80fd8b355864b8a9b7cb532925c5ec28
@@ -30021,13 +30021,16 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/1halfplusminus/nx-plugin/f66ea0683e71a3de399f08676719acc4dbfcf2ec:
-    resolution: {commit: f66ea0683e71a3de399f08676719acc4dbfcf2ec, repo: git+ssh://git@github.com/1halfplusminus/nx-plugin.git, type: git}
-    name: nx-plugin
-    version: 0.0.0
+  github.com/1halfplusminus/hardhat-plugin/6734b4d5d9556337a3650857015cb65ee38ea690_hardhat@2.3.3:
+    resolution: {commit: 6734b4d5d9556337a3650857015cb65ee38ea690, repo: git+ssh://git@github.com/1halfplusminus/hardhat-plugin.git, type: git}
+    id: github.com/1halfplusminus/hardhat-plugin/6734b4d5d9556337a3650857015cb65ee38ea690
+    name: '@nx-plugin/hardhat'
+    version: 0.0.1
+    peerDependencies:
+      hardhat: ^2.1.2
     dependencies:
       bip39: 3.0.4
-      tslib: 2.3.0
+      hardhat: 2.3.3
       type-fest: 0.8.1
     dev: true
 
