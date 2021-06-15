@@ -12,7 +12,6 @@ import {
 import FormSubmitButton from './form-submit-button';
 import {
   fetchBalance,
-  fetchBalanceOption,
   useWallets,
   Web3WalletProvider,
 } from '../hooks/useWallet';

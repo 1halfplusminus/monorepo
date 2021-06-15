@@ -8,4 +8,8 @@ describe('Maybe', () => {
     const { baseElement } = render(<Maybe option={none} />);
     expect(baseElement).toBeTruthy();
   });
+  it('should render successfully with bad props', () => {
+    const { baseElement } = render(<Maybe option={null} />);
+    expect(baseElement).toBeTruthy();
+  });
 });

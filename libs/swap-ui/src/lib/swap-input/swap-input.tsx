@@ -8,8 +8,6 @@ import * as options from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
 import { isEmpty } from 'fp-ts/string';
-import * as option from 'fp-ts/Option';
-import * as arrays from 'fp-ts/Array';
 import Maybe from '../../core/maybe/maybe';
 import { BigNumberish } from 'ethers';
 
@@ -41,9 +39,9 @@ const Row = styled.div`
 `;
 
 const SoldDisplay = styled(
-  ({ token, sold, ...rest }: { token: Token; sold: string }) => (
+  ({ token, sold, ...rest }: { token: Token; sold: BigNumberish }) => (
     <div {...rest}>
-      Solde: {sold} {token.name}{' '}
+      Solde: {sold.toString()} {token.name}{' '}
     </div>
   )
 )`

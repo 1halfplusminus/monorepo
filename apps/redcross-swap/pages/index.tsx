@@ -12,11 +12,7 @@ export function Index() {
    *
    * Note: The corresponding styles are in the ./index.styled-components file.
    */
-  return (
-    <StyledPage>
-      <TokenSelect />
-    </StyledPage>
-  );
+  return <StyledPage></StyledPage>;
 }
 
 export default Index;

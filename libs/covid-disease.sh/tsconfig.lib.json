@@ -8,7 +8,7 @@
     "types": ["node"],
     "resolveJsonModule": true,
     "paths": {
-      "@halfoneplusminus/covid": ["dist/libs/covid"]
+      "@halfoneplusminus/covid": ["dist/libs/covid/src"]
     }
   },
   "include": ["**/*.ts", "./apollo.config.js"],

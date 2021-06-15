@@ -5,7 +5,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "lib": ["ES2019", "DOM"]
+    "lib": ["ES2019", "DOM"],
+    "strictNullChecks": true
   },
   "files": [],
   "include": [],
