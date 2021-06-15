@@ -27,7 +27,7 @@ importers:
       '@nrwl/tao': 12.3.6
       '@nrwl/web': 12.3.6
       '@nrwl/workspace': 12.3.6
-      '@nx-plugin/hardhat': git+https://github.com/1halfplusminus/nx-plugin
+      '@nx-plugin/hardhat': github:1halfplusminus/nx-plugin
       '@openzeppelin/contracts': ^3.4.1
       '@openzeppelin/test-environment': ^0.1.9
       '@openzeppelin/test-helpers': ^0.5.11
