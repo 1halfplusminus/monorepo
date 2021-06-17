@@ -373,7 +373,7 @@
         "build": {
           "executor": "@nx-plugin/hardhat:build",
           "options": {
-            "config": "/home/dartuchiwa/Github/nx-plugin/dist/packages/hardhat/src/generators/init/files/hardhat.config.ts"
+            "config": "./libs/redcross-swap-contract/hardhat.config.ts"
           }
         }
       }
