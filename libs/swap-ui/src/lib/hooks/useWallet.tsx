@@ -15,9 +15,13 @@ import { connectors, injected } from './connectors';
 import { none, some } from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
 import * as taskEither from 'fp-ts/TaskEither';
-import { Contract } from 'ethers/lib/ethers';
 
-function getLibrary(provider: unknown, connector: unknown) {
+import { connectERC20 } from '@halfoneplusminus/redcross-swap-contract';
+
+function getLibrary(
+  provider: ethers.providers.ExternalProvider,
+  connector: unknown
+) {
   return new ethers.providers.Web3Provider(provider);
 }
 
@@ -176,24 +180,13 @@ export function useInactiveListener(suppress: boolean) {
     }
   }, [active, error, suppress, activate]);
 }
-const ERC20ABI = [
-  // Read-Only Functions
-  'function balanceOf(address owner) view returns (uint256)',
-  'function decimals() view returns (uint8)',
-  'function symbol() view returns (string)',
 
-  // Authenticated Functions
-  'function transfer(address to, uint amount) returns (boolean)',
-
-  // Events
-  'event Transfer(address indexed from, address indexed to, uint amount)',
-];
 export const fetchBalance = (p: ethers.providers.Web3Provider) =>
   flow((token: Token, account: Option<string>) =>
     taskEither.tryCatch(
       async () =>
         (!token.isNative
-          ? await new Contract(token?.address, ERC20ABI, p).balanceOf(
+          ? await connectERC20(p)(token?.address).balanceOf(
               pipe(
                 account,
                 options.fold(

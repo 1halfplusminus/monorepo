@@ -4,6 +4,7 @@ import { none } from 'fp-ts/lib/Option';
 import FormSubmitButton from './form-submit-button';
 import { FormSubmitButtonProps, SwapButton } from './form-submit-button';
 import { some } from 'fp-ts/Option';
+import { ETH } from '../__mocks__/tokens';
 
 export default {
   component: FormSubmitButton,
@@ -25,6 +26,45 @@ export const connected: Story<FormSubmitButtonProps> = (props) => {
     </FormSubmitButton>
   );
 };
+
 connected.args = {
   connected: some(true),
+};
+
+export const loading: Story<FormSubmitButtonProps> = (props) => {
+  return (
+    <FormSubmitButton {...props}>
+      <SwapButton />
+    </FormSubmitButton>
+  );
+};
+loading.args = {
+  connected: some(true),
+  loading: some(true),
+};
+export const soldInsufficient: Story<FormSubmitButtonProps> = (props) => {
+  return (
+    <FormSubmitButton {...props}>
+      <SwapButton />
+    </FormSubmitButton>
+  );
+};
+
+soldInsufficient.args = {
+  loading: some(false),
+  connected: some(true),
+  tokenA: some({ token: some(ETH), sold: some(10), amount: some(100) }),
+};
+export const soldOk: Story<FormSubmitButtonProps> = (props) => {
+  return (
+    <FormSubmitButton {...props}>
+      <SwapButton />
+    </FormSubmitButton>
+  );
+};
+
+soldOk.args = {
+  loading: some(false),
+  connected: some(true),
+  tokenA: some({ token: some(ETH), sold: some(10), amount: some(1) }),
 };

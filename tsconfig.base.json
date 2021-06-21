@@ -27,7 +27,10 @@
       "@halfoneplusminus/hardhat-utils": ["libs/hardhat-utils/src/index.ts"],
       "@halfoneplusminus/swap-ui": ["libs/swap-ui/src/index.ts"],
       "@halfoneplusminus/swap-ui/utils": ["libs/swap-ui/src/utils.js"],
-      "@halfoneplusminus/swap-lib": ["libs/swap-lib/src/index.ts"]
+      "@halfoneplusminus/swap-lib": ["libs/swap-lib/src/index.ts"],
+      "@halfoneplusminus/redcross-swap-contract": [
+        "libs/redcross-swap-contract/libs/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]
