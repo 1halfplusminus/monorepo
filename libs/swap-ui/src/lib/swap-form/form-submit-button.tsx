@@ -29,8 +29,30 @@ export interface FormSubmitButtonProps {
   tokens: Option<Array<[Option<Token>, Option<BigNumberish>]>>;
   onSwap?: () => void;
 }
-
-const MaybeSwap = ({ tokenA }: { tokenA: FormSubmitButtonProps['tokenA'] }) => {
+const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
+  return (
+    <Maybe
+      option={token}
+      onNone={() => <Button disabled={true}> Select a token </Button>}
+    >
+      {({ token }) => (
+        <Maybe
+          option={token}
+          onNone={() => <Button disabled={true}> Select a token </Button>}
+        >
+          {() => <Button> Swap </Button>}
+        </Maybe>
+      )}
+    </Maybe>
+  );
+};
+const MaybeSwap = ({
+  tokenA,
+  tokenB,
+}: {
+  tokenA: FormSubmitButtonProps['tokenA'];
+  tokenB: FormSubmitButtonProps['tokenB'];
+}) => {
   return (
     <Maybe option={tokenA} onNone={() => <SwapButton />}>
       {(tokenA) => (
@@ -45,7 +67,7 @@ const MaybeSwap = ({ tokenA }: { tokenA: FormSubmitButtonProps['tokenA'] }) => {
                         Insufficient {token.name} balance
                       </LoadingButton>
                     ) : (
-                      'Swap'
+                      <MaybeTokenB token={tokenB} />
                     )
                   }
                 </Maybe>
@@ -61,6 +83,7 @@ export const FormSubmitButton = ({
   connected,
   connectButton,
   tokenA,
+  tokenB,
   loading,
 }: PropsWithChildren<FormSubmitButtonProps>) => {
   return (
@@ -69,9 +92,16 @@ export const FormSubmitButton = ({
       option={connected}
     >
       {() => (
-        <Maybe option={loading} onNone={() => <MaybeSwap tokenA={tokenA} />}>
+        <Maybe
+          option={loading}
+          onNone={() => <MaybeSwap tokenA={tokenA} tokenB={tokenB} />}
+        >
           {(loading) =>
-            loading ? <LoadingButton /> : <MaybeSwap tokenA={tokenA} />
+            loading ? (
+              <LoadingButton />
+            ) : (
+              <MaybeSwap tokenA={tokenA} tokenB={tokenB} />
+            )
           }
         </Maybe>
       )}
