@@ -7,7 +7,7 @@ export const ETH = {
 };
 
 export const DAI = {
-  address: '11851841918818',
+  address: '0xad6d458402f60fd3bd25163575031acdce07538d',
   name: 'DAI',
   symbol:
     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',

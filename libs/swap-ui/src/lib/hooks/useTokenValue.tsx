@@ -2,7 +2,7 @@ import { Token } from '../types';
 import { BigNumberish, BigNumber } from 'ethers';
 import { Option } from 'fp-ts/Option';
 import * as map from 'fp-ts/Map';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import * as options from 'fp-ts/Option';
 import { eqToken } from './tokenList';
@@ -71,9 +71,12 @@ export const useTokenValues: UseTokenHook = (
   { valueByToken } = { valueByToken: options.some(new Map()) }
 ) => {
   const [values, setValues] = useState(valueByToken);
-  const setValue = (token: Option<Token>, value: BigNumberish) => {
-    setValues(modifyAtOption(values)(token, value));
-  };
+  const setValue = useCallback(
+    (token: Option<Token>, value: BigNumberish) => {
+      setValues(modifyAtOption(values)(token, value));
+    },
+    [values]
+  );
   const getValue = (token: Option<Token>) => {
     return lookupOption(values)(token);
   };

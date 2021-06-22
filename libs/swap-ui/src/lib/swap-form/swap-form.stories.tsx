@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
@@ -12,11 +12,15 @@ import {
 import FormSubmitButton from './form-submit-button';
 import {
   fetchBalance,
+  fetchOptionTokenBalance,
   useWallets,
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { pipe } from 'fp-ts/function';
 import * as options from 'fp-ts/Option';
+import { Option } from 'fp-ts/Option';
+import { Token } from '../types';
+
 export default {
   component: SwapForm,
   title: 'SwapForm/Form',
@@ -30,11 +34,13 @@ export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
 };
 
+const valuesByToken = some(new Map());
+
 const ConnectedForm = (props: SwapFormProps) => {
   const { library, connected, isConnected, connect, account } = useWallets();
   const { filteredTokenList, search } = useSearch(props.tokens);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
-    commonlyUsed: some([some(DAI)]),
+    commonlyUsed: some([some(ETH)]),
     tokens: filteredTokenList,
     selected: some([none, none]),
   });
@@ -42,8 +48,28 @@ const ConnectedForm = (props: SwapFormProps) => {
     valueByToken: some(new Map()),
   });
   const sold = useTokenValues({
-    valueByToken: some(new Map()),
+    valueByToken: valuesByToken,
   });
+  useEffect(() => {
+    console.log(first);
+    fetchOptionTokenBalance(library)(first, account).then((r) => {
+      sold.modifyAt(first, r);
+    });
+    /* const r = pipe(
+      library,
+      options.chain((p) =>
+        pipe(
+          first,
+          options.map((token) =>
+            modifyAtTaskEither(
+              fetchBalance(p)(token, account),
+              sold.modifyAt,
+              first
+            )()
+          )
+        )
+      ) */
+  }, [first, account, library]);
   return (
     <SwapForm
       {...props}
@@ -55,17 +81,10 @@ const ConnectedForm = (props: SwapFormProps) => {
         selected: first,
         onSelected: (token) => {
           selectAtIndex(token, 0);
-          pipe(
-            library,
-            options.map((p) =>
-              pipe(
-                modifyAtTaskEither(
-                  fetchBalance(p)(token, account),
-                  sold.modifyAt,
-                  some(token)
-                )()
-              )
-            )
+          pipe(some(token), (token) =>
+            fetchOptionTokenBalance(library)(token, account).then((r) => {
+              sold.modifyAt(token, r);
+            })
           );
         },
         value: getOrElse(lookup(first)),
@@ -79,6 +98,11 @@ const ConnectedForm = (props: SwapFormProps) => {
         selected: last,
         onSelected: (token) => {
           selectAtIndex(token, 1);
+          pipe(some(token), (token) =>
+            fetchOptionTokenBalance(library)(token, account).then((r) => {
+              sold.modifyAt(token, r);
+            })
+          );
         },
         value: getOrElse(lookup(last)),
         onValueChange: (t, v) => {
@@ -88,9 +112,20 @@ const ConnectedForm = (props: SwapFormProps) => {
       }}
     >
       <FormSubmitButton
+        loading={some(false)}
         connectButton={{ isConnected: isConnected, connect: connect }}
         tokens={none}
         connected={connected}
+        tokenA={some({
+          token: first,
+          sold: sold.lookup(first),
+          amount: lookup(first),
+        })}
+        tokenB={some({
+          token: last,
+          sold: sold.lookup(last),
+          amount: lookup(last),
+        })}
       />
     </SwapForm>
   );

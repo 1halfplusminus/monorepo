@@ -19,10 +19,11 @@ export interface FormSubmitButtonProps {
     token: Option<Token>;
     amount: Option<BigNumberish>;
   }>;
-  tokenB: {
+  tokenB: Option<{
     sold: Option<BigNumberish>;
     token: Option<Token>;
-  };
+    amount: Option<BigNumberish>;
+  }>;
   connectButton?: ConnectButtonProps;
   button?: Pick<ButtonProps, 'disabled'>;
   tokens: Option<Array<[Option<Token>, Option<BigNumberish>]>>;
@@ -58,7 +59,6 @@ const MaybeSwap = ({ tokenA }: { tokenA: FormSubmitButtonProps['tokenA'] }) => {
 };
 export const FormSubmitButton = ({
   connected,
-  children,
   connectButton,
   tokenA,
   loading,

@@ -15,7 +15,7 @@ import { connectors, injected } from './connectors';
 import { none, some } from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
 import * as taskEither from 'fp-ts/TaskEither';
-
+import * as task from 'fp-ts/Task';
 import { connectERC20 } from '@halfoneplusminus/redcross-swap-contract';
 
 function getLibrary(
@@ -100,15 +100,17 @@ export const useWallets = () => {
     [connector]
   );
   useEagerConnect();
+  const optionAccount = useMemo(() => options.fromNullable(account), [account]);
+  const optionlibrary = useMemo(() => options.fromNullable(library), [library]);
   return {
     connect,
     isConnecting,
     provider: (callback: (provider: WalletProvider) => void) =>
       pipe(provider, options.map(callback)),
     isConnected,
-    library: options.fromNullable(library),
+    library: optionlibrary,
     connected,
-    account: options.fromNullable(account),
+    account: optionAccount,
   };
 };
 
@@ -185,37 +187,60 @@ export const fetchBalance = (p: ethers.providers.Web3Provider) =>
   flow((token: Token, account: Option<string>) =>
     taskEither.tryCatch(
       async () =>
-        (!token.isNative
-          ? await connectERC20(p)(token?.address).balanceOf(
-              pipe(
-                account,
-                options.fold(
-                  () => '',
-                  (account) => account
-                )
+        !token.isNative
+          ? pipe(
+              connectERC20(p)(token?.address),
+              (c) => {
+                return () =>
+                  Promise.all([
+                    c.balanceOf(
+                      pipe(
+                        account,
+                        options.fold(
+                          () => '',
+                          (account) => account
+                        )
+                      )
+                    ),
+                    c.decimals(),
+                  ]);
+              },
+              task.map(([balance, decimal]) =>
+                ethers.utils.formatUnits(balance.toString(), decimal)
               )
-            )
-          : await p.getBalance(
-              pipe(
-                account,
-                options.fold(
-                  () => '',
-                  (account) => account
-                )
-              )
-            )
-        ).toString(),
+            )()
+          : pipe(
+              () =>
+                p.getBalance(
+                  pipe(
+                    account,
+                    options.fold(
+                      () => '',
+                      (account) => account
+                    )
+                  )
+                ),
+              task.map((r) => ethers.utils.formatEther(r))
+            )(),
       () => ''
     )
   );
 
-export const fetchBalanceOption = (p: ethers.providers.Web3Provider) => (
-  token: Option<Token>
-) =>
+export const fetchOptionTokenBalance = (
+  library: Option<ethers.providers.Web3Provider>
+) => (token: Option<Token>, account: Option<string>) =>
   pipe(
-    token,
-    options.fold(
-      () => taskEither.left(''),
-      (t) => fetchBalance(p)(t)
-    )
-  );
+    library,
+    options.chain((p) =>
+      pipe(
+        token,
+        options.map((token) =>
+          pipe(
+            fetchBalance(p)(token, account),
+            taskEither.getOrElse((e) => task.never)
+          )
+        )
+      )
+    ),
+    options.getOrElse(() => task.never)
+  )();
