@@ -13,12 +13,9 @@ import {
 import { Token } from '../types';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
-
 import { useCallback, useState } from 'react';
 import { toArray, fromArray, remove } from 'fp-ts/Set';
-
-import { useEffect, useMemo } from 'react';
-import { chain } from 'fp-ts';
+import { useMemo } from 'react';
 
 export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;

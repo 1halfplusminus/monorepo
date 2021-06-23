@@ -228,7 +228,7 @@ export const fetchBalance = (p: ethers.providers.Web3Provider) =>
 
 export const fetchOptionTokenBalance = (
   library: Option<ethers.providers.Web3Provider>
-) => (token: Option<Token>, account: Option<string>) =>
+) => (token: Option<Token>, account: Option<string>): Promise<string> =>
   pipe(
     library,
     options.chain((p) =>
@@ -237,7 +237,7 @@ export const fetchOptionTokenBalance = (
         options.map((token) =>
           pipe(
             fetchBalance(p)(token, account),
-            taskEither.getOrElse((e) => task.never)
+            taskEither.getOrElse(() => task.never)
           )
         )
       )

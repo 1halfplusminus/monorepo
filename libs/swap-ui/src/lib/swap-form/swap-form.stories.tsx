@@ -3,23 +3,13 @@ import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
-import { useSearch, useSelectToken } from '../hooks/tokenList';
+import FormSubmitButton, { FormSubmitButtonProps } from './form-submit-button';
 import {
-  useTokenValues,
-  getOrElse,
-  modifyAtTaskEither,
-} from '../hooks/useTokenValue';
-import FormSubmitButton from './form-submit-button';
-import {
-  fetchBalance,
   fetchOptionTokenBalance,
   useWallets,
   Web3WalletProvider,
 } from '../hooks/useWallet';
-import { pipe } from 'fp-ts/function';
-import * as options from 'fp-ts/Option';
-import { Option } from 'fp-ts/Option';
-import { Token } from '../types';
+import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
 
 export default {
   component: SwapForm,
@@ -30,114 +20,75 @@ export default {
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
 
-export const primary: Story<SwapFormProps> = (props) => {
-  return <SwapForm {...props} />;
-};
-
-const valuesByToken = some(new Map());
-
-const ConnectedForm = (props: SwapFormProps) => {
-  const { library, connected, isConnected, connect, account } = useWallets();
-  const { filteredTokenList, search } = useSearch(props.tokens);
-  const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
-    commonlyUsed: some([some(ETH)]),
-    tokens: filteredTokenList,
-    selected: some([none, none]),
+const ConnectedForm = (
+  props: SwapFormProps &
+    UseSwapFormProps &
+    Pick<FormSubmitButtonProps, 'connectButton' | 'connected'>
+) => {
+  const form = useSwapForm({
+    ...props,
   });
-  const { lookup, modifyAt } = useTokenValues({
-    valueByToken: some(new Map()),
-  });
-  const sold = useTokenValues({
-    valueByToken: valuesByToken,
-  });
-  useEffect(() => {
-    console.log(first);
-    fetchOptionTokenBalance(library)(first, account).then((r) => {
-      sold.modifyAt(first, r);
-    });
-    /* const r = pipe(
-      library,
-      options.chain((p) =>
-        pipe(
-          first,
-          options.map((token) =>
-            modifyAtTaskEither(
-              fetchBalance(p)(token, account),
-              sold.modifyAt,
-              first
-            )()
-          )
-        )
-      ) */
-  }, [first, account, library]);
   return (
-    <SwapForm
-      {...props}
-      tokens={filteredTokenList}
-      onSearch={search}
-      onInserse={inverse}
-      inputA={{
-        isSelected,
-        selected: first,
-        onSelected: (token) => {
-          selectAtIndex(token, 0);
-          pipe(some(token), (token) =>
-            fetchOptionTokenBalance(library)(token, account).then((r) => {
-              sold.modifyAt(token, r);
-            })
-          );
-        },
-        value: getOrElse(lookup(first)),
-        onValueChange: (t, v) => {
-          modifyAt(t, v);
-        },
-        sold: sold.lookup(first),
-      }}
-      inputB={{
-        isSelected,
-        selected: last,
-        onSelected: (token) => {
-          selectAtIndex(token, 1);
-          pipe(some(token), (token) =>
-            fetchOptionTokenBalance(library)(token, account).then((r) => {
-              sold.modifyAt(token, r);
-            })
-          );
-        },
-        value: getOrElse(lookup(last)),
-        onValueChange: (t, v) => {
-          modifyAt(t, v);
-        },
-        sold: sold.lookup(last),
-      }}
-    >
+    <SwapForm {...props} {...form.bindSwapForm()}>
       <FormSubmitButton
         loading={some(false)}
-        connectButton={{ isConnected: isConnected, connect: connect }}
+        connectButton={props.connectButton}
         tokens={none}
-        connected={connected}
-        tokenA={some({
-          token: first,
-          sold: sold.lookup(first),
-          amount: lookup(first),
-        })}
-        tokenB={some({
-          token: last,
-          sold: sold.lookup(last),
-          amount: lookup(last),
-        })}
+        connected={props.connected}
+        {...form.bindSubmitButton()}
       />
     </SwapForm>
   );
 };
-export const WithState: Story<SwapFormProps> = (props) => {
+
+export const primary: Story<SwapFormProps> = (props) => {
+  return <SwapForm {...props} />;
+};
+
+export const EnterAmount: Story<SwapFormProps & UseSwapFormProps> = (props) => {
   return (
     <Web3WalletProvider>
-      <ConnectedForm {...props} />
+      <ConnectedForm
+        {...props}
+        fetchBalance={() => Promise.resolve('100')}
+        connectButton={{ isConnected: () => true, connect: () => true }}
+        connected={some(true)}
+        account={some('x100000')}
+      />
     </Web3WalletProvider>
   );
 };
-WithState.args = {
+
+EnterAmount.args = {
   tokens: tokens,
   commonBases,
+  selected: some([none, none]),
+};
+
+const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {
+  const { library, connected, isConnected, connect, account } = useWallets();
+  return (
+    <ConnectedForm
+      {...props}
+      account={account}
+      connectButton={{ isConnected, connect }}
+      connected={connected}
+      fetchBalance={fetchOptionTokenBalance(library)}
+    />
+  );
+};
+export const WithEtherProviders: Story<SwapFormProps & UseSwapFormProps> = (
+  props
+) => {
+  return (
+    <Web3WalletProvider>
+      <EtherConnectedSwapForm {...props} />
+    </Web3WalletProvider>
+  );
+};
+
+WithEtherProviders.args = {
+  tokens: tokens,
+  commonBases,
+  selected: some([none, none]),
 };

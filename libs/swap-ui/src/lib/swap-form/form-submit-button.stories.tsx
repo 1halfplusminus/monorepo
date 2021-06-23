@@ -2,7 +2,7 @@ import React from 'react';
 import { Meta, Story } from '@storybook/react';
 import { none } from 'fp-ts/lib/Option';
 import FormSubmitButton from './form-submit-button';
-import { FormSubmitButtonProps, SwapButton } from './form-submit-button';
+import { FormSubmitButtonProps, EnterAmountButton } from './form-submit-button';
 import { some } from 'fp-ts/Option';
 import { ETH } from '../__mocks__/tokens';
 
@@ -22,7 +22,7 @@ notConnected.args = {
 export const connected: Story<FormSubmitButtonProps> = (props) => {
   return (
     <FormSubmitButton {...props}>
-      <SwapButton />
+      <EnterAmountButton />
     </FormSubmitButton>
   );
 };
@@ -34,7 +34,7 @@ connected.args = {
 export const loading: Story<FormSubmitButtonProps> = (props) => {
   return (
     <FormSubmitButton {...props}>
-      <SwapButton />
+      <EnterAmountButton />
     </FormSubmitButton>
   );
 };
@@ -45,7 +45,7 @@ loading.args = {
 export const soldInsufficient: Story<FormSubmitButtonProps> = (props) => {
   return (
     <FormSubmitButton {...props}>
-      <SwapButton />
+      <EnterAmountButton />
     </FormSubmitButton>
   );
 };
@@ -58,7 +58,7 @@ soldInsufficient.args = {
 export const soldOk: Story<FormSubmitButtonProps> = (props) => {
   return (
     <FormSubmitButton {...props}>
-      <SwapButton />
+      <EnterAmountButton />
     </FormSubmitButton>
   );
 };

@@ -54,13 +54,16 @@ const MaybeSwap = ({
   tokenB: FormSubmitButtonProps['tokenB'];
 }) => {
   return (
-    <Maybe option={tokenA} onNone={() => <SwapButton />}>
+    <Maybe option={tokenA} onNone={() => <EnterAmountButton />}>
       {(tokenA) => (
         <Maybe option={tokenA.token}>
           {(token) => (
-            <Maybe option={tokenA.amount}>
+            <Maybe option={tokenA.amount} onNone={() => <EnterAmountButton />}>
               {(amount) => (
-                <Maybe option={tokenA.sold}>
+                <Maybe
+                  option={tokenA.sold}
+                  onNone={() => <EnterAmountButton />}
+                >
                   {(sold) =>
                     amount > sold ? (
                       <LoadingButton>
@@ -111,11 +114,11 @@ export const FormSubmitButton = ({
 
 const buttonStyle = css``;
 
-export const SwapButton = styled(Button)`
+export const EnterAmountButton = styled(Button)`
   ${buttonStyle}
 `;
 
-SwapButton.defaultProps = {
+EnterAmountButton.defaultProps = {
   children: 'Entrez un montant',
 };
 export const LoadingButton = styled(Button)`
