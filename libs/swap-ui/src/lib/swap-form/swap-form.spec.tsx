@@ -1,11 +1,18 @@
-import { render } from '@testing-library/react';
-import { identity, constVoid, constFalse } from 'fp-ts/function';
+import { render, act, waitFor } from '@testing-library/react';
+import { constVoid, constFalse, pipe } from 'fp-ts/function';
 
 import SwapForm, { SwapFormProps } from './swap-form';
 import { none, some } from 'fp-ts/Option';
 import { ETH, DAI, USDC } from '../__mocks__/tokens';
+import { useSwapForm } from '../hooks/useSwapForm';
+import type { Option } from 'fp-ts/Option';
+import * as options from 'fp-ts/Option';
+import * as tasks from 'fp-ts/Task';
+import { providers } from 'ethers';
 
 describe('SwapForm', () => {
+  const commonBases = some([some(ETH), some(DAI)]);
+  const tokens = some([some(ETH), some(DAI), some(USDC)]);
   const propsInputA: SwapFormProps['inputA'] = {
     isSelected: constFalse,
     onValueChange: constVoid,
@@ -26,7 +33,7 @@ describe('SwapForm', () => {
     inputA: propsInputA,
     inputB: propsInputB,
     commonBases: none,
-    onInserse: constVoid,
+    onInverse: constVoid,
     onSearch: constVoid,
     tokens: none,
   };
@@ -34,6 +41,39 @@ describe('SwapForm', () => {
     const { baseElement } = render(<SwapForm {...props} />);
     expect(baseElement).toBeTruthy();
   });
+  describe('with state', () => {
+    const fetchBalance = jest.fn(() => Promise.resolve('100'));
+    const props = {
+      tokens: tokens,
+      commonBases,
+      selected: some([some(ETH), none]),
+      account: some('x100000'),
+      fetchBalance,
+    };
+    const FormWithStat = () => {
+      const form = useSwapForm({
+        ...props,
+      });
+      return <SwapForm {...form.bindSwapForm()} commonBases={commonBases} />;
+    };
+    it('it should fetch balance', async () => {
+      let providers: Option<ReturnType<typeof render>> = none;
+      await act(async () => {
+        providers = some(render(<FormWithStat />));
+      });
+      await pipe(
+        providers,
+        options.fold(
+          () => undefined,
+          async (providers) => {
+            await waitFor(() => providers.getByTitle('sold-ETH'));
+            expect(providers.getByTitle('sold-ETH')).toHaveTextContent('test');
+          }
+        )
+      );
+    });
+  });
+
   it('should match snapshot', () => {
     const { baseElement } = render(
       <SwapForm

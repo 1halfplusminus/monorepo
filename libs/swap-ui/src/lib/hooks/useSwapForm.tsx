@@ -1,9 +1,14 @@
 import type { Option } from 'fp-ts/Option';
-import { Token, WalletProvider } from '../types';
+import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
-import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
+import {
+  MapTokenValue,
+  useTokenValues,
+  getOrElse,
+  lookupOption,
+} from './useTokenValue';
 import { some } from 'fp-ts/Option';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import * as options from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 
@@ -37,58 +42,84 @@ export const useSwapForm = ({
   const { lookup, modifyAt } = useTokenValues({
     valueByToken: amounts,
   });
-  const sold = useTokenValues({
+  const { modifyAt: soldModifyAt, lookup: soldLookup } = useTokenValues({
     valueByToken: balances,
   });
   useEffect(() => {
     fetchBalance(first, account).then((r) => {
-      sold.modifyAt(first, r);
+      soldModifyAt(first, r);
     });
-  }, [first, account]);
+  }, [first, account, fetchBalance]);
   useEffect(() => {
-    console.log(last);
     fetchBalance(last, account).then((r) => {
-      sold.modifyAt(last, r);
+      console.log(last, r);
+      soldModifyAt(last, r);
     });
-  }, [last, account]);
-  const onSelected = (index: 0 | 1) => (token: Token) => {
-    selectAtIndex(token, index);
-    pipe(some(token), (token) =>
-      fetchBalance(token, account).then((r) => {
-        sold.modifyAt(token, r);
-      })
-    );
-  };
-  const onValueChange = (token: Option<Token>, v: string) => {
-    modifyAt(token, v);
-  };
-  const bindInput = (index: 0 | 1) => (token: Option<Token>) => ({
-    isSelected,
-    selected: token,
-    onSelected: onSelected(index),
-    value: getOrElse(lookup(token)),
-    onValueChange,
-    sold: sold.lookup(token),
-  });
-  const bindSwapForm = () => ({
-    tokens: filteredTokenList,
-    onSearch: search,
-    onInverse: inverse,
-    inputA: bindInput(0)(first),
-    inputB: bindInput(1)(last),
-  });
-  const bindSubmitButton = () => ({
-    tokenA: some({
-      token: first,
-      sold: sold.lookup(first),
-      amount: lookup(first),
+  }, [last, account, fetchBalance]);
+  /*  useEffect(() => {
+    fetchBalance(first, account).then((r) => {
+      console.log(first, r);
+      soldModifyAt(first, r);
+    });
+  }, [first, account, fetchBalance, soldModifyAt]);
+  useEffect(() => {
+    fetchBalance(last, account).then((r) => {
+      soldModifyAt(last, '100');
+    });
+  }, [last, account, soldModifyAt, fetchBalance]); */
+  const onSelected = useCallback(
+    (index: 0 | 1) => (token: Token) => {
+      selectAtIndex(token, index);
+      pipe(some(token), (token) =>
+        fetchBalance(token, account).then((r) => {
+          soldModifyAt(token, r);
+        })
+      );
+    },
+    [soldModifyAt, fetchBalance, account, selectAtIndex]
+  );
+  const onValueChange = useCallback(
+    (token: Option<Token>, v: string) => {
+      modifyAt(token, v);
+    },
+    [modifyAt]
+  );
+  const bindInput = useCallback(
+    (index: 0 | 1) => (token: Option<Token>) => ({
+      isSelected,
+      selected: token,
+      onSelected: onSelected(index),
+      value: getOrElse(lookup(token)),
+      onValueChange,
+      sold: soldLookup(token),
     }),
-    tokenB: some({
-      token: last,
-      sold: sold.lookup(last),
-      amount: lookup(last),
+    [onValueChange, isSelected, lookup, onSelected, soldLookup]
+  );
+  const bindSwapForm = useCallback(
+    () => ({
+      tokens: filteredTokenList,
+      onSearch: search,
+      onInverse: inverse,
+      inputA: bindInput(0)(first),
+      inputB: bindInput(1)(last),
     }),
-  });
+    [first, last, filteredTokenList, bindInput, search, inverse]
+  );
+  const bindSubmitButton = useCallback(
+    () => ({
+      tokenA: some({
+        token: first,
+        sold: soldLookup(first),
+        amount: lookup(first),
+      }),
+      tokenB: some({
+        token: last,
+        sold: soldLookup(last),
+        amount: lookup(last),
+      }),
+    }),
+    [last, first, soldLookup, lookup]
+  );
   return {
     bindSwapForm,
     bindSubmitButton,

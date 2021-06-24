@@ -13,7 +13,7 @@ export type SwapFormProps = {
   tokens: SwapInputProps['tokens'];
   commonBases: SwapInputProps['commonBases'];
   onSearch: SwapInputProps['onSearch'];
-  onInserse: () => void;
+  onInverse: () => void;
 };
 
 const StyledSwapSurface = styled.div`
@@ -49,7 +49,7 @@ export function SwapForm({
   tokens,
   commonBases,
   onSearch,
-  onInserse,
+  onInverse,
   children,
 }: PropsWithChildren<SwapFormProps>) {
   return (
@@ -63,7 +63,7 @@ export function SwapForm({
           commonBases={commonBases}
         />
         <SwapIconWrapper height={50}>
-          <SwapIcon onClick={onInserse} />
+          <SwapIcon onClick={onInverse} />
         </SwapIconWrapper>
         <SwapInput
           {...inputB}

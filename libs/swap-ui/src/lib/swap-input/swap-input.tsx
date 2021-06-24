@@ -40,7 +40,7 @@ const Row = styled.div`
 
 const SoldDisplay = styled(
   ({ token, sold, ...rest }: { token: Token; sold: BigNumberish }) => (
-    <div {...rest}>
+    <div {...rest} title={'sold-' + token.name}>
       Solde: {sold.toString()} {token.name}{' '}
     </div>
   )

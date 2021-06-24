@@ -50,10 +50,8 @@ export const EnterAmount: Story<SwapFormProps & UseSwapFormProps> = (props) => {
     <Web3WalletProvider>
       <ConnectedForm
         {...props}
-        fetchBalance={() => Promise.resolve('100')}
         connectButton={{ isConnected: () => true, connect: () => true }}
         connected={some(true)}
-        account={some('x100000')}
       />
     </Web3WalletProvider>
   );
@@ -63,6 +61,9 @@ EnterAmount.args = {
   tokens: tokens,
   commonBases,
   selected: some([none, none]),
+  account: some('x100000'),
+  fetchBalance: () => Promise.resolve('100'),
+  balances: some(new Map().set(ETH, 100)),
 };
 
 const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {

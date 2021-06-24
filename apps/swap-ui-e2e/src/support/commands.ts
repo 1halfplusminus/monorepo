@@ -12,16 +12,13 @@
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
-    login(email: string, password: string): void;
     getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
     openTokenSelection(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenASold(): Chainable<JQuery<HTMLInputElement>>;
   }
 }
 //
 // -- This is a parent command --
-Cypress.Commands.add('login', (email, password) => {
-  console.log('Custom command example: Login', email, password);
-});
 Cypress.Commands.add('getTokenSelect', () => {
   return cy.get('div[class*="token-select__Text"]').as('token-select');
 });
@@ -30,6 +27,9 @@ Cypress.Commands.add('openTokenSelection', () => {
     .get('[class*="token-select__CaretDown"]')
     .as('token-select-carret')
     .click();
+});
+Cypress.Commands.add('getTokenASold', () => {
+  return cy.get('[class*="swap-input__SoldDisplay"]').as('tokena-sold').click();
 });
 //
 // -- This is a child command --
