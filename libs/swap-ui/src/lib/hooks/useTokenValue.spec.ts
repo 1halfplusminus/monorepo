@@ -36,6 +36,9 @@ describe('UseTokenValue', () => {
     expect(
       lookupOption(modifyAtOption(tokens)(none, 1000))(none)
     ).toStrictEqual(none);
+    expect(
+      lookupOption(modifyAtOption(tokens)(none, 1000))(some(ETH))
+    ).toStrictEqual(some(100000));
 
     expect(
       lookupOption(modifyAtOption(tokens)(some(ETH), 1000))(some(ETH))

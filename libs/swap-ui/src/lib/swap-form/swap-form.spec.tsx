@@ -7,9 +7,8 @@ import { ETH, DAI, USDC } from '../__mocks__/tokens';
 import { useSwapForm } from '../hooks/useSwapForm';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
-import * as tasks from 'fp-ts/Task';
-import { providers } from 'ethers';
-
+import '@testing-library/jest-dom';
+import { screen } from '@testing-library/react';
 describe('SwapForm', () => {
   const commonBases = some([some(ETH), some(DAI)]);
   const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -41,38 +40,46 @@ describe('SwapForm', () => {
     const { baseElement } = render(<SwapForm {...props} />);
     expect(baseElement).toBeTruthy();
   });
-  describe('with state', () => {
-    const fetchBalance = jest.fn(() => Promise.resolve('100'));
+  /* describe('with state', () => {
+    const fetchBalance = jest.fn(async () => '100');
     const props = {
       tokens: tokens,
       commonBases,
-      selected: some([some(ETH), none]),
+      selected: some([none, none]),
       account: some('x100000'),
+
       fetchBalance,
     };
+    let resultProps: ReturnType<typeof useSwapForm>;
     const FormWithStat = () => {
       const form = useSwapForm({
         ...props,
       });
-      return <SwapForm {...form.bindSwapForm()} commonBases={commonBases} />;
+      resultProps = form;
+      return <SwapForm {...form.bindSwapForm()} />;
     };
     it('it should fetch balance', async () => {
-      let providers: Option<ReturnType<typeof render>> = none;
-      await act(async () => {
-        providers = some(render(<FormWithStat />));
-      });
-      await pipe(
-        providers,
-        options.fold(
-          () => undefined,
-          async (providers) => {
-            await waitFor(() => providers.getByTitle('sold-ETH'));
-            expect(providers.getByTitle('sold-ETH')).toHaveTextContent('test');
-          }
+      const providers = render(<FormWithStat />);
+      await waitFor(() =>
+        pipe(
+          resultProps.balances,
+          options.map((b) => b.get(ETH) === 1000),
+          options.fold(
+            () => Promise.reject(),
+            () => {
+              console.log('here');
+              return Promise.resolve();
+            }
+          )
         )
       );
+
+      expect(fetchBalance).toHaveBeenCalled();
+      expect(fetchBalance).toReturnWith(Promise.resolve('100'));
+
+      expect(providers.baseElement).toMatchInlineSnapshot();
     });
-  });
+  }); */
 
   it('should match snapshot', () => {
     const { baseElement } = render(
@@ -150,6 +157,7 @@ describe('SwapForm', () => {
                 >
                   <div
                     class="swap-input__SoldDisplay-asgs3m-3 wGnKf"
+                    title="sold-DAI"
                   >
                     Solde: 
                     10
@@ -234,6 +242,7 @@ describe('SwapForm', () => {
                 >
                   <div
                     class="swap-input__SoldDisplay-asgs3m-3 wGnKf"
+                    title="sold-ETH"
                   >
                     Solde: 
                     50

@@ -29,7 +29,7 @@ export const useSwapForm = ({
   selected,
   commonBases,
   amounts = some(new Map()),
-  balances = some(new Map()),
+  balances: defaultBalances = some(new Map()),
   fetchBalance,
   account,
 }: UseSwapFormProps) => {
@@ -42,8 +42,12 @@ export const useSwapForm = ({
   const { lookup, modifyAt } = useTokenValues({
     valueByToken: amounts,
   });
-  const { modifyAt: soldModifyAt, lookup: soldLookup } = useTokenValues({
-    valueByToken: balances,
+  const {
+    modifyAt: soldModifyAt,
+    lookup: soldLookup,
+    values: balances,
+  } = useTokenValues({
+    valueByToken: defaultBalances,
   });
   useEffect(() => {
     fetchBalance(first, account).then((r) => {
@@ -52,7 +56,6 @@ export const useSwapForm = ({
   }, [first, account, fetchBalance]);
   useEffect(() => {
     fetchBalance(last, account).then((r) => {
-      console.log(last, r);
       soldModifyAt(last, r);
     });
   }, [last, account, fetchBalance]);
@@ -102,8 +105,9 @@ export const useSwapForm = ({
       onInverse: inverse,
       inputA: bindInput(0)(first),
       inputB: bindInput(1)(last),
+      commonBases,
     }),
-    [first, last, filteredTokenList, bindInput, search, inverse]
+    [first, last, filteredTokenList, search, inverse, commonBases]
   );
   const bindSubmitButton = useCallback(
     () => ({
@@ -123,5 +127,7 @@ export const useSwapForm = ({
   return {
     bindSwapForm,
     bindSubmitButton,
+    soldLookup,
+    balances,
   };
 };

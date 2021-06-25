@@ -13,6 +13,7 @@ export type MapTokenValue = Option<Map<Token, BigNumberish>>;
 export type UseTokenValue = {
   lookup(token: Option<Token>): Option<BigNumberish>;
   modifyAt(token: Option<Token>, value: BigNumberish): void;
+  values: MapTokenValue;
 };
 export declare type UseTokenValueProps = {
   valueByToken: MapTokenValue;
@@ -84,6 +85,16 @@ export const useTokenValues: UseTokenHook = (
   );
   const getValue = useCallback(
     (token: Option<Token>) => {
+      console.log(
+        pipe(
+          token,
+          options.fold(
+            () => 'none',
+            (t) => t.name
+          )
+        ),
+        lookupOption(values)(token)
+      );
       return lookupOption(values)(token);
     },
     [values]
@@ -91,5 +102,6 @@ export const useTokenValues: UseTokenHook = (
   return {
     lookup: getValue,
     modifyAt: setValue,
+    values,
   };
 };
