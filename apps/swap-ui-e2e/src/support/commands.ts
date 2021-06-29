@@ -14,7 +14,22 @@ declare namespace Cypress {
   interface Chainable<Subject> {
     getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
     openTokenSelection(): Chainable<JQuery<HTMLInputElement>>;
+    openTokenASelection(): Chainable<JQuery<HTMLInputElement>>;
     getTokenASold(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenAInput(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenBInput(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenBSold(): Chainable<JQuery<HTMLInputElement>>;
+    getSubmitButton(): Chainable<JQuery<HTMLInputElement>>;
+    selectTokenA(token: string): Chainable<JQuery<HTMLInputElement>>;
+    selectTokenB(token: string): Chainable<JQuery<HTMLInputElement>>;
+    typeTokenB(
+      value: string,
+      backspace?: number
+    ): Chainable<JQuery<HTMLInputElement>>;
+    typeTokenA(
+      value: string,
+      backspace?: number
+    ): Chainable<JQuery<HTMLInputElement>>;
   }
 }
 //
@@ -29,16 +44,68 @@ Cypress.Commands.add('openTokenSelection', () => {
     .click();
 });
 Cypress.Commands.add('getTokenASold', () => {
-  return cy.get('[class*="swap-input__SoldDisplay"]').as('tokena-sold').click();
+  return cy.get('[class*="swap-input__SoldDisplay"]').first().as('tokenA-sold');
 });
-//
-// -- This is a child command --
-// Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+Cypress.Commands.add('getTokenBSold', () => {
+  return cy.get('[class*="swap-input__SoldDisplay"]').last().as('tokenB-sold');
+});
+Cypress.Commands.add('getTokenAInput', () => {
+  return cy.get('[class*="swap-input__Row"] input').first().as('tokenA-input');
+});
+Cypress.Commands.add('getTokenBInput', () => {
+  return cy.get('[class*="swap-input__Row"] input').last().as('tokenB-input');
+});
+Cypress.Commands.add('openTokenASelection', () => {
+  return cy
+    .get('[class*="token-select__CaretDown"]')
+    .as('tokenA-select-carret')
+    .first()
+    .click();
+});
+Cypress.Commands.add('selectTokenA', (token: string) => {
+  return cy
+    .get('[class*="token-select__CaretDown"]')
+    .first()
+    .as('tokenA-select-carret')
+    .click()
+    .get('.ant-list-item-meta-title')
+    .contains(token)
+    .parents('.ant-list-item')
+    .first()
+    .click()
+    .get('.anticon-close')
+    .click();
+});
+Cypress.Commands.add('selectTokenB', (token: string) => {
+  return cy
+    .get('[class*="token-select__CaretDown"]')
+    .last()
+    .as('tokenB-select-carret')
+    .click()
+    .get('.ant-modal-root:last .ant-list-item-meta-title')
+    .contains(token)
+    .parents('.ant-list-item')
+    .first()
+    .click()
+    .get('.ant-modal-root:last .anticon-close')
+    .click();
+});
+Cypress.Commands.add('typeTokenA', (value: string, backspace = 3) => {
+  return cy
+    .getTokenAInput()
+    .type(
+      Array.from(Array(backspace).keys())
+        .map(() => '{backspace} ')
+        .join('')
+    )
+    .type(value);
+});
+Cypress.Commands.add('typeTokenB', (value: string) => {
+  return cy
+    .getTokenBInput()
+    .type('{backspace} {backspace} {backspace}')
+    .type(value);
+});
+Cypress.Commands.add('getSubmitButton', () => {
+  return cy.get('[class*="form-submit-button"]').as('submit-btn');
+});

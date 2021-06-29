@@ -1,14 +1,11 @@
-import { render, act, waitFor } from '@testing-library/react';
-import { constVoid, constFalse, pipe } from 'fp-ts/function';
+import { render } from '@testing-library/react';
+import { constVoid, constFalse } from 'fp-ts/function';
 
 import SwapForm, { SwapFormProps } from './swap-form';
 import { none, some } from 'fp-ts/Option';
 import { ETH, DAI, USDC } from '../__mocks__/tokens';
-import { useSwapForm } from '../hooks/useSwapForm';
-import type { Option } from 'fp-ts/Option';
-import * as options from 'fp-ts/Option';
 import '@testing-library/jest-dom';
-import { screen } from '@testing-library/react';
+
 describe('SwapForm', () => {
   const commonBases = some([some(ETH), some(DAI)]);
   const tokens = some([some(ETH), some(DAI), some(USDC)]);

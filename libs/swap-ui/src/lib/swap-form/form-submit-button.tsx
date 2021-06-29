@@ -120,6 +120,7 @@ export const EnterAmountButton = styled(Button)`
 
 EnterAmountButton.defaultProps = {
   children: 'Entrez un montant',
+  disabled: true,
 };
 export const LoadingButton = styled(Button)`
   ${buttonStyle}

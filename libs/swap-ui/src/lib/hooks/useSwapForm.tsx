@@ -1,15 +1,9 @@
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
-import {
-  MapTokenValue,
-  useTokenValues,
-  getOrElse,
-  lookupOption,
-} from './useTokenValue';
+import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
-import * as options from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 
 export interface UseSwapFormProps {
