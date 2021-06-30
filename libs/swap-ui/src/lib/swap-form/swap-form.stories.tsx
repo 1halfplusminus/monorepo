@@ -10,6 +10,7 @@ import {
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
+import { connected } from './form-submit-button.stories';
 
 export default {
   component: SwapForm,
@@ -44,7 +45,26 @@ const ConnectedForm = (
 export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
 };
+export const disconnected: Story<SwapFormProps & UseSwapFormProps> = (
+  props
+) => {
+  return (
+    <ConnectedForm
+      {...props}
+      connectButton={{ isConnected: () => false, connect: () => true }}
+      connected={some(false)}
+    />
+  );
+};
 
+disconnected.args = {
+  tokens: tokens,
+  commonBases,
+  selected: some([none, none]),
+  account: some('x100000'),
+  fetchBalance: () => Promise.resolve('100'),
+  balances: some(new Map().set(ETH, 100)),
+};
 export const EnterAmount: Story<SwapFormProps & UseSwapFormProps> = (props) => {
   return (
     <Web3WalletProvider>
