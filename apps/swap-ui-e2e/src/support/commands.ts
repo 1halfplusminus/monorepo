@@ -107,5 +107,7 @@ Cypress.Commands.add('typeTokenB', (value: string) => {
     .type(value);
 });
 Cypress.Commands.add('getSubmitButton', () => {
-  return cy.get('[class*="form-submit-button"]').as('submit-btn');
+  return cy
+    .get('[class*="form-submit-button"],[class*="ant-btn connect-button"]')
+    .as('submit-btn');
 });

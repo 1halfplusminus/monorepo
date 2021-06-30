@@ -1,4 +1,4 @@
-import react, { ReactElement } from 'react';
+import react from 'react';
 import ConnectButton, {
   ConnectButtonProps,
 } from '../connect-button/connect-button';
@@ -9,8 +9,8 @@ import Button, { ButtonProps } from 'antd/lib/button/button';
 import styled from 'styled-components';
 import { Token } from '../types/index';
 import { BigNumberish } from 'ethers';
-import { loading, soldInsufficient } from './form-submit-button.stories';
 import { css } from 'styled-components';
+
 export interface FormSubmitButtonProps {
   connected: Option<boolean>;
   loading: Option<boolean>;
@@ -29,6 +29,7 @@ export interface FormSubmitButtonProps {
   tokens: Option<Array<[Option<Token>, Option<BigNumberish>]>>;
   onSwap?: () => void;
 }
+
 const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
   return (
     <Maybe
@@ -40,7 +41,7 @@ const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
           option={token}
           onNone={() => <Button disabled={true}> Select a token </Button>}
         >
-          {() => <Button> Swap </Button>}
+          {() => <SwapButton />}
         </Maybe>
       )}
     </Maybe>
@@ -94,20 +95,24 @@ export const FormSubmitButton = ({
       onNone={() => <ConnectButton {...connectButton} />}
       option={connected}
     >
-      {() => (
-        <Maybe
-          option={loading}
-          onNone={() => <MaybeSwap tokenA={tokenA} tokenB={tokenB} />}
-        >
-          {(loading) =>
-            loading ? (
-              <LoadingButton />
-            ) : (
-              <MaybeSwap tokenA={tokenA} tokenB={tokenB} />
-            )
-          }
-        </Maybe>
-      )}
+      {(connected) =>
+        connected ? (
+          <Maybe
+            option={loading}
+            onNone={() => <MaybeSwap tokenA={tokenA} tokenB={tokenB} />}
+          >
+            {(loading) =>
+              loading ? (
+                <LoadingButton />
+              ) : (
+                <MaybeSwap tokenA={tokenA} tokenB={tokenB} />
+              )
+            }
+          </Maybe>
+        ) : (
+          <ConnectButton {...connectButton} />
+        )
+      }
     </Maybe>
   );
 };
@@ -131,4 +136,10 @@ LoadingButton.defaultProps = {
   disabled: true,
 };
 
+const SwapButton = styled(Button)`
+  ${buttonStyle}
+`;
+SwapButton.defaultProps = {
+  children: 'Swap',
+};
 export default FormSubmitButton;
