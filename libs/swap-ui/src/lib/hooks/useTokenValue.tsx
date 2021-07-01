@@ -5,7 +5,7 @@ import * as map from 'fp-ts/Map';
 import { useState, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import * as options from 'fp-ts/Option';
-import { eqToken } from './tokenList';
+import { eqToken, TokenList } from './tokenList';
 import * as taskEither from 'fp-ts/TaskEither';
 
 export type MapTokenValue = Option<Map<Token, BigNumberish>>;
@@ -13,6 +13,7 @@ export type MapTokenValue = Option<Map<Token, BigNumberish>>;
 export type UseTokenValue = {
   lookup(token: Option<Token>): Option<BigNumberish>;
   modifyAt(token: Option<Token>, value: BigNumberish): void;
+  modifyAts(tokens: Option<Token>[], values: BigNumberish[]): void;
   values: MapTokenValue;
 };
 export declare type UseTokenValueProps = {
@@ -77,6 +78,17 @@ export const useTokenValues: UseTokenHook = (
   { valueByToken } = { valueByToken: options.some(new Map()) }
 ) => {
   const [values, setValues] = useState(valueByToken);
+  const modifyAts = useCallback(
+    (tokens: TokenList, amounts: BigNumberish[]) => {
+      let tempValues = values;
+      for (let index = 0; index < amounts.length; index++) {
+        const element = amounts[index];
+        tempValues = pipe(modifyAtOption(tempValues)(tokens[index], element));
+      }
+      setValues(tempValues);
+    },
+    [values]
+  );
   const setValue = useCallback(
     (token: Option<Token>, value: BigNumberish) => {
       setValues(pipe(modifyAtOption(values)(token, value)));
@@ -85,21 +97,12 @@ export const useTokenValues: UseTokenHook = (
   );
   const getValue = useCallback(
     (token: Option<Token>) => {
-      console.log(
-        pipe(
-          token,
-          options.fold(
-            () => 'none',
-            (t) => t.name
-          )
-        ),
-        lookupOption(values)(token)
-      );
       return lookupOption(values)(token);
     },
     [values]
   );
   return {
+    modifyAts,
     lookup: getValue,
     modifyAt: setValue,
     values,

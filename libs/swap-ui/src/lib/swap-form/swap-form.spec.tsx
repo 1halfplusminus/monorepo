@@ -7,8 +7,6 @@ import { ETH, DAI, USDC } from '../__mocks__/tokens';
 import '@testing-library/jest-dom';
 
 describe('SwapForm', () => {
-  const commonBases = some([some(ETH), some(DAI)]);
-  const tokens = some([some(ETH), some(DAI), some(USDC)]);
   const propsInputA: SwapFormProps['inputA'] = {
     isSelected: constFalse,
     onValueChange: constVoid,

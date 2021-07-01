@@ -12,10 +12,11 @@ export interface PairPriceDisplayProps {
   tokenB: Option<Token>;
   rate: Option<BigNumberish>;
   inversed?: boolean;
+  onClick?: () => void;
 }
 
 export const StyledWrapper = styled.div`
-  ${tw`flex flex-row gap-1`}
+  ${tw`flex flex-row gap-1 text-white justify-end cursor-pointer`}
 `;
 
 export const PairPriceDisplay = ({
@@ -23,9 +24,10 @@ export const PairPriceDisplay = ({
   tokenB,
   rate,
   inversed = false,
+  onClick,
 }: PairPriceDisplayProps) => {
   return (
-    <StyledWrapper>
+    <StyledWrapper onClick={onClick}>
       <MaybeTokenRate
         tokenA={!inversed ? tokenA : tokenB}
         tokenB={!inversed ? tokenB : tokenA}

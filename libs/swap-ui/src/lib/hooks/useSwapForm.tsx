@@ -5,7 +5,11 @@ import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
 import { pipe } from 'fp-ts/function';
-
+import type { Task } from 'fp-ts/Task';
+import { BigNumberish } from 'ethers';
+import { useFetchRate } from './useFetchRate';
+import { zero } from 'fp-ts/TaskOption';
+import { useInversable } from './useInversable';
 export interface UseSwapFormProps {
   fetchBalance: (
     token: Option<Token>,
@@ -17,6 +21,7 @@ export interface UseSwapFormProps {
   amounts?: MapTokenValue;
   balances?: MapTokenValue;
   account: Option<string>;
+  fetchRate: Task<Option<BigNumberish>>;
 }
 export const useSwapForm = ({
   tokens,
@@ -26,6 +31,7 @@ export const useSwapForm = ({
   balances: defaultBalances = some(new Map()),
   fetchBalance,
   account,
+  fetchRate = zero(),
 }: UseSwapFormProps) => {
   const { filteredTokenList, search } = useSearch(tokens);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
@@ -40,19 +46,30 @@ export const useSwapForm = ({
     modifyAt: soldModifyAt,
     lookup: soldLookup,
     values: balances,
+    modifyAts: soldModifyAts,
   } = useTokenValues({
     valueByToken: defaultBalances,
   });
+
+  const { rate } = useFetchRate({
+    tokenA: first,
+    tokenB: last,
+    fetchRate: fetchRate,
+  });
+
+  const { inversed, inverse: inversePriceDisplay } = useInversable({
+    inversed: false,
+  });
   useEffect(() => {
     fetchBalance(first, account).then((r) => {
-      soldModifyAt(first, r);
+      fetchBalance(last, account)
+        .then((rLast) => {
+          soldModifyAts([first, last], [r, rLast]);
+        })
+        .catch(() => soldModifyAt(first, r));
     });
-  }, [first, account, fetchBalance]);
-  useEffect(() => {
-    fetchBalance(last, account).then((r) => {
-      soldModifyAt(last, r);
-    });
-  }, [last, account, fetchBalance]);
+  }, [first, account, fetchBalance, last]);
+
   /*  useEffect(() => {
     fetchBalance(first, account).then((r) => {
       console.log(first, r);
@@ -101,7 +118,17 @@ export const useSwapForm = ({
       inputB: bindInput(1)(last),
       commonBases,
     }),
-    [first, last, filteredTokenList, search, inverse, commonBases]
+    [first, last, filteredTokenList, search, inverse, commonBases, bindInput]
+  );
+  const bindPriceDisplay = useCallback(
+    () => ({
+      tokenA: first,
+      tokenB: last,
+      rate: rate,
+      inversed,
+      onClick: inverse,
+    }),
+    [first, last, rate, inversed, inverse]
   );
   const bindSubmitButton = useCallback(
     () => ({
@@ -119,6 +146,7 @@ export const useSwapForm = ({
     [last, first, soldLookup, lookup]
   );
   return {
+    bindPriceDisplay,
     bindSwapForm,
     bindSubmitButton,
     soldLookup,

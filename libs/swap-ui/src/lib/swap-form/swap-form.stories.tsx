@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
@@ -10,7 +10,8 @@ import {
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
-import { connected } from './form-submit-button.stories';
+
+import PairPriceDisplay from './pair-price-display';
 
 export default {
   component: SwapForm,
@@ -20,17 +21,16 @@ export default {
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
-
-const ConnectedForm = (
-  props: SwapFormProps &
-    UseSwapFormProps &
-    Pick<FormSubmitButtonProps, 'connectButton' | 'connected'>
-) => {
+type ConnectedFormProps = SwapFormProps &
+  UseSwapFormProps &
+  Pick<FormSubmitButtonProps, 'connectButton' | 'connected'>;
+const ConnectedForm = (props: ConnectedFormProps) => {
   const form = useSwapForm({
     ...props,
   });
   return (
     <SwapForm {...props} {...form.bindSwapForm()}>
+      <PairPriceDisplay {...form.bindPriceDisplay()} />
       <FormSubmitButton
         loading={some(false)}
         connectButton={props.connectButton}
@@ -84,8 +84,29 @@ EnterAmount.args = {
   account: some('x100000'),
   fetchBalance: () => Promise.resolve('100'),
   balances: some(new Map().set(ETH, 100)),
+  fetchRate: () => Promise.resolve(some(0.001899)),
+};
+export const Swap: Story<SwapFormProps & UseSwapFormProps> = (props) => {
+  return (
+    <Web3WalletProvider>
+      <ConnectedForm
+        {...props}
+        connectButton={{ isConnected: () => true, connect: () => true }}
+        connected={some(true)}
+      />
+    </Web3WalletProvider>
+  );
 };
 
+Swap.args = {
+  tokens: tokens,
+  commonBases,
+  selected: some([some(ETH), some(DAI)]),
+  account: some('x100000'),
+  fetchBalance: () => Promise.resolve('100'),
+  fetchRate: () => Promise.resolve(some(0.001899)),
+  amounts: some(new Map().set(ETH, 100)),
+};
 const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {
   const { library, connected, isConnected, connect, account } = useWallets();
   return (
