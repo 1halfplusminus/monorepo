@@ -1,3 +1,4 @@
+import { task, taskOption as TO, either as E } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
@@ -61,26 +62,46 @@ export const useSwapForm = ({
     inversed: false,
   });
   useEffect(() => {
-    fetchBalance(first, account).then((r) => {
+    pipe(
+      task.sequenceArray([
+        TO.fromTask(() => fetchBalance(first, account)),
+        TO.fromTask(() => fetchBalance(last, account)),
+      ]),
+      task.map(([amount1, amount2]) =>
+        pipe(
+          [
+            pipe(
+              amount1,
+              E.fromOption(() => false)
+            ),
+            pipe(
+              amount2,
+              E.fromOption(() => false)
+            ),
+          ],
+          ([soldFirst, soldLast]) => {
+            if (E.isRight(soldFirst) && E.isRight(soldLast)) {
+              soldModifyAts([first, last], [soldFirst.right, soldLast.right]);
+            }
+            if (E.isRight(soldFirst) && E.isLeft(soldLast)) {
+              soldModifyAt(first, soldFirst.right);
+            }
+            if (E.isRight(soldLast) && E.isLeft(soldFirst)) {
+              soldModifyAt(last, soldLast.right);
+            }
+          }
+        )
+      )
+    )();
+    /* fetchBalance(first, account).then((r) => {
       fetchBalance(last, account)
         .then((rLast) => {
           soldModifyAts([first, last], [r, rLast]);
         })
         .catch(() => soldModifyAt(first, r));
-    });
+    }); */
   }, [first, account, fetchBalance, last]);
 
-  /*  useEffect(() => {
-    fetchBalance(first, account).then((r) => {
-      console.log(first, r);
-      soldModifyAt(first, r);
-    });
-  }, [first, account, fetchBalance, soldModifyAt]);
-  useEffect(() => {
-    fetchBalance(last, account).then((r) => {
-      soldModifyAt(last, '100');
-    });
-  }, [last, account, soldModifyAt, fetchBalance]); */
   const onSelected = useCallback(
     (index: 0 | 1) => (token: Token) => {
       selectAtIndex(token, index);
@@ -126,9 +147,9 @@ export const useSwapForm = ({
       tokenB: last,
       rate: rate,
       inversed,
-      onClick: inverse,
+      onClick: inversePriceDisplay,
     }),
-    [first, last, rate, inversed, inverse]
+    [first, last, rate, inversed, inversePriceDisplay]
   );
   const bindSubmitButton = useCallback(
     () => ({

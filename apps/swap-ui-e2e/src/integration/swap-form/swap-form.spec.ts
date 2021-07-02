@@ -1,4 +1,22 @@
-describe('swap-ui: SwapForm Disconnected', () => {
+describe('swap-ui: SwapForm Swap', () => {
+  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--swap'));
+
+  it('It should display correctly', () => {
+    cy.getSubmitButton()
+      .should('contain.text', 'Swap')
+      .should('not.have.attr', 'disabled')
+      .getPairRateDisplay()
+      .should('contain.text', '1 DAI = 0.001899 ETH')
+      .click()
+      .should('contain.text', '1 ETH = 526 DAI')
+      .getTokenASold()
+      .should('contain.text', '100 ETH')
+      .getTokenBSold()
+      .should('contain.text', '100 DAI');
+  });
+});
+
+xdescribe('swap-ui: SwapForm Disconnected', () => {
   beforeEach(() => cy.visit('/iframe.html?id=swapform-form--disconnected'));
 
   it('It should display connected button', () => {

@@ -20,6 +20,7 @@ declare namespace Cypress {
     getTokenBInput(): Chainable<JQuery<HTMLInputElement>>;
     getTokenBSold(): Chainable<JQuery<HTMLInputElement>>;
     getSubmitButton(): Chainable<JQuery<HTMLInputElement>>;
+    getPairRateDisplay(): Chainable<JQuery<HTMLInputElement>>;
     selectTokenA(token: string): Chainable<JQuery<HTMLInputElement>>;
     selectTokenB(token: string): Chainable<JQuery<HTMLInputElement>>;
     typeTokenB(
@@ -110,4 +111,8 @@ Cypress.Commands.add('getSubmitButton', () => {
   return cy
     .get('[class*="form-submit-button"],[class*="ant-btn connect-button"]')
     .as('submit-btn');
+});
+
+Cypress.Commands.add('getPairRateDisplay', () => {
+  return cy.get("[class*='pair-price-display']").as('sold-display');
 });
