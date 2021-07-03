@@ -14,7 +14,7 @@ export type MapTokenValue = Option<Map<Token, BigNumberish>>;
 export type UseTokenValue = {
   lookup(token: Option<Token>): Option<BigNumberish>;
   modifyAt(token: Option<Token>, value: BigNumberish): void;
-  modifyAts(tokens: Option<Token>[], values: BigNumberish[]): void;
+  modifyAts(tokens: Option<Token>[], values: Option<BigNumberish>[]): void;
   values: MapTokenValue;
 };
 export declare type UseTokenValueProps = {
@@ -81,19 +81,31 @@ export const modifyAts = (values: MapTokenValue) => (
   amounts: BigNumberish[]
 ) =>
   pipe(
+    amounts,
+    arrays.map((a) => options.some(a)),
+    (amounts) => modifyAtsOption(values)(tokens, amounts)
+  );
+export const modifyAtsOption = (values: MapTokenValue) => (
+  tokens: Option<Token>[],
+  amounts: Option<BigNumberish>[]
+) =>
+  pipe(
     tokens,
     arrays.zip(amounts),
-    arrays.reduce(values, (acc, [token, amount]) =>
-      modifyAtOption(acc)(token, amount)
-    )
+    arrays.reduce(values, (acc, [token, amount]) => {
+      if (options.isSome(amount)) {
+        return modifyAtOption(acc)(token, amount.value);
+      }
+      return acc;
+    })
   );
 export const useTokenValues: UseTokenHook = (
   { valueByToken } = { valueByToken: options.some(new Map()) }
 ) => {
   const [values, setValues] = useState(valueByToken);
   const modifyAtsCallback = useCallback(
-    (tokens: Option<Token>[], amounts: BigNumberish[]) => {
-      setValues(modifyAts(values)(tokens, amounts));
+    (tokens: Option<Token>[], amounts: Option<BigNumberish>[]) => {
+      setValues(modifyAtsOption(values)(tokens, amounts));
     },
     [values]
   );

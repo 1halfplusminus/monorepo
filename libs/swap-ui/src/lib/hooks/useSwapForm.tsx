@@ -2,7 +2,12 @@ import { task, taskOption as TO, option as O, either as E } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
-import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
+import {
+  MapTokenValue,
+  useTokenValues,
+  getOrElse,
+  modifyAtsOption,
+} from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
 import { pipe } from 'fp-ts/function';
@@ -11,10 +16,8 @@ import { BigNumberish } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
-import * as options from 'fp-ts/Option';
-import * as arrays from 'fp-ts/Array';
 import * as option from 'fp-ts/Option';
-import * as either from 'fp-ts/Either';
+
 export interface UseSwapFormProps {
   fetchBalance: (
     token: Option<Token>,
@@ -71,39 +74,9 @@ export const useSwapForm = ({
         TO.fromTask(() => fetchBalance(first, account)),
         TO.fromTask(() => fetchBalance(last, account)),
       ]),
-      task.map((result) => {
-        pipe(
-          result,
-          ([soldFirst, soldLast]) =>
-            O.isSome(soldLast) && O.isSome(soldFirst)
-              ? E.right([soldFirst.value, soldLast.value])
-              : E.left([soldFirst, soldLast]),
-          E.map(([soldFirst, soldLast]) => {
-            soldModifyAts([first, last], [soldFirst, soldLast]);
-            return [soldFirst, soldLast];
-          }),
-          E.mapLeft(([soldFirst, soldLast]) =>
-            pipe(
-              [soldFirst, soldLast],
-              ([soldFirst, soldLast]) =>
-                O.isSome(soldLast)
-                  ? E.right(soldLast.value)
-                  : E.left(soldFirst),
-              E.map((soldLast) => {
-                soldModifyAt(last, soldLast);
-              }),
-              E.mapLeft((soldFirst) => {
-                pipe(
-                  soldFirst,
-                  option.map((soldFirst) => {
-                    soldModifyAt(first, soldFirst);
-                  })
-                );
-              })
-            )
-          )
-        );
-      })
+      task.map(([soldFirst, soldLast]) =>
+        soldModifyAts([first, last], [soldFirst, soldLast])
+      )
     )();
   }, [first, account, fetchBalance, last]);
 
