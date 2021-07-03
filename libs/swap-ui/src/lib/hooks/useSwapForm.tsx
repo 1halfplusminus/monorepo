@@ -1,4 +1,4 @@
-import { task, taskOption as TO, either as E } from 'fp-ts';
+import { task, taskOption as TO, option as O, either as E } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
@@ -11,6 +11,10 @@ import { BigNumberish } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
+import * as options from 'fp-ts/Option';
+import * as arrays from 'fp-ts/Array';
+import * as option from 'fp-ts/Option';
+import * as either from 'fp-ts/Either';
 export interface UseSwapFormProps {
   fetchBalance: (
     token: Option<Token>,
@@ -63,43 +67,44 @@ export const useSwapForm = ({
   });
   useEffect(() => {
     pipe(
-      task.sequenceArray([
+      task.sequenceSeqArray([
         TO.fromTask(() => fetchBalance(first, account)),
         TO.fromTask(() => fetchBalance(last, account)),
       ]),
-      task.map(([amount1, amount2]) =>
+      task.map((result) => {
         pipe(
-          [
+          result,
+          ([soldFirst, soldLast]) =>
+            O.isSome(soldLast) && O.isSome(soldFirst)
+              ? E.right([soldFirst.value, soldLast.value])
+              : E.left([soldFirst, soldLast]),
+          E.map(([soldFirst, soldLast]) => {
+            soldModifyAts([first, last], [soldFirst, soldLast]);
+            return [soldFirst, soldLast];
+          }),
+          E.mapLeft(([soldFirst, soldLast]) =>
             pipe(
-              amount1,
-              E.fromOption(() => false)
-            ),
-            pipe(
-              amount2,
-              E.fromOption(() => false)
-            ),
-          ],
-          ([soldFirst, soldLast]) => {
-            if (E.isRight(soldFirst) && E.isRight(soldLast)) {
-              soldModifyAts([first, last], [soldFirst.right, soldLast.right]);
-            }
-            if (E.isRight(soldFirst) && E.isLeft(soldLast)) {
-              soldModifyAt(first, soldFirst.right);
-            }
-            if (E.isRight(soldLast) && E.isLeft(soldFirst)) {
-              soldModifyAt(last, soldLast.right);
-            }
-          }
-        )
-      )
+              [soldFirst, soldLast],
+              ([soldFirst, soldLast]) =>
+                O.isSome(soldLast)
+                  ? E.right(soldLast.value)
+                  : E.left(soldFirst),
+              E.map((soldLast) => {
+                soldModifyAt(last, soldLast);
+              }),
+              E.mapLeft((soldFirst) => {
+                pipe(
+                  soldFirst,
+                  option.map((soldFirst) => {
+                    soldModifyAt(first, soldFirst);
+                  })
+                );
+              })
+            )
+          )
+        );
+      })
     )();
-    /* fetchBalance(first, account).then((r) => {
-      fetchBalance(last, account)
-        .then((rLast) => {
-          soldModifyAts([first, last], [r, rLast]);
-        })
-        .catch(() => soldModifyAt(first, r));
-    }); */
   }, [first, account, fetchBalance, last]);
 
   const onSelected = useCallback(

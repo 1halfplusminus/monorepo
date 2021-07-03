@@ -16,7 +16,7 @@ describe('swap-ui: SwapForm Swap', () => {
   });
 });
 
-xdescribe('swap-ui: SwapForm Disconnected', () => {
+describe('swap-ui: SwapForm Disconnected', () => {
   beforeEach(() => cy.visit('/iframe.html?id=swapform-form--disconnected'));
 
   it('It should display connected button', () => {
@@ -26,7 +26,7 @@ xdescribe('swap-ui: SwapForm Disconnected', () => {
   });
 });
 
-xdescribe('swap-ui: SwapForm Enter Amount', () => {
+describe('swap-ui: SwapForm Enter Amount', () => {
   beforeEach(() => cy.visit('/iframe.html?id=swapform-form--enter-amount'));
 
   it('It should display sold correctly', () => {
