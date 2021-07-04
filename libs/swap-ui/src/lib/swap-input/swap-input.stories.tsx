@@ -3,9 +3,12 @@ import { Meta, Story } from '@storybook/react';
 import { SwapInput, SwapInputProps } from './swap-input';
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import { getOrElse, useTokenValues } from '../hooks/useTokenValue';
+import {
+  getOrElse,
+  useTokenValues,
+  UseTokenValueProps,
+} from '../hooks/useTokenValue';
 import { none, some } from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
 import { ETH } from '../__mocks__/tokens';
 
 export default {
@@ -27,6 +30,7 @@ export const primary: Story<SwapInputProps> = (props) => {
 };
 primary.args = {
   selected: none,
+  sold: none,
 };
 export const withSold: Story<SwapInputProps> = (props) => {
   return (
@@ -40,9 +44,26 @@ withSold.args = {
   sold: some('10'),
   selected: some(ETH),
 };
-export const WithState: Story<SwapInputProps> = (props) => {
+
+export const withFiatPrice: Story<SwapInputProps> = (props) => {
+  return (
+    <Wrapper>
+      <SwapInput {...props} />
+    </Wrapper>
+  );
+};
+
+withFiatPrice.args = {
+  sold: none,
+  selected: some(ETH),
+  fiatPrice: some('1000'),
+  value: '10',
+};
+export const WithState: Story<SwapInputProps & UseTokenValueProps> = (
+  props
+) => {
   const { lookup, modifyAt } = useTokenValues({
-    valueByToken: some(new Map()),
+    valueByToken: props.valueByToken,
   });
   return (
     <Wrapper>
@@ -56,5 +77,8 @@ export const WithState: Story<SwapInputProps> = (props) => {
 };
 
 WithState.args = {
+  sold: none,
   selected: some(ETH),
+  valueByToken: some(new Map().set(ETH, 100)),
+  fiatPrice: some('1000'),
 };

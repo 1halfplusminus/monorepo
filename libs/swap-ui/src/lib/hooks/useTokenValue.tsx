@@ -5,7 +5,7 @@ import * as map from 'fp-ts/Map';
 import { useState, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import * as options from 'fp-ts/Option';
-import { eqToken, TokenList } from './tokenList';
+import { eqToken } from './tokenList';
 import * as taskEither from 'fp-ts/TaskEither';
 import * as arrays from 'fp-ts/Array';
 

@@ -9,13 +9,16 @@ import type { Option } from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
 import { isEmpty } from 'fp-ts/string';
 import Maybe from '../../core/maybe/maybe';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, BigNumber } from 'ethers';
+import { FiatPriceDisplay } from '../swap-form/fiat-price-display';
+import { css } from 'styled-components';
 
 /* eslint-disable-next-line */
 export type SwapInputProps = TokenSelectProps & {
   onValueChange: (token: Option<Token>, value: string) => void;
   value: string;
   sold: Option<BigNumberish>;
+  fiatPrice?: Option<BigNumberish>;
 };
 
 const StyledSwapInputWrapper = styled.div`
@@ -60,6 +63,7 @@ export function SwapInput({
   value = '0.0',
   onValueChange,
   sold,
+  fiatPrice = options.none,
   ...props
 }: SwapInputProps) {
   const handleValueChange = ({ value }: NumberFormatValues) => {
@@ -87,15 +91,22 @@ export function SwapInput({
           disabled={isSelected(props.selected)}
         />
       </Row>
-      <Col>
+      <Row css={[options.isSome(sold) ? tw`justify-between` : tw`justify-end`]}>
         <Maybe option={props.selected}>
           {(token) => (
-            <Maybe option={sold}>
-              {(sold) => <SoldDisplay token={token} sold={sold} />}
-            </Maybe>
+            <>
+              <Maybe option={sold}>
+                {(sold) => <SoldDisplay token={token} sold={sold} />}
+              </Maybe>
+              <FiatPriceDisplay
+                token={options.some(token)}
+                price={fiatPrice}
+                sold={options.tryCatch(() => BigNumber.from(value))}
+              />
+            </>
           )}
         </Maybe>
-      </Col>
+      </Row>
     </StyledSwapInputWrapper>
   );
 }
