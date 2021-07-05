@@ -14,6 +14,7 @@ export type SwapFormProps = {
   commonBases: SwapInputProps['commonBases'];
   onSearch: SwapInputProps['onSearch'];
   onInverse: () => void;
+  disabled: boolean;
 };
 
 const StyledSwapSurface = styled.div`
@@ -51,6 +52,7 @@ export function SwapForm({
   onSearch,
   onInverse,
   children,
+  disabled = false,
 }: PropsWithChildren<SwapFormProps>) {
   return (
     <StyledSwapSurface>
@@ -61,6 +63,8 @@ export function SwapForm({
           onSearch={onSearch}
           tokens={tokens}
           commonBases={commonBases}
+          disabled={disabled}
+          disabledText="From"
         />
         <SwapIconWrapper height={50}>
           <SwapIcon onClick={onInverse} />
@@ -70,6 +74,8 @@ export function SwapForm({
           onSearch={onSearch}
           tokens={tokens}
           commonBases={commonBases}
+          disabled={disabled}
+          disabledText="To"
         />
         {children}
       </FormInputWrapper>

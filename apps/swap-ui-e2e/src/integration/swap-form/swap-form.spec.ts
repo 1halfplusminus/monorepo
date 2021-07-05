@@ -1,3 +1,13 @@
+describe('swap-ui: SwapForm Primary', () => {
+  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--primary'));
+
+  it('It should display correctly', () => {
+    cy.getTokenASelect()
+      .should('contain.text', 'Select a token')
+      .getTokenBSelect()
+      .should('contain.text', 'Select a token');
+  });
+});
 describe('swap-ui: SwapForm Swap', () => {
   beforeEach(() => cy.visit('/iframe.html?id=swapform-form--swap'));
 

@@ -19,3 +19,16 @@ export const selected: Story<TokenSelectProps> = (props) => {
 selected.args = {
   selected: some(ETH),
 };
+export const disabled: Story<TokenSelectProps> = (props) => {
+  return <TokenSelect {...props} />;
+};
+disabled.parameters = {
+  backgrounds: {
+    default: 'dark',
+  },
+};
+disabled.args = {
+  selected: some(ETH),
+  disabled: true,
+  disabledText: 'From',
+};

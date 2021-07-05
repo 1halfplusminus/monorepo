@@ -8,7 +8,7 @@ import { BigNumber } from 'ethers';
 export interface FiatPriceDisplayProps {
   token: Option<Token>;
   price: Option<BigNumberish>;
-  sold: Option<BigNumberish>;
+  amount: Option<BigNumberish>;
   fiatSymbol?: string;
 }
 
@@ -17,7 +17,7 @@ export const StyledWrapper = styled.div`
 `;
 
 export const FiatPriceDisplay = ({
-  sold,
+  amount,
   token,
   price,
   fiatSymbol = '$',
@@ -26,10 +26,10 @@ export const FiatPriceDisplay = ({
     {(token) => (
       <Maybe option={price}>
         {(price) => (
-          <Maybe option={sold}>
-            {(sold) => (
+          <Maybe option={amount}>
+            {(amount) => (
               <StyledWrapper>
-                ~{fiatSymbol} {BigNumber.from(sold).mul(price).toString()}
+                ~{fiatSymbol} {BigNumber.from(amount).mul(price).toString()}
               </StyledWrapper>
             )}
           </Maybe>

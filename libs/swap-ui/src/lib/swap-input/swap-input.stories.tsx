@@ -59,6 +59,22 @@ withFiatPrice.args = {
   fiatPrice: some('1000'),
   value: '10',
 };
+export const disabled: Story<SwapInputProps> = (props) => {
+  return (
+    <Wrapper>
+      <SwapInput {...props} />
+    </Wrapper>
+  );
+};
+
+disabled.args = {
+  sold: none,
+  selected: some(ETH),
+  fiatPrice: some('1000'),
+  value: '10',
+  disabled: true,
+  disabledText: 'From',
+};
 export const WithState: Story<SwapInputProps & UseTokenValueProps> = (
   props
 ) => {

@@ -56,14 +56,23 @@ export const disconnected: Story<SwapFormProps & UseSwapFormProps> = (
     />
   );
 };
-
-disconnected.args = {
+export const disabled: Story<SwapFormProps & UseSwapFormProps> = (props) => {
+  return (
+    <ConnectedForm
+      {...props}
+      connectButton={{ isConnected: () => false, connect: () => true }}
+      connected={some(false)}
+    />
+  );
+};
+disabled.args = {
   tokens: tokens,
   commonBases,
-  selected: some([none, none]),
+  selected: some([some(DAI), some(ETH)]),
   account: some('x100000'),
   fetchBalance: () => Promise.resolve('100'),
   balances: some(new Map().set(ETH, 100)),
+  disabled: true,
 };
 export const EnterAmount: Story<SwapFormProps & UseSwapFormProps> = (props) => {
   return (
@@ -107,6 +116,7 @@ Swap.args = {
   fetchRate: () => Promise.resolve(some(0.001899)),
   amounts: some(new Map().set(ETH, 100)),
 };
+
 const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {
   const { library, connected, isConnected, connect, account } = useWallets();
   return (

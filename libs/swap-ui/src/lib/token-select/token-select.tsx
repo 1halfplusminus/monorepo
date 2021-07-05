@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import MemoCaretDown from '../icon/caret-down';
-import { isNone, none, Option } from 'fp-ts/Option';
+import { isNone, none, Option, fromPredicate } from 'fp-ts/Option';
 import { Token } from '../types';
 import Maybe from '../../core/maybe/maybe';
 import TokenSymbol from '../token-symbol/token-symbol';
@@ -11,6 +11,7 @@ import { DarkModal } from '../popup/popup';
 import SearchToken from '../search-token/search-token';
 import { useModal } from '../popup/hooks';
 import { TokenList } from '../hooks/tokenList';
+import { pipe } from 'fp-ts/function';
 
 /* eslint-disable-next-line */
 export interface TokenSelectProps {
@@ -20,11 +21,21 @@ export interface TokenSelectProps {
   isSelected: (token: Token) => boolean;
   onSelected: (token: Token) => void;
   onSearch?: (query: string) => void;
+  disabled?: boolean;
+  disabledText?: string;
 }
 
-const StyledTokenSelectWrapper = styled.div<{ noSelection: boolean }>`
+const StyledTokenSelectWrapper = styled.div<{
+  noSelection: boolean;
+  disabled: boolean;
+}>`
   ${tw`flex flex-row p-2 items-center rounded-lg`}
-  ${({ noSelection }) => (noSelection ? tw`bg-blue-400 ` : tw`bg-gray-800`)}
+  ${({ noSelection, disabled }) =>
+    noSelection
+      ? tw`bg-blue-400 `
+      : disabled
+      ? tw`bg-transparent`
+      : tw`bg-gray-800`}
 `;
 
 const Text = styled.div`
@@ -39,7 +50,9 @@ const CaretDown = styled(MemoCaretDown)`
 const TokenItem = styled.div`
   ${tw`flex gap-1 justify-center items-center`}
 `;
-
+const TokenWrapper = styled.div`
+  ${tw`flex flex-col gap-2 justify-items-start`}
+`;
 export function TokenSelect({
   selected = none,
   commonBases,
@@ -47,6 +60,8 @@ export function TokenSelect({
   isSelected,
   onSelected,
   onSearch,
+  disabled = false,
+  disabledText = '',
 }: TokenSelectProps) {
   const noSelection = useMemo(() => isNone(selected), [selected]);
   const { showModal, isModalVisible, handleCancel } = useModal();
@@ -54,30 +69,44 @@ export function TokenSelect({
     showModal();
   };
   return (
-    <StyledTokenSelectWrapper noSelection={noSelection}>
+    <StyledTokenSelectWrapper disabled={disabled} noSelection={noSelection}>
       <Maybe option={selected} onNone={() => <Text>Select a token </Text>}>
         {(t) => (
-          <TokenItem>
-            <TokenSymbol src={t.symbol} />
-            <Text>{t.name}</Text>
-          </TokenItem>
+          <TokenWrapper>
+            {disabled && <Text>{disabledText}</Text>}
+            <TokenItem>
+              <TokenSymbol src={t.symbol} />
+              <Text>{t.name}</Text>
+            </TokenItem>
+          </TokenWrapper>
         )}
       </Maybe>
-      <CaretDown onClick={handleCarretDown} />
-      <DarkModal
-        onCancel={handleCancel}
-        title="Select a token"
-        visible={isModalVisible}
-        footer={null}
+      <Maybe
+        option={pipe(
+          disabled,
+          fromPredicate((disabled) => !disabled)
+        )}
       >
-        <SearchToken
-          isSelected={isSelected}
-          commonBases={commonBases}
-          tokens={tokens}
-          onSelected={onSelected}
-          onSearch={onSearch}
-        />
-      </DarkModal>
+        {() => (
+          <>
+            <CaretDown onClick={handleCarretDown} />
+            <DarkModal
+              onCancel={handleCancel}
+              title="Select a token"
+              visible={isModalVisible}
+              footer={null}
+            >
+              <SearchToken
+                isSelected={isSelected}
+                commonBases={commonBases}
+                tokens={tokens}
+                onSelected={onSelected}
+                onSearch={onSearch}
+              />
+            </DarkModal>
+          </>
+        )}
+      </Maybe>
     </StyledTokenSelectWrapper>
   );
 }

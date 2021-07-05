@@ -13,6 +13,10 @@ declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
     getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenASelect(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenBSelect(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenAFlatPrice(): Chainable<JQuery<HTMLInputElement>>;
+    getTokenBFlatPrice(): Chainable<JQuery<HTMLInputElement>>;
     openTokenSelection(): Chainable<JQuery<HTMLInputElement>>;
     openTokenASelection(): Chainable<JQuery<HTMLInputElement>>;
     getTokenASold(): Chainable<JQuery<HTMLInputElement>>;
@@ -33,10 +37,23 @@ declare namespace Cypress {
     ): Chainable<JQuery<HTMLInputElement>>;
   }
 }
-//
-// -- This is a parent command --
+Cypress.Commands.add('getTokenAFlatPrice', () => {
+  return cy
+    .get('[class*="fiat-price-display"]')
+    .first()
+    .as('tokenA-flat-price');
+});
+Cypress.Commands.add('getTokenBFlatPrice', () => {
+  return cy.get('[class*="fiat-price-display"]').last().as('tokenB-flat-price');
+});
+Cypress.Commands.add('getTokenASelect', () => {
+  return cy.get('[class*="token-select__Text"]').first().as('tokenA-select');
+});
+Cypress.Commands.add('getTokenBSelect', () => {
+  return cy.get('[class*="token-select__Text"]').last().as('tokenB-select');
+});
 Cypress.Commands.add('getTokenSelect', () => {
-  return cy.get('div[class*="token-select__Text"]').as('token-select');
+  return cy.get('[class*="token-select__Text"]').first().as('token-select');
 });
 Cypress.Commands.add('openTokenSelection', () => {
   return cy

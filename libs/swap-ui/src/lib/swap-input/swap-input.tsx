@@ -19,6 +19,7 @@ export type SwapInputProps = TokenSelectProps & {
   value: string;
   sold: Option<BigNumberish>;
   fiatPrice?: Option<BigNumberish>;
+  disabled?: boolean;
 };
 
 const StyledSwapInputWrapper = styled.div`
@@ -64,6 +65,7 @@ export function SwapInput({
   onValueChange,
   sold,
   fiatPrice = options.none,
+  disabled,
   ...props
 }: SwapInputProps) {
   const handleValueChange = ({ value }: NumberFormatValues) => {
@@ -83,15 +85,19 @@ export function SwapInput({
   return (
     <StyledSwapInputWrapper>
       <Row>
-        <TokenSelect {...props} />
+        <TokenSelect disabled={disabled} {...props} />
         <NumberFormat
           allowNegative={false}
           value={value}
           onValueChange={handleValueChange}
-          disabled={isSelected(props.selected)}
+          disabled={isSelected(props.selected) || disabled}
         />
       </Row>
-      <Row css={[options.isSome(sold) ? tw`justify-between` : tw`justify-end`]}>
+      <Row
+        css={[
+          sold && options.isSome(sold) ? tw`justify-between` : tw`justify-end`,
+        ]}
+      >
         <Maybe option={props.selected}>
           {(token) => (
             <>
@@ -101,7 +107,7 @@ export function SwapInput({
               <FiatPriceDisplay
                 token={options.some(token)}
                 price={fiatPrice}
-                sold={options.tryCatch(() => BigNumber.from(value))}
+                amount={options.tryCatch(() => BigNumber.from(value))}
               />
             </>
           )}
