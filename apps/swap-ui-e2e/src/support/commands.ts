@@ -12,6 +12,7 @@
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
+    getFormTitle(): Chainable<JQuery<HTMLInputElement>>;
     getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
     getTokenASelect(): Chainable<JQuery<HTMLInputElement>>;
     getTokenBSelect(): Chainable<JQuery<HTMLInputElement>>;
@@ -37,6 +38,9 @@ declare namespace Cypress {
     ): Chainable<JQuery<HTMLInputElement>>;
   }
 }
+Cypress.Commands.add('getFormTitle', () => {
+  return cy.get('[class*="swap-form__Title"').as('form-title');
+});
 Cypress.Commands.add('getTokenAFlatPrice', () => {
   return cy
     .get('[class*="fiat-price-display"]')

@@ -32,7 +32,6 @@ export const primary: Story<FiatPriceDisplayProps> = (props) => (
 );
 
 primary.args = {
-  sold: O.some('1'),
   price: O.some('5'),
   token: O.some(ETH),
 };
@@ -56,7 +55,6 @@ export const WithState: Story<FiatPriceDisplayProps & UseFiatPriceProps> = ({
 };
 
 WithState.args = {
-  sold: O.some('2'),
   price: O.none,
   token: O.some(ETH),
   fiatSymbol: '$',

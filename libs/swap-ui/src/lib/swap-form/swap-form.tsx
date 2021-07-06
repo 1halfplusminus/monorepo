@@ -1,9 +1,13 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import tw from 'twin.macro';
 import SwapInput, { SwapInputProps } from '../swap-input/swap-input';
 import SwapIcon from './swap-icon';
 import { PropsWithChildren } from 'react';
+import { Option, some } from 'fp-ts/Option';
+import { Maybe } from '../../core/maybe/maybe';
+import StyledSwapSurface from '../core/styled-surface';
+
 /* eslint-disable-next-line */
 type UsedSwapInputProps = Omit<SwapInputProps, 'commonBases' | 'tokens'>;
 
@@ -14,14 +18,9 @@ export type SwapFormProps = {
   commonBases: SwapInputProps['commonBases'];
   onSearch: SwapInputProps['onSearch'];
   onInverse: () => void;
-  disabled: boolean;
+  disabled?: boolean;
+  title?: Option<string>;
 };
-
-const StyledSwapSurface = styled.div`
-  background-color: --surface-background-color;
-  ${tw`bg-gray-900 p-2 flex flex-col gap-2`}
-  position: relative;
-`;
 
 const Title = styled.h2`
   color: surface-color;
@@ -53,10 +52,12 @@ export function SwapForm({
   onInverse,
   children,
   disabled = false,
+  title = some('Permuter'),
 }: PropsWithChildren<SwapFormProps>) {
   return (
     <StyledSwapSurface>
-      <Title>Permuter</Title>
+      <Maybe option={title}>{(title) => <Title>{title}</Title>}</Maybe>
+
       <FormInputWrapper>
         <SwapInput
           {...inputA}

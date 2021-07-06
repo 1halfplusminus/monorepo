@@ -181,7 +181,7 @@ export const selectedOrFirstCommonlyUsed = (
     options.fold(
       () =>
         pipe(
-          commonlyUsed,
+          commonlyUsed ? commonlyUsed : options.none,
           options.chain((commonlyUsed) => lookup(0)(commonlyUsed)),
           options.map((r) => [r])
         ),
@@ -217,7 +217,7 @@ export const selectFirst = (tokens: TokenList) => (selections: TokenList) =>
 
 export const defaultSelected = (tokens: TokenList) => (selected: TokenList) =>
   pipe(
-    tokens,
+    tokens ? tokens : options.none,
     options.map((tokens) =>
       pipe(
         selected,

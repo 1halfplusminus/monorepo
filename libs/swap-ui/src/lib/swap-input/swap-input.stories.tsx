@@ -10,6 +10,7 @@ import {
 } from '../hooks/useTokenValue';
 import { none, some } from 'fp-ts/Option';
 import { ETH } from '../__mocks__/tokens';
+import { surface } from '../core/classes';
 
 export default {
   component: SwapInput,
@@ -18,7 +19,7 @@ export default {
 } as Meta;
 
 const Wrapper = styled.div`
-  ${tw` h-60 w-96 bg-gray-800 flex flex-col justify-center justify-items-center`}
+  ${surface}
 `;
 
 export const primary: Story<SwapInputProps> = (props) => {

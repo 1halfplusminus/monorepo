@@ -23,4 +23,7 @@ primary.args = {
     selected: some(DAI),
     value: '100',
   },
+  rate: some('0.001883'),
+  liquidityProviderFee: some('0.000007977'),
+  route: some('ETH >'),
 };

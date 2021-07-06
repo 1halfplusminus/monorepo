@@ -5,7 +5,9 @@ describe('swap-ui: SwapForm Primary', () => {
     cy.getTokenASelect()
       .should('contain.text', 'Select a token')
       .getTokenBSelect()
-      .should('contain.text', 'Select a token');
+      .should('contain.text', 'Select a token')
+      .getFormTitle()
+      .should('contain.text', 'Permuter');
   });
 });
 describe('swap-ui: SwapForm Swap', () => {
