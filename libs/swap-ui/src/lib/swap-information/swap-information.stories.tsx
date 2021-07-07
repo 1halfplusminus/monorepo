@@ -1,7 +1,7 @@
 import { Meta, Story } from '@storybook/react';
-import { DAI, ETH } from '../__mocks__/tokens';
-import { ConfirmSwap, ConfirmSwapProps } from './confirm-swap';
+import { SwapInformation, SwapInformationProps } from './swap-information';
 import { some } from 'fp-ts/Option';
+import { DAI, ETH } from '../__mocks__/tokens';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 
@@ -10,12 +10,8 @@ const Wrapper = styled.div`
 `;
 
 export default {
-  component: ConfirmSwap,
-  title: 'ConfirmSwap',
-  parameters: {
-    actions: { argTypesRegex: '^on.*' },
-    backgrounds: { default: 'black' },
-  },
+  component: SwapInformation,
+  title: 'SwapInformation',
   decorators: [
     (Story) => (
       <Wrapper>
@@ -25,9 +21,10 @@ export default {
   ],
 } as Meta;
 
-export const primary: Story<ConfirmSwapProps> = (props) => (
-  <ConfirmSwap {...props} />
+export const primary: Story<SwapInformationProps> = (props) => (
+  <SwapInformation {...props} />
 );
+
 primary.args = {
   tokenA: {
     selected: some(ETH),
@@ -37,7 +34,6 @@ primary.args = {
     selected: some(DAI),
     value: '100',
   },
-  rate: some('0.001883'),
   liquidityProviderFee: some('0.000007977'),
   priceImpact: some(0.0),
   minimumReceived: some('55246.1'),

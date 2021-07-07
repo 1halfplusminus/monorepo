@@ -11,9 +11,7 @@ import type { Option } from 'fp-ts/Option';
 import Maybe from '../../core/maybe/maybe';
 import PairPriceDisplay from '../swap-form/pair-price-display';
 import { surface } from '../core/classes';
-import { TokenRoutes } from '../core/TokenRoutes';
-import { array as A } from 'fp-ts';
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+import { SwapInformation } from '../swap-information/swap-information';
 
 type UsedSwapInputProps = Pick<SwapInputProps, 'selected' | 'value'>;
 
@@ -23,12 +21,13 @@ export interface ConfirmSwapProps {
   rate: Option<BigNumberish>;
   liquidityProviderFee: Option<BigNumberish>;
   minimumReceived: Option<BigNumberish>;
+  priceImpact: Option<BigNumberish>;
   slippageTolerance: number;
   onRateClick: () => void;
 }
 
 const Col = styled.div`
-  ${tw`flex flex-col gap-1 bg-gray-900`}
+  ${tw`flex flex-col gap-1 bg-gray-900 py-3`}
 `;
 const Row = styled.div`
   ${tw`flex flex-row gap-1 justify-between px-2`}
@@ -37,16 +36,14 @@ const Text = styled.div`
   ${tw`text-white text-sm`}
 `;
 
-const Surface = styled.div`
-  ${surface}
-  ${tw`mx-2 text-white`}
-`;
-
 export const ConfirmSwap = ({
   tokenA,
   tokenB,
   rate,
   liquidityProviderFee,
+  minimumReceived,
+  priceImpact,
+  slippageTolerance,
   onRateClick = constVoid,
 }: ConfirmSwapProps) => (
   <Col>
@@ -85,48 +82,22 @@ export const ConfirmSwap = ({
         </Row>
       )}
     </Maybe>
-    <Maybe option={tokenA.selected}>
-      {(tokenA) => (
-        <Maybe option={tokenB.selected}>
-          {(tokenB) => (
-            <Surface>
-              <Maybe option={liquidityProviderFee}>
-                {(liquidityProviderFee) => (
-                  <Row>
-                    <Text>Liquidity Provider Fee</Text>
-                    <Text>
-                      {liquidityProviderFee} {tokenA.name}
-                    </Text>
-                  </Row>
-                )}
-              </Maybe>
-
-              <Row>
-                <Text>Route</Text>
-                <TokenRoutes
-                  tokens={O.some(
-                    pipe(
-                      [tokenA, tokenB],
-                      A.map((a) => O.some(a))
-                    )
-                  )}
-                ></TokenRoutes>
-              </Row>
-              <Row>
-                <Text>Price Impact</Text>
-                <Text>0.00%</Text>
-              </Row>
-              <Row>
-                <Text>Minimum received</Text>
-                <Text>1.40502 DAI</Text>
-              </Row>
-              <Row>
-                <Text>Slippage tolerance</Text>
-                <Text>0.50%</Text>
-              </Row>
-            </Surface>
-          )}
-        </Maybe>
+    <SwapInformation
+      tokenB={tokenB}
+      tokenA={tokenA}
+      liquidityProviderFee={liquidityProviderFee}
+      minimumReceived={minimumReceived}
+      priceImpact={priceImpact}
+      slippageTolerance={slippageTolerance}
+    />
+    <Maybe option={minimumReceived}>
+      {(minimumReceived) => (
+        <Row>
+          <Text>
+            Output is estimated. You will receive at least {minimumReceived} DAI
+            or the transaction will revert.
+          </Text>
+        </Row>
       )}
     </Maybe>
   </Col>

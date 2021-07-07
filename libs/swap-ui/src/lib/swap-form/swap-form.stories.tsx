@@ -12,25 +12,61 @@ import {
 import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
 
 import PairPriceDisplay from './pair-price-display';
+import Information from '../icon/information';
+import styled from 'styled-components';
+import tw from 'twin.macro';
+import { DarkModal } from '../popup/popup';
+import {
+  SwapInformation,
+  SwapInformationProps,
+} from '../swap-information/swap-information';
+import { useModal } from '../popup/hooks';
 
 export default {
   component: SwapForm,
   title: 'SwapForm/Form',
   parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;
-
+const Row = styled.div`
+  ${tw`flex-row inline-flex justify-end gap-2`}
+`;
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
 type ConnectedFormProps = SwapFormProps &
   UseSwapFormProps &
-  Pick<FormSubmitButtonProps, 'connectButton' | 'connected'>;
+  Pick<FormSubmitButtonProps, 'connectButton' | 'connected'> &
+  Pick<
+    SwapInformationProps,
+    | 'liquidityProviderFee'
+    | 'minimumReceived'
+    | 'priceImpact'
+    | 'slippageTolerance'
+  >;
 const ConnectedForm = (props: ConnectedFormProps) => {
   const form = useSwapForm({
     ...props,
   });
+  const informationModal = useModal();
+  const swapFormProps = form.bindSwapForm();
   return (
-    <SwapForm {...props} {...form.bindSwapForm()}>
-      <PairPriceDisplay {...form.bindPriceDisplay()} />
+    <SwapForm {...props} {...swapFormProps}>
+      <Row>
+        <PairPriceDisplay {...form.bindPriceDisplay()} />
+        <Information onClick={informationModal.showModal} />
+        <DarkModal
+          onCancel={informationModal.handleCancel}
+          title="Se connecter à un portefeuille"
+          visible={informationModal.isModalVisible}
+          footer={null}
+        >
+          <SwapInformation
+            tokenA={swapFormProps.inputA}
+            tokenB={swapFormProps.inputB}
+            {...props}
+          />
+        </DarkModal>
+      </Row>
+
       <FormSubmitButton
         loading={some(false)}
         connectButton={props.connectButton}
@@ -45,9 +81,7 @@ const ConnectedForm = (props: ConnectedFormProps) => {
 export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
 };
-export const disconnected: Story<SwapFormProps & UseSwapFormProps> = (
-  props
-) => {
+export const disconnected: Story<ConnectedFormProps> = (props) => {
   return (
     <ConnectedForm
       {...props}
@@ -56,7 +90,7 @@ export const disconnected: Story<SwapFormProps & UseSwapFormProps> = (
     />
   );
 };
-export const disabled: Story<SwapFormProps & UseSwapFormProps> = (props) => {
+export const disabled: Story<ConnectedFormProps> = (props) => {
   return (
     <ConnectedForm
       {...props}
@@ -74,7 +108,7 @@ disabled.args = {
   balances: some(new Map().set(ETH, 100)),
   disabled: true,
 };
-export const EnterAmount: Story<SwapFormProps & UseSwapFormProps> = (props) => {
+export const EnterAmount: Story<ConnectedFormProps> = (props) => {
   return (
     <Web3WalletProvider>
       <ConnectedForm
@@ -95,7 +129,7 @@ EnterAmount.args = {
   balances: some(new Map().set(ETH, 100)),
   fetchRate: () => Promise.resolve(some(0.001899)),
 };
-export const Swap: Story<SwapFormProps & UseSwapFormProps> = (props) => {
+export const Swap: Story<ConnectedFormProps> = (props) => {
   return (
     <Web3WalletProvider>
       <ConnectedForm
@@ -115,9 +149,13 @@ Swap.args = {
   fetchBalance: () => Promise.resolve('100'),
   fetchRate: () => Promise.resolve(some(0.001899)),
   amounts: some(new Map().set(ETH, 100)),
+  liquidityProviderFee: some('0.000007977'),
+  priceImpact: some(0.0),
+  minimumReceived: some('55246.1'),
+  slippageTolerance: 0.5,
 };
 
-const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {
+const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
   const { library, connected, isConnected, connect, account } = useWallets();
   return (
     <ConnectedForm
@@ -129,9 +167,7 @@ const EtherConnectedSwapForm = (props: SwapFormProps & UseSwapFormProps) => {
     />
   );
 };
-export const WithEtherProviders: Story<SwapFormProps & UseSwapFormProps> = (
-  props
-) => {
+export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
   return (
     <Web3WalletProvider>
       <EtherConnectedSwapForm {...props} />

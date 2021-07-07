@@ -12,6 +12,7 @@
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
+    getSwapInformation(): Chainable<JQuery<HTMLInputElement>>;
     getFormTitle(): Chainable<JQuery<HTMLInputElement>>;
     getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
     getTokenASelect(): Chainable<JQuery<HTMLInputElement>>;
@@ -38,6 +39,10 @@ declare namespace Cypress {
     ): Chainable<JQuery<HTMLInputElement>>;
   }
 }
+
+Cypress.Commands.add('getSwapInformation', () => {
+  return cy.get('[class*="swap-information__Surface"]').as('swap-information');
+});
 Cypress.Commands.add('getFormTitle', () => {
   return cy.get('[class*="swap-form__Title"').as('form-title');
 });
@@ -51,10 +56,18 @@ Cypress.Commands.add('getTokenBFlatPrice', () => {
   return cy.get('[class*="fiat-price-display"]').last().as('tokenB-flat-price');
 });
 Cypress.Commands.add('getTokenASelect', () => {
-  return cy.get('[class*="token-select__Text"]').first().as('tokenA-select');
+  return cy
+    .get(
+      '[class*="token-select__StyledTokenSelectWrapper"]:first [class*="token-select__Text"]'
+    )
+    .as('tokenA-select');
 });
 Cypress.Commands.add('getTokenBSelect', () => {
-  return cy.get('[class*="token-select__Text"]').last().as('tokenB-select');
+  return cy
+    .get(
+      '[class*="token-select__StyledTokenSelectWrapper"]:last [class*="token-select__Text"]'
+    )
+    .as('tokenB-select');
 });
 Cypress.Commands.add('getTokenSelect', () => {
   return cy.get('[class*="token-select__Text"]').first().as('token-select');

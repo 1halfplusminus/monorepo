@@ -73,7 +73,7 @@ export function TokenSelect({
       <Maybe option={selected} onNone={() => <Text>Select a token </Text>}>
         {(t) => (
           <TokenWrapper>
-            {disabled && <Text>{disabledText}</Text>}
+            {disabled && <Text>{disabledText + ' '}</Text>}
             <TokenItem>
               <TokenSymbol src={t.symbol} />
               <Text>{t.name}</Text>
