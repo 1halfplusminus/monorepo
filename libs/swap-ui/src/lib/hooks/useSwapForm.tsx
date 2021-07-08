@@ -2,12 +2,7 @@ import { task, taskOption as TO, option as O, either as E } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
 import { TokenList, useSearch, useSelectToken } from './tokenList';
-import {
-  MapTokenValue,
-  useTokenValues,
-  getOrElse,
-  modifyAtsOption,
-} from './useTokenValue';
+import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
 import { pipe } from 'fp-ts/function';
@@ -16,7 +11,7 @@ import { BigNumberish } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
-import * as option from 'fp-ts/Option';
+import { useModal } from '../popup/hooks';
 
 export interface UseSwapFormProps {
   fetchBalance: (
@@ -68,6 +63,8 @@ export const useSwapForm = ({
   const { inversed, inverse: inversePriceDisplay } = useInversable({
     inversed: false,
   });
+
+  const confirmSwapModal = useModal();
   useEffect(() => {
     pipe(
       task.sequenceSeqArray([
@@ -108,6 +105,22 @@ export const useSwapForm = ({
     }),
     [onValueChange, isSelected, lookup, onSelected, soldLookup]
   );
+  const bindConfirmSwap = useCallback(
+    () => ({
+      tokenA: bindInput(0)(first),
+      tokenB: bindInput(1)(last),
+      rate: rate,
+      onRateClick: inversePriceDisplay,
+    }),
+    [first, last, bindInput, rate]
+  );
+  const bindConfirmModal = useCallback(
+    () => ({
+      visible: confirmSwapModal.isModalVisible,
+      onCancel: confirmSwapModal.handleCancel,
+    }),
+    [confirmSwapModal]
+  );
   const bindSwapForm = useCallback(
     () => ({
       tokens: filteredTokenList,
@@ -141,6 +154,9 @@ export const useSwapForm = ({
         sold: soldLookup(last),
         amount: lookup(last),
       }),
+      onSwap: () => {
+        confirmSwapModal.showModal();
+      },
     }),
     [last, first, soldLookup, lookup]
   );
@@ -150,5 +166,8 @@ export const useSwapForm = ({
     bindSubmitButton,
     soldLookup,
     balances,
+    bindConfirmSwap,
+    bindConfirmModal,
+    confirmSwapModal,
   };
 };

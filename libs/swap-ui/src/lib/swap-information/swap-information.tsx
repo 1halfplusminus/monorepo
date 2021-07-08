@@ -18,9 +18,6 @@ const Surface = styled.div`
   ${tw`mx-2 text-white`}
 `;
 
-const Col = styled.div`
-  ${tw`flex flex-col gap-1 bg-gray-900 py-3`}
-`;
 const Row = styled.div`
   ${tw`flex flex-row gap-1 justify-between px-2`}
 `;
@@ -28,6 +25,9 @@ const Text = styled.div`
   ${tw`text-white text-sm`}
 `;
 
+export const TooltipWrapper = styled.div`
+  ${tw`w-96 right-36 relative`}
+`;
 export interface SwapInformationProps {
   tokenA: UsedSwapInputProps;
   tokenB: UsedSwapInputProps;

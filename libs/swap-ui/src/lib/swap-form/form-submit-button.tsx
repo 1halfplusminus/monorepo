@@ -30,7 +30,13 @@ export interface FormSubmitButtonProps {
   onSwap?: () => void;
 }
 
-const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
+const MaybeTokenB = ({
+  token,
+  onSwap,
+}: {
+  token: FormSubmitButtonProps['tokenB'];
+  onSwap: FormSubmitButtonProps['onSwap'];
+}) => {
   return (
     <Maybe
       option={token}
@@ -41,7 +47,7 @@ const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
           option={token}
           onNone={() => <Button disabled={true}> Select a token </Button>}
         >
-          {() => <SwapButton />}
+          {() => <SwapButton onClick={onSwap} />}
         </Maybe>
       )}
     </Maybe>
@@ -50,9 +56,11 @@ const MaybeTokenB = ({ token }: { token: FormSubmitButtonProps['tokenB'] }) => {
 const MaybeSwap = ({
   tokenA,
   tokenB,
+  onSwap,
 }: {
   tokenA: FormSubmitButtonProps['tokenA'];
   tokenB: FormSubmitButtonProps['tokenB'];
+  onSwap: FormSubmitButtonProps['onSwap'];
 }) => {
   return (
     <Maybe option={tokenA} onNone={() => <EnterAmountButton />}>
@@ -71,7 +79,7 @@ const MaybeSwap = ({
                         Insufficient {token.name} balance
                       </LoadingButton>
                     ) : (
-                      <MaybeTokenB token={tokenB} />
+                      <MaybeTokenB token={tokenB} onSwap={onSwap} />
                     )
                   }
                 </Maybe>
@@ -89,6 +97,7 @@ export const FormSubmitButton = ({
   tokenA,
   tokenB,
   loading,
+  onSwap,
 }: PropsWithChildren<FormSubmitButtonProps>) => {
   return (
     <Maybe
@@ -99,13 +108,15 @@ export const FormSubmitButton = ({
         connected ? (
           <Maybe
             option={loading}
-            onNone={() => <MaybeSwap tokenA={tokenA} tokenB={tokenB} />}
+            onNone={() => (
+              <MaybeSwap tokenA={tokenA} tokenB={tokenB} onSwap={onSwap} />
+            )}
           >
             {(loading) =>
               loading ? (
                 <LoadingButton />
               ) : (
-                <MaybeSwap tokenA={tokenA} tokenB={tokenB} />
+                <MaybeSwap tokenA={tokenA} tokenB={tokenB} onSwap={onSwap} />
               )
             }
           </Maybe>

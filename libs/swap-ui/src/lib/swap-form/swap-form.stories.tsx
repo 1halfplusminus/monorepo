@@ -15,12 +15,15 @@ import PairPriceDisplay from './pair-price-display';
 import Information from '../icon/information';
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import { DarkModal } from '../popup/popup';
 import {
   SwapInformation,
   SwapInformationProps,
+  TooltipWrapper,
 } from '../swap-information/swap-information';
-import { useModal } from '../popup/hooks';
+import Tooltip from '../core/tooltip';
+import { DarkModal } from '../popup/popup';
+import ConfirmSwap from '../confirm-swap/confirm-swap';
+import Button from 'antd/lib/button/button';
 
 export default {
   component: SwapForm,
@@ -46,25 +49,25 @@ const ConnectedForm = (props: ConnectedFormProps) => {
   const form = useSwapForm({
     ...props,
   });
-  const informationModal = useModal();
   const swapFormProps = form.bindSwapForm();
   return (
     <SwapForm {...props} {...swapFormProps}>
       <Row>
         <PairPriceDisplay {...form.bindPriceDisplay()} />
-        <Information onClick={informationModal.showModal} />
-        <DarkModal
-          onCancel={informationModal.handleCancel}
-          title="Se connecter à un portefeuille"
-          visible={informationModal.isModalVisible}
-          footer={null}
+        <Tooltip
+          placement="left"
+          title={
+            <TooltipWrapper>
+              <SwapInformation
+                tokenA={swapFormProps.inputA}
+                tokenB={swapFormProps.inputB}
+                {...props}
+              />
+            </TooltipWrapper>
+          }
         >
-          <SwapInformation
-            tokenA={swapFormProps.inputA}
-            tokenB={swapFormProps.inputB}
-            {...props}
-          />
-        </DarkModal>
+          <Information />
+        </Tooltip>
       </Row>
 
       <FormSubmitButton
@@ -74,6 +77,21 @@ const ConnectedForm = (props: ConnectedFormProps) => {
         connected={props.connected}
         {...form.bindSubmitButton()}
       />
+      <DarkModal
+        title={'Confirm Swap'}
+        okText={'Confirm Swap'}
+        cancelText={''}
+        footer={
+          <>
+            <Button onClick={form.confirmSwapModal.handleCancel}>
+              Confirm Swap
+            </Button>
+          </>
+        }
+        {...form.bindConfirmModal()}
+      >
+        <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
+      </DarkModal>
     </SwapForm>
   );
 };
