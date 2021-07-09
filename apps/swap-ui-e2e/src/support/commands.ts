@@ -12,7 +12,10 @@
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
-    closeConfirmSwapModal(): Chainable<JQuery<HTMLInputElement>>;
+    getSpawInformationTooltip(): Chainable<JQuery<HTMLInputElement>>;
+    closeConfirmSwapModal(
+      within: JQuery<HTMLElement> | HTMLElement
+    ): Chainable<JQuery<HTMLInputElement>>;
     getConfirmSwapModal(): Chainable<JQuery<HTMLInputElement>>;
     getSwapInformation(
       within?: JQuery<HTMLElement> | HTMLElement
@@ -43,22 +46,23 @@ declare namespace Cypress {
     ): Chainable<JQuery<HTMLInputElement>>;
   }
 }
+Cypress.Commands.add('getSpawInformationTooltip', () => {
+  return cy.get('[class*="tooltip__Tooltip"]').as('swap-information-tooltip');
+});
 Cypress.Commands.add('getConfirmSwapModal', () => {
   return cy.get('[class*="ant-modal popup__DarkModal"]').as('swap-information');
 });
-Cypress.Commands.add('closeConfirmSwapModal', () => {
-  return cy
-    .getConfirmSwapModal()
-    .within(($modal) =>
-      cy.get('.ant-modal-footer button', { withinSubject: $modal }).click()
-    );
+Cypress.Commands.add('closeConfirmSwapModal', ($modal) => {
+  return cy.get('.ant-modal-footer button', { withinSubject: $modal }).click();
 });
 Cypress.Commands.add(
   'getSwapInformation',
   (within?: JQuery<HTMLElement> | HTMLElement) => {
-    return cy
-      .get('[class*="swap-information__Surface"]', { withinSubject: within })
-      .as('swap-information');
+    return within
+      ? cy.get('[class*="swap-information__Surface"]', {
+          withinSubject: within,
+        })
+      : cy.get('[class*="swap-information__Surface"]').as('swap-information');
   }
 );
 Cypress.Commands.add('getFormTitle', () => {

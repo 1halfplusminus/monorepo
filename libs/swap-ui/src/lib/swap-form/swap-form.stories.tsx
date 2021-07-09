@@ -45,6 +45,7 @@ type ConnectedFormProps = SwapFormProps &
     | 'priceImpact'
     | 'slippageTolerance'
   >;
+
 const ConnectedForm = (props: ConnectedFormProps) => {
   const form = useSwapForm({
     ...props,
