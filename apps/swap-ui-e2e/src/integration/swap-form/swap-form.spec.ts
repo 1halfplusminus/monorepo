@@ -25,11 +25,17 @@ describe('swap-ui: SwapForm Swap', () => {
       .should('contain.text', '100 ETH')
       .getTokenBSold()
       .should('contain.text', '100 DAI')
+      .getSpawInformationTooltip()
+      .trigger('mouseover')
+      .trigger('mouseleave')
+      .get('.ant-tooltip')
+      .within(($tooltip) => cy.getSwapInformation($tooltip))
       .getSubmitButton()
       .click()
       .getConfirmSwapModal()
-      .within(($modal) => cy.getSwapInformation($modal))
-      .closeConfirmSwapModal();
+      .within(($modal) =>
+        cy.getSwapInformation($modal).closeConfirmSwapModal($modal)
+      );
   });
 });
 
