@@ -10,6 +10,7 @@ import { SwapInputProps } from '../swap-input/swap-input';
 import styled from 'styled-components';
 import { surface } from '../core/classes';
 import tw from 'twin.macro';
+import { TokenList } from '../hooks/tokenList';
 
 type UsedSwapInputProps = Pick<SwapInputProps, 'selected' | 'value'>;
 
@@ -35,6 +36,7 @@ export interface SwapInformationProps {
   minimumReceived: Option<BigNumberish>;
   priceImpact: Option<BigNumberish>;
   slippageTolerance: number;
+  routes: TokenList;
 }
 
 export const SwapInformation = ({
@@ -44,6 +46,7 @@ export const SwapInformation = ({
   minimumReceived,
   priceImpact,
   slippageTolerance,
+  routes,
 }: SwapInformationProps) => (
   <Maybe option={tokenA.selected}>
     {(tokenA) => (
@@ -63,14 +66,7 @@ export const SwapInformation = ({
 
             <Row>
               <Text>Route</Text>
-              <TokenRoutes
-                tokens={O.some(
-                  pipe(
-                    [tokenA, tokenB],
-                    A.map((a) => O.some(a))
-                  )
-                )}
-              ></TokenRoutes>
+              <TokenRoutes tokens={routes}></TokenRoutes>
             </Row>
             <Maybe option={priceImpact}>
               {(priceImpact) => (

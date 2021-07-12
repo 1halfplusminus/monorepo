@@ -4,29 +4,37 @@ import { Token } from '../types';
 import { option as O, taskOption as TO, task as T } from 'fp-ts';
 import { useEffect, useState } from 'react';
 import { pipe } from 'fp-ts/function';
+import { TokenList } from './tokenList';
 export interface SwapInformation {
   liquidityProviderFee: Option<BigNumberish>;
   minimumReceived: Option<BigNumberish>;
   priceImpact: Option<BigNumberish>;
   slippageTolerance: number;
+  routes: TokenList;
 }
 export interface UseSwapInformationProps {
   fetchSwapInformation: (
     tokenA: Token,
     tokenB: Token
-  ) => Promise<SwapInformation>;
+  ) => Promise<Omit<SwapInformation, 'slippageTolerance'>>;
   tokenA: Option<Token>;
   tokenB: Option<Token>;
 }
+const emptySwapInformation = {
+  liquidityProviderFee: O.none,
+  minimumReceived: O.none,
+  priceImpact: O.none,
+};
+const neverSwapInformation = async () => emptySwapInformation;
 
 export const useSwapInformation = ({
   tokenA,
   tokenB,
   fetchSwapInformation,
 }: UseSwapInformationProps) => {
-  const [information, setInformation] = useState<Option<SwapInformation>>(
-    O.none
-  );
+  const [information, setInformation] = useState<
+    Omit<SwapInformation, 'slippageTolerance'>
+  >(emptySwapInformation);
   useEffect(() => {
     pipe(
       tokenA,
@@ -40,8 +48,12 @@ export const useSwapInformation = ({
       ),
       TO.fromOption,
       TO.flatten,
+      TO.fold(
+        () => neverSwapInformation,
+        (r) => async () => r
+      ),
       T.map(setInformation)
-    );
+    )();
   }, [tokenA, tokenB, fetchSwapInformation]);
   return information;
 };
