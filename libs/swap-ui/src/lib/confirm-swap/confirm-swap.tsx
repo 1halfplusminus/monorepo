@@ -10,8 +10,8 @@ import { BigNumberish } from 'ethers';
 import type { Option } from 'fp-ts/Option';
 import Maybe from '../../core/maybe/maybe';
 import PairPriceDisplay from '../swap-form/pair-price-display';
-import { surface } from '../core/classes';
 import { SwapInformation } from '../swap-information/swap-information';
+import { TokenList } from '../hooks/tokenList';
 
 type UsedSwapInputProps = Pick<SwapInputProps, 'selected' | 'value'>;
 
@@ -22,6 +22,7 @@ export interface ConfirmSwapProps {
   liquidityProviderFee: Option<BigNumberish>;
   minimumReceived: Option<BigNumberish>;
   priceImpact: Option<BigNumberish>;
+  routes: TokenList;
   slippageTolerance: number;
   onRateClick: () => void;
 }
@@ -45,6 +46,7 @@ export const ConfirmSwap = ({
   priceImpact,
   slippageTolerance,
   onRateClick = constVoid,
+  routes,
 }: ConfirmSwapProps) => (
   <Col>
     <SwapForm
@@ -89,6 +91,7 @@ export const ConfirmSwap = ({
       minimumReceived={minimumReceived}
       priceImpact={priceImpact}
       slippageTolerance={slippageTolerance}
+      routes={routes}
     />
     <Maybe option={minimumReceived}>
       {(minimumReceived) => (

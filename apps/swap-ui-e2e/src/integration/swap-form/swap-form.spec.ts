@@ -27,14 +27,29 @@ describe('swap-ui: SwapForm Swap', () => {
       .should('contain.text', '100 DAI')
       .getSpawInformationTooltip()
       .trigger('mouseover')
-      .trigger('mouseleave')
       .get('.ant-tooltip')
-      .within(($tooltip) => cy.getSwapInformation($tooltip))
+      .within(($tooltip) =>
+        cy
+          .getSwapInformation($tooltip)
+          .should('contain.text', 'Liquidity Provider Fee 0.000007977 ETH')
+          .should('contain.text', 'Route ETH > USDC > DAI')
+          .should('contain.text', 'Price Impact 0.1%')
+          .should('contain.text', 'Minimum received 55246.1 DAI')
+          .should('contain.text', 'Slippage tolerance 0.5%')
+      )
+      .trigger('mouseout')
       .getSubmitButton()
       .click()
       .getConfirmSwapModal()
       .within(($modal) =>
-        cy.getSwapInformation($modal).closeConfirmSwapModal($modal)
+        cy
+          .getSwapInformation($modal)
+          .should('contain.text', 'Liquidity Provider Fee 0.000007977 ETH')
+          .should('contain.text', 'Route ETH > USDC > DAI')
+          .should('contain.text', 'Price Impact 0.1%')
+          .should('contain.text', 'Minimum received 55246.1 DAI')
+          .should('contain.text', 'Slippage tolerance 0.5%')
+          .closeConfirmSwapModal($modal)
       );
   });
 });
@@ -45,7 +60,9 @@ describe('swap-ui: SwapForm Disconnected', () => {
   it('It should display connected button', () => {
     cy.getSubmitButton()
       .should('contain.text', 'Connecter le portefeuille')
-      .should('not.have.attr', 'disabled');
+      .should('not.have.attr', 'disabled')
+      .getSpawInformationTooltip()
+      .should('not.exist');
   });
 });
 

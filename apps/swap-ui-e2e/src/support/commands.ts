@@ -1,3 +1,4 @@
+import { pipe } from 'fp-ts/function';
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -9,45 +10,11 @@
 // ***********************************************
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-declare namespace Cypress {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface Chainable<Subject> {
-    getSpawInformationTooltip(): Chainable<JQuery<HTMLInputElement>>;
-    closeConfirmSwapModal(
-      within: JQuery<HTMLElement> | HTMLElement
-    ): Chainable<JQuery<HTMLInputElement>>;
-    getConfirmSwapModal(): Chainable<JQuery<HTMLInputElement>>;
-    getSwapInformation(
-      within?: JQuery<HTMLElement> | HTMLElement
-    ): Chainable<JQuery<HTMLInputElement>>;
-    getFormTitle(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenSelect(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenASelect(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenBSelect(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenAFlatPrice(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenBFlatPrice(): Chainable<JQuery<HTMLInputElement>>;
-    openTokenSelection(): Chainable<JQuery<HTMLInputElement>>;
-    openTokenASelection(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenASold(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenAInput(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenBInput(): Chainable<JQuery<HTMLInputElement>>;
-    getTokenBSold(): Chainable<JQuery<HTMLInputElement>>;
-    getSubmitButton(): Chainable<JQuery<HTMLInputElement>>;
-    getPairRateDisplay(): Chainable<JQuery<HTMLInputElement>>;
-    selectTokenA(token: string): Chainable<JQuery<HTMLInputElement>>;
-    selectTokenB(token: string): Chainable<JQuery<HTMLInputElement>>;
-    typeTokenB(
-      value: string,
-      backspace?: number
-    ): Chainable<JQuery<HTMLInputElement>>;
-    typeTokenA(
-      value: string,
-      backspace?: number
-    ): Chainable<JQuery<HTMLInputElement>>;
-  }
-}
+
 Cypress.Commands.add('getSpawInformationTooltip', () => {
-  return cy.get('[class*="tooltip__Tooltip"]').as('swap-information-tooltip');
+  return pipe('[class*="tooltip__Tooltip"]', (selector) =>
+    cy.get(selector).as('swap-information-tooltip')
+  );
 });
 Cypress.Commands.add('getConfirmSwapModal', () => {
   return cy.get('[class*="ant-modal popup__DarkModal"]').as('swap-information');
@@ -58,11 +25,12 @@ Cypress.Commands.add('closeConfirmSwapModal', ($modal) => {
 Cypress.Commands.add(
   'getSwapInformation',
   (within?: JQuery<HTMLElement> | HTMLElement) => {
-    return within
+    return (within
       ? cy.get('[class*="swap-information__Surface"]', {
           withinSubject: within,
         })
-      : cy.get('[class*="swap-information__Surface"]').as('swap-information');
+      : cy.get('[class*="swap-information__Surface"]')
+    ).as('swap-information');
   }
 );
 Cypress.Commands.add('getFormTitle', () => {

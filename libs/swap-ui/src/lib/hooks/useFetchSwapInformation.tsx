@@ -24,13 +24,14 @@ const emptySwapInformation = {
   liquidityProviderFee: O.none,
   minimumReceived: O.none,
   priceImpact: O.none,
+  routes: O.none,
 };
-const neverSwapInformation = async () => emptySwapInformation;
+export const neverSwapInformation = async () => emptySwapInformation;
 
 export const useSwapInformation = ({
   tokenA,
   tokenB,
-  fetchSwapInformation,
+  fetchSwapInformation = neverSwapInformation,
 }: UseSwapInformationProps) => {
   const [information, setInformation] = useState<
     Omit<SwapInformation, 'slippageTolerance'>

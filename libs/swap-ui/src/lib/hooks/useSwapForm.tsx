@@ -12,6 +12,11 @@ import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
 import { useModal } from '../popup/hooks';
+import {
+  neverSwapInformation,
+  SwapInformation,
+  useSwapInformation,
+} from './useFetchSwapInformation';
 
 export interface UseSwapFormProps {
   fetchBalance: (
@@ -65,6 +70,7 @@ export const useSwapForm = ({
   });
 
   const confirmSwapModal = useModal();
+
   useEffect(() => {
     pipe(
       task.sequenceSeqArray([

@@ -24,6 +24,11 @@ import Tooltip from '../core/tooltip';
 import { DarkModal } from '../popup/popup';
 import ConfirmSwap from '../confirm-swap/confirm-swap';
 import Button from 'antd/lib/button/button';
+import Maybe from '../../core/maybe/maybe';
+import {
+  useSwapInformation,
+  UseSwapInformationProps,
+} from '../hooks/useFetchSwapInformation';
 
 export default {
   component: SwapForm,
@@ -36,6 +41,7 @@ const Row = styled.div`
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
 type ConnectedFormProps = SwapFormProps &
+  UseSwapInformationProps &
   UseSwapFormProps &
   Pick<FormSubmitButtonProps, 'connectButton' | 'connected'> &
   Pick<
@@ -51,24 +57,38 @@ const ConnectedForm = (props: ConnectedFormProps) => {
     ...props,
   });
   const swapFormProps = form.bindSwapForm();
+  const swapInformation = useSwapInformation({
+    ...props,
+    tokenA: swapFormProps.inputA.selected,
+    tokenB: swapFormProps.inputB.selected,
+  });
   return (
     <SwapForm {...props} {...swapFormProps}>
       <Row>
         <PairPriceDisplay {...form.bindPriceDisplay()} />
-        <Tooltip
-          placement="left"
-          title={
-            <TooltipWrapper>
-              <SwapInformation
-                tokenA={swapFormProps.inputA}
-                tokenB={swapFormProps.inputB}
-                {...props}
-              />
-            </TooltipWrapper>
-          }
-        >
-          <Information />
-        </Tooltip>
+        <Maybe option={swapFormProps.inputA.selected}>
+          {() => (
+            <Maybe option={swapFormProps.inputB.selected}>
+              {() => (
+                <Tooltip
+                  placement="left"
+                  title={
+                    <TooltipWrapper>
+                      <SwapInformation
+                        tokenA={swapFormProps.inputA}
+                        tokenB={swapFormProps.inputB}
+                        slippageTolerance={props.slippageTolerance}
+                        {...swapInformation}
+                      />
+                    </TooltipWrapper>
+                  }
+                >
+                  <Information />
+                </Tooltip>
+              )}
+            </Maybe>
+          )}
+        </Maybe>
       </Row>
 
       <FormSubmitButton
@@ -83,15 +103,17 @@ const ConnectedForm = (props: ConnectedFormProps) => {
         okText={'Confirm Swap'}
         cancelText={''}
         footer={
-          <>
-            <Button onClick={form.confirmSwapModal.handleCancel}>
-              Confirm Swap
-            </Button>
-          </>
+          <Button onClick={form.confirmSwapModal.handleCancel}>
+            Confirm Swap
+          </Button>
         }
         {...form.bindConfirmModal()}
       >
-        <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
+        <ConfirmSwap
+          {...props}
+          {...form.bindConfirmSwap()}
+          {...swapInformation}
+        />
       </DarkModal>
     </SwapForm>
   );
@@ -168,9 +190,12 @@ Swap.args = {
   fetchBalance: () => Promise.resolve('100'),
   fetchRate: () => Promise.resolve(some(0.001899)),
   amounts: some(new Map().set(ETH, 100)),
-  liquidityProviderFee: some('0.000007977'),
-  priceImpact: some(0.0),
-  minimumReceived: some('55246.1'),
+  fetchSwapInformation: async () => ({
+    liquidityProviderFee: some('0.000007977'),
+    priceImpact: some(0.1),
+    minimumReceived: some('55246.1'),
+    routes: some([some(ETH), some(USDC), some(DAI)]),
+  }),
   slippageTolerance: 0.5,
 };
 
