@@ -10,7 +10,14 @@ import { pipe } from 'fp-ts/function';
 // ***********************************************
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-
+Cypress.Commands.add('visitCaptureError', (url: string) => {
+  return cy.visit(url, {
+    onBeforeLoad(win) {
+      cy.spy(win.console, 'log').as('consoleLog');
+      cy.spy(win.console, 'error').as('consoleError');
+    },
+  });
+});
 Cypress.Commands.add('getSpawInformationTooltip', () => {
   return pipe('[class*="tooltip__Tooltip"]', (selector) =>
     cy.get(selector).as('swap-information-tooltip')

@@ -1,5 +1,7 @@
 describe('swap-ui: SwapForm Primary', () => {
-  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--primary'));
+  beforeEach(() =>
+    cy.visitCaptureError('/iframe.html?id=swapform-form--primary')
+  );
 
   it('It should display correctly', () => {
     cy.getTokenASelect()
@@ -7,11 +9,13 @@ describe('swap-ui: SwapForm Primary', () => {
       .getTokenBSelect()
       .should('contain.text', 'Select a token')
       .getFormTitle()
-      .should('contain.text', 'Permuter');
+      .should('contain.text', 'Permuter')
+      .get('@consoleError')
+      .should('not.be.called');
   });
 });
 describe('swap-ui: SwapForm Swap', () => {
-  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--swap'));
+  beforeEach(() => cy.visitCaptureError('/iframe.html?id=swapform-form--swap'));
 
   it('It should display correctly', () => {
     cy.getSubmitButton()
@@ -50,33 +54,51 @@ describe('swap-ui: SwapForm Swap', () => {
           .should('contain.text', 'Minimum received 55246.1 DAI')
           .should('contain.text', 'Slippage tolerance 0.5%')
           .closeConfirmSwapModal($modal)
+          .get('@consoleError')
+          .should('not.be.calledThrice')
       );
   });
 });
 
 describe('swap-ui: SwapForm Disconnected', () => {
-  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--disconnected'));
+  beforeEach(() =>
+    cy.visitCaptureError('/iframe.html?id=swapform-form--disconnected')
+  );
 
   it('It should display connected button', () => {
     cy.getSubmitButton()
       .should('contain.text', 'Connecter le portefeuille')
       .should('not.have.attr', 'disabled')
       .getSpawInformationTooltip()
-      .should('not.exist');
+      .should('not.exist')
+      .get('@consoleError')
+      .should('not.be.called');
   });
 });
 
 describe('swap-ui: SwapForm Enter Amount', () => {
-  beforeEach(() => cy.visit('/iframe.html?id=swapform-form--enter-amount'));
+  beforeEach(() =>
+    cy.visitCaptureError('/iframe.html?id=swapform-form--enter-amount')
+  );
 
   it('It should display sold correctly', () => {
-    cy.getTokenASold().should('contain.text', '100 ETH');
+    cy.getTokenASold()
+      .should('contain.text', '100 ETH')
+      .get('@consoleError')
+      .should('not.be.called');
   });
   it('It should display tokenA default value correctly', () => {
-    cy.getTokenAInput().should('contain.value', '0.0');
+    cy.getTokenAInput()
+      .should('contain.value', '0.0')
+      .get('@consoleError')
+      .should('not.be.called');
   });
   it('It should set tokenA input correctly', () => {
-    cy.getTokenAInput().typeTokenA('99.1').should('have.value', 99.1);
+    cy.getTokenAInput()
+      .typeTokenA('99.1')
+      .should('have.value', 99.1)
+      .get('@consoleError')
+      .should('not.be.called');
   });
   it('It should display sold tokenB correctly after token selected', () => {
     cy.selectTokenB('USDC')
@@ -84,7 +106,9 @@ describe('swap-ui: SwapForm Enter Amount', () => {
       .should('contain.text', '100 USDC')
       .getSubmitButton()
       .should('contain.text', 'Entrez un montant')
-      .should('have.attr', 'disabled');
+      .should('have.attr', 'disabled')
+      .get('@consoleError')
+      .should('not.be.calledTwice');
   });
 
   it('It should display correct button', () => {
@@ -100,6 +124,8 @@ describe('swap-ui: SwapForm Enter Amount', () => {
       .typeTokenA('10', 5)
       .getSubmitButton()
       .should('contain.text', 'Swap')
-      .should('not.have.attr', 'disabled');
+      .should('not.have.attr', 'disabled')
+      .get('@consoleError')
+      .should('not.be.calledTwice');
   });
 });

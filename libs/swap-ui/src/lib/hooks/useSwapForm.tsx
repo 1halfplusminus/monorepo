@@ -37,7 +37,7 @@ export const useSwapForm = ({
   commonBases,
   amounts = some(new Map()),
   balances: defaultBalances = some(new Map()),
-  fetchBalance,
+  fetchBalance = task.never,
   account,
   fetchRate = zero(),
 }: UseSwapFormProps) => {
@@ -74,8 +74,8 @@ export const useSwapForm = ({
   useEffect(() => {
     pipe(
       task.sequenceSeqArray([
-        TO.fromTask(() => fetchBalance(first, account)),
-        TO.fromTask(() => fetchBalance(last, account)),
+        TO.tryCatch(() => fetchBalance(first, account)),
+        TO.tryCatch(() => fetchBalance(last, account)),
       ]),
       task.map(([soldFirst, soldLast]) =>
         soldModifyAts([first, last], [soldFirst, soldLast])

@@ -1,6 +1,7 @@
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
+    visitCaptureError(url: string): Chainable<AUTWindow>;
     getSpawInformationTooltip(): Chainable<JQuery<HTMLInputElement>>;
     closeConfirmSwapModal(
       within: JQuery<HTMLElement> | HTMLElement

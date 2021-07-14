@@ -24,4 +24,7 @@ Cypress.on('uncaught:exception', (err) => {
     // failing the test
     return false;
   }
+  if (/Warning: findDOMNode is deprecated in StrictMode/i.test(err.message)) {
+    return false;
+  }
 });

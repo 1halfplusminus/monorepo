@@ -98,14 +98,10 @@ export function SearchToken({
               </Tooltip>
             </Title>
             <TokenTags>
-              {commonBases.map((t) => (
-                <Maybe option={t}>
+              {commonBases.map((t, index) => (
+                <Maybe option={t} key={index}>
                   {(t) => (
-                    <TokenTag
-                      key={t.address}
-                      selected={isSelected(t)}
-                      token={t}
-                    />
+                    <TokenTag key={t.name} selected={isSelected(t)} token={t} />
                   )}
                 </Maybe>
               ))}
@@ -122,7 +118,7 @@ export function SearchToken({
               <Maybe option={item}>
                 {(item) => (
                   <TokenListItem
-                    key={item.address}
+                    key={item.name}
                     selected={isSelected(item)}
                     onClick={handleClick(item)}
                     token={item}

@@ -3,121 +3,21 @@ import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
-import FormSubmitButton, { FormSubmitButtonProps } from './form-submit-button';
 import {
   fetchOptionTokenBalance,
   useWallets,
   Web3WalletProvider,
 } from '../hooks/useWallet';
-import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
+import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
 
-import PairPriceDisplay from './pair-price-display';
-import Information from '../icon/information';
-import styled from 'styled-components';
-import tw from 'twin.macro';
-import {
-  SwapInformation,
-  SwapInformationProps,
-  TooltipWrapper,
-} from '../swap-information/swap-information';
-import Tooltip from '../core/tooltip';
-import { DarkModal } from '../popup/popup';
-import ConfirmSwap from '../confirm-swap/confirm-swap';
-import Button from 'antd/lib/button/button';
-import Maybe from '../../core/maybe/maybe';
-import {
-  useSwapInformation,
-  UseSwapInformationProps,
-} from '../hooks/useFetchSwapInformation';
+const commonBases = some([some(ETH), some(DAI)]);
+const tokens = some([some(ETH), some(DAI), some(USDC)]);
 
 export default {
   component: SwapForm,
   title: 'SwapForm/Form',
   parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;
-const Row = styled.div`
-  ${tw`flex-row inline-flex justify-end gap-2`}
-`;
-const commonBases = some([some(ETH), some(DAI)]);
-const tokens = some([some(ETH), some(DAI), some(USDC)]);
-type ConnectedFormProps = SwapFormProps &
-  UseSwapInformationProps &
-  UseSwapFormProps &
-  Pick<FormSubmitButtonProps, 'connectButton' | 'connected'> &
-  Pick<
-    SwapInformationProps,
-    | 'liquidityProviderFee'
-    | 'minimumReceived'
-    | 'priceImpact'
-    | 'slippageTolerance'
-  >;
-
-const ConnectedForm = (props: ConnectedFormProps) => {
-  const form = useSwapForm({
-    ...props,
-  });
-  const swapFormProps = form.bindSwapForm();
-  const swapInformation = useSwapInformation({
-    ...props,
-    tokenA: swapFormProps.inputA.selected,
-    tokenB: swapFormProps.inputB.selected,
-  });
-  return (
-    <SwapForm {...props} {...swapFormProps}>
-      <Row>
-        <PairPriceDisplay {...form.bindPriceDisplay()} />
-        <Maybe option={swapFormProps.inputA.selected}>
-          {() => (
-            <Maybe option={swapFormProps.inputB.selected}>
-              {() => (
-                <Tooltip
-                  placement="left"
-                  title={
-                    <TooltipWrapper>
-                      <SwapInformation
-                        tokenA={swapFormProps.inputA}
-                        tokenB={swapFormProps.inputB}
-                        slippageTolerance={props.slippageTolerance}
-                        {...swapInformation}
-                      />
-                    </TooltipWrapper>
-                  }
-                >
-                  <Information />
-                </Tooltip>
-              )}
-            </Maybe>
-          )}
-        </Maybe>
-      </Row>
-
-      <FormSubmitButton
-        loading={some(false)}
-        connectButton={props.connectButton}
-        tokens={none}
-        connected={props.connected}
-        {...form.bindSubmitButton()}
-      />
-      <DarkModal
-        title={'Confirm Swap'}
-        okText={'Confirm Swap'}
-        cancelText={''}
-        footer={
-          <Button onClick={form.confirmSwapModal.handleCancel}>
-            Confirm Swap
-          </Button>
-        }
-        {...form.bindConfirmModal()}
-      >
-        <ConfirmSwap
-          {...props}
-          {...form.bindConfirmSwap()}
-          {...swapInformation}
-        />
-      </DarkModal>
-    </SwapForm>
-  );
-};
 
 export const primary: Story<SwapFormProps> = (props) => {
   return <SwapForm {...props} />;
