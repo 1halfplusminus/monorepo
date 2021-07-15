@@ -20,7 +20,7 @@ export interface UseSwapInformationProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
 }
-const emptySwapInformation = {
+export const emptySwapInformation = {
   liquidityProviderFee: O.none,
   minimumReceived: O.none,
   priceImpact: O.none,

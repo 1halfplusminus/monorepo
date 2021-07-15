@@ -45,11 +45,7 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
     ...props,
   });
   const swapFormProps = form.bindSwapForm();
-  const swapInformation = useSwapInformation({
-    ...props,
-    tokenA: swapFormProps.inputA.selected,
-    tokenB: swapFormProps.inputB.selected,
-  });
+
   return (
     <SwapForm {...props} {...swapFormProps}>
       <Row>
@@ -62,12 +58,7 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
                   placement="left"
                   title={
                     <TooltipWrapper>
-                      <SwapInformation
-                        tokenA={swapFormProps.inputA}
-                        tokenB={swapFormProps.inputB}
-                        slippageTolerance={props.slippageTolerance}
-                        {...swapInformation}
-                      />
+                      <SwapInformation {...form.bindSwapInformation()} />
                     </TooltipWrapper>
                   }
                 >
@@ -90,18 +81,10 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
         title={'Confirm Swap'}
         okText={'Confirm Swap'}
         cancelText={''}
-        footer={
-          <Button onClick={form.confirmSwapModal.handleCancel}>
-            Confirm Swap
-          </Button>
-        }
+        footer={<Button {...form.bindSwapButton()}>Confirm Swap</Button>}
         {...form.bindConfirmModal()}
       >
-        <ConfirmSwap
-          {...props}
-          {...form.bindConfirmSwap()}
-          {...swapInformation}
-        />
+        <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
       </DarkModal>
     </SwapForm>
   );

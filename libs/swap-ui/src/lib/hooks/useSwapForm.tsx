@@ -5,15 +5,16 @@ import { TokenList, useSearch, useSelectToken } from './tokenList';
 import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
-import { pipe } from 'fp-ts/function';
+import { pipe, flow } from 'fp-ts/function';
 import type { Task } from 'fp-ts/Task';
 import { BigNumberish } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
 import { useModal } from '../popup/hooks';
+import { useState } from 'react';
 import {
-  neverSwapInformation,
+  emptySwapInformation,
   SwapInformation,
   useSwapInformation,
 } from './useFetchSwapInformation';
@@ -30,7 +31,73 @@ export interface UseSwapFormProps {
   balances?: MapTokenValue;
   account: Option<string>;
   fetchRate: Task<Option<BigNumberish>>;
+  swap: (
+    tokenA: Token,
+    tokenB: Token,
+    swapInformation: SwapInformation
+  ) => Promise<void>;
+  slippageTolerance: number;
+  fetchSwapInformation: (
+    tokenA: Token,
+    tokenB: Token
+  ) => Promise<Omit<SwapInformation, 'slippageTolerance'>>;
+  swapping?: boolean;
 }
+interface UseSwapProps {
+  swapping: boolean;
+  tokenA: Option<Token>;
+  tokenB: Option<Token>;
+  swapInformation: SwapInformation;
+  swap: UseSwapFormProps['swap'];
+  onSwapEnd: () => Promise<void>;
+}
+const useSwap = ({
+  swapping,
+  tokenA,
+  tokenB,
+  swapInformation,
+  swap,
+  onSwapEnd,
+}: UseSwapProps) => {
+  const [isSwapping, setIsSwapping] = useState(() => swapping);
+  const handleSwap = useCallback(
+    () =>
+      pipe(
+        tokenA,
+        O.chain((first) =>
+          pipe(
+            tokenB,
+            O.chain((last) =>
+              pipe(
+                swapInformation,
+                O.fromPredicate(
+                  (swapInformation) => swapInformation !== emptySwapInformation
+                ),
+                O.map((swapInformation) =>
+                  flow(
+                    () => setIsSwapping(true),
+                    () => swap(first, last, { ...swapInformation })
+                  )()
+                )
+              )
+            )
+          )
+        ),
+        TO.fromOption,
+        task.map((r) => flow(() => setIsSwapping(false), onSwapEnd)),
+        task.flatten
+      )(),
+    [swap, tokenA, tokenB, swapInformation, setIsSwapping, onSwapEnd]
+  );
+  const bindSwapButton = useCallback(
+    () => ({
+      onClick: handleSwap,
+      disabled: isSwapping,
+    }),
+    [handleSwap, isSwapping]
+  );
+  return { isSwapping, setIsSwapping, bindSwapButton };
+};
 export const useSwapForm = ({
   tokens,
   selected,
@@ -40,6 +107,10 @@ export const useSwapForm = ({
   fetchBalance = task.never,
   account,
   fetchRate = zero(),
+  swap = task.never,
+  fetchSwapInformation = task.never,
+  slippageTolerance,
+  swapping = false,
 }: UseSwapFormProps) => {
   const { filteredTokenList, search } = useSearch(tokens);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
@@ -70,7 +141,19 @@ export const useSwapForm = ({
   });
 
   const confirmSwapModal = useModal();
-
+  const swapInformation = useSwapInformation({
+    tokenA: first,
+    tokenB: last,
+    fetchSwapInformation,
+  });
+  const swapButton = useSwap({
+    swapping,
+    tokenA: first,
+    tokenB: last,
+    swapInformation: { ...swapInformation, slippageTolerance },
+    swap,
+    onSwapEnd: async () => confirmSwapModal.handleCancel(),
+  });
   useEffect(() => {
     pipe(
       task.sequenceSeqArray([
@@ -117,8 +200,9 @@ export const useSwapForm = ({
       tokenB: bindInput(1)(last),
       rate: rate,
       onRateClick: inversePriceDisplay,
+      ...swapInformation,
     }),
-    [first, last, bindInput, rate]
+    [first, last, bindInput, rate, swapInformation, inversePriceDisplay]
   );
   const bindConfirmModal = useCallback(
     () => ({
@@ -166,6 +250,16 @@ export const useSwapForm = ({
     }),
     [last, first, soldLookup, lookup]
   );
+  const bindSwapInformation = useCallback(
+    () => ({
+      tokenA: bindInput(0)(first),
+      tokenB: bindInput(1)(last),
+      slippageTolerance: slippageTolerance,
+      ...swapInformation,
+    }),
+    [first, last, swapInformation, slippageTolerance, bindInput]
+  );
+
   return {
     bindPriceDisplay,
     bindSwapForm,
@@ -175,5 +269,8 @@ export const useSwapForm = ({
     bindConfirmSwap,
     bindConfirmModal,
     confirmSwapModal,
+    swapInformation,
+    bindSwapInformation,
+    bindSwapButton: swapButton.bindSwapButton,
   };
 };
