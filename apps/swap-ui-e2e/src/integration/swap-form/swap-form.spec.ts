@@ -54,9 +54,11 @@ describe('swap-ui: SwapForm Swap', () => {
           .should('contain.text', 'Minimum received 55246.1 DAI')
           .should('contain.text', 'Slippage tolerance 0.5%')
           .closeConfirmSwapModal($modal)
-          .get('@consoleError')
-          .should('not.be.calledThrice')
-      );
+      )
+      .get('@consoleError')
+      .should('not.be.calledThrice')
+      .get('@consoleLog')
+      .should('have.been.calledWith', 'Swapped');
   });
 });
 

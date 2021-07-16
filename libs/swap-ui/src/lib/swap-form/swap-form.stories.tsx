@@ -9,6 +9,7 @@ import {
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
+import { swap } from './form-submit-button.stories';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -81,7 +82,9 @@ export const Swap: Story<ConnectedFormProps> = (props) => {
     </Web3WalletProvider>
   );
 };
-
+Swap.argTypes = {
+  swap: { action: 'clicked' },
+};
 Swap.args = {
   tokens: tokens,
   commonBases,
@@ -97,6 +100,9 @@ Swap.args = {
     routes: some([some(ETH), some(USDC), some(DAI)]),
   }),
   slippageTolerance: 0.5,
+  swap: async () => {
+    console.log('Swapped');
+  },
 };
 
 const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
