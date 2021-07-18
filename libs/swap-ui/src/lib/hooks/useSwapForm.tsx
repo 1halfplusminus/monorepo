@@ -7,7 +7,7 @@ import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import type { Task } from 'fp-ts/Task';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, BigNumber, utils } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
@@ -18,6 +18,7 @@ import {
   SwapInformation,
   useSwapInformation,
 } from './useFetchSwapInformation';
+import { calculeAmount, inverseRate } from '../core/rate';
 
 export interface UseSwapFormProps {
   fetchBalance: (
@@ -118,7 +119,7 @@ export const useSwapForm = ({
     tokens: filteredTokenList,
     selected: selected,
   });
-  const { lookup, modifyAt } = useTokenValues({
+  const { lookup, modifyAt, modifyAts } = useTokenValues({
     valueByToken: amounts,
   });
   const {
@@ -141,6 +142,7 @@ export const useSwapForm = ({
   });
 
   const confirmSwapModal = useModal();
+  const waitingForConfirmSwapModal = useModal();
   const swapInformation = useSwapInformation({
     tokenA: first,
     tokenB: last,
@@ -152,7 +154,10 @@ export const useSwapForm = ({
     tokenB: last,
     swapInformation: { ...swapInformation, slippageTolerance },
     swap,
-    onSwapEnd: async () => confirmSwapModal.handleCancel(),
+    onSwapEnd: async () => {
+      confirmSwapModal.handleCancel();
+      waitingForConfirmSwapModal.showModal();
+    },
   });
   useEffect(() => {
     pipe(
@@ -179,9 +184,29 @@ export const useSwapForm = ({
   );
   const onValueChange = useCallback(
     (token: Option<Token>, v: string) => {
-      modifyAt(token, v);
+      pipe(
+        rate,
+        O.map((rate) =>
+          pipe(
+            token,
+            O.fromPredicate(() => token === first),
+            O.fold(
+              () =>
+                modifyAts(
+                  [token, first],
+                  [O.some(v), O.some(calculeAmount(v, rate))]
+                ),
+              () =>
+                modifyAts(
+                  [token, last],
+                  [O.some(v), O.some(calculeAmount(v, inverseRate(rate)))]
+                )
+            )
+          )
+        )
+      );
     },
-    [modifyAt]
+    [modifyAt, rate, last, first, modifyAts]
   );
   const bindInput = useCallback(
     (index: 0 | 1) => (token: Option<Token>) => ({
@@ -259,7 +284,22 @@ export const useSwapForm = ({
     }),
     [first, last, swapInformation, slippageTolerance, bindInput]
   );
-
+  const bindWaitingForConfirmation = useCallback(
+    () => ({
+      tokenA: first,
+      tokenB: last,
+      valueA: lookup(first),
+      valueB: lookup(last),
+    }),
+    [first, last, lookup]
+  );
+  const bindWaitingForConfirmationModal = useCallback(
+    () => ({
+      visible: waitingForConfirmSwapModal.isModalVisible,
+      onCancel: waitingForConfirmSwapModal.handleCancel,
+    }),
+    [waitingForConfirmSwapModal]
+  );
   return {
     bindPriceDisplay,
     bindSwapForm,
@@ -272,5 +312,7 @@ export const useSwapForm = ({
     swapInformation,
     bindSwapInformation,
     bindSwapButton: swapButton.bindSwapButton,
+    bindWaitingForConfirmation,
+    bindWaitingForConfirmationModal,
   };
 };

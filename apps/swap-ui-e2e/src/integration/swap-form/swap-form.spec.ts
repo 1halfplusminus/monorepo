@@ -18,7 +18,9 @@ describe('swap-ui: SwapForm Swap', () => {
   beforeEach(() => cy.visitCaptureError('/iframe.html?id=swapform-form--swap'));
 
   it('It should display correctly', () => {
-    cy.getSubmitButton()
+    cy.getTokenBInput()
+      .should('contain.value', 100 * 526)
+      .getSubmitButton()
       .should('contain.text', 'Swap')
       .should('not.have.attr', 'disabled')
       .getPairRateDisplay()
@@ -29,6 +31,10 @@ describe('swap-ui: SwapForm Swap', () => {
       .should('contain.text', '100 ETH')
       .getTokenBSold()
       .should('contain.text', '100 DAI')
+      .getTokenAInput()
+      .should('contain.value', '100')
+      .getTokenBInput()
+      .should('contain.value', '100')
       .getSpawInformationTooltip()
       .trigger('mouseover')
       .get('.ant-tooltip')

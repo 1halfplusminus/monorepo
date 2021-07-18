@@ -42,12 +42,16 @@ const MaybeTokenB = ({
       option={token}
       onNone={() => <Button disabled={true}> Select a token </Button>}
     >
-      {({ token }) => (
+      {({ token, amount }) => (
         <Maybe
           option={token}
           onNone={() => <Button disabled={true}> Select a token </Button>}
         >
-          {() => <SwapButton onClick={onSwap} />}
+          {() => (
+            <Maybe option={amount} onNone={() => <EnterAmountButton />}>
+              {() => <SwapButton onClick={onSwap} />}
+            </Maybe>
+          )}
         </Maybe>
       )}
     </Maybe>

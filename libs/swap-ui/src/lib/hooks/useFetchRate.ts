@@ -6,6 +6,7 @@ import { flow, pipe } from 'fp-ts/lib/function';
 import * as options from 'fp-ts/Option';
 import * as taskOptions from 'fp-ts/TaskOption';
 import { useEffect } from 'react';
+import { useMemo } from 'react';
 
 export interface UseFetchRateProps {
   fetchRate: (tokenA: Token, tokenB: Token) => Promise<Option<BigNumberish>>;

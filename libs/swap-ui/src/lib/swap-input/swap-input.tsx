@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import NumberFormat, { NumberFormatValues } from 'react-number-format';
@@ -6,12 +6,12 @@ import TokenSelect, { TokenSelectProps } from '../token-select/token-select';
 import { Token } from '../types';
 import * as options from 'fp-ts/Option';
 import type { Option } from 'fp-ts/Option';
-import { flow, pipe } from 'fp-ts/function';
+import { flow, pipe, constVoid } from 'fp-ts/function';
 import { isEmpty } from 'fp-ts/string';
 import Maybe from '../../core/maybe/maybe';
 import { BigNumberish, BigNumber } from 'ethers';
 import { FiatPriceDisplay } from '../swap-form/fiat-price-display';
-import { css } from 'styled-components';
+import { useCallback } from 'react';
 
 /* eslint-disable-next-line */
 export type SwapInputProps = TokenSelectProps & {
@@ -62,21 +62,23 @@ const isSelected = flow(
 
 export function SwapInput({
   value = '0.0',
-  onValueChange,
+  onValueChange = constVoid,
   sold,
   fiatPrice = options.none,
   disabled,
   ...props
 }: SwapInputProps) {
-  const handleValueChange = ({ value }: NumberFormatValues) => {
+  const handleValueChange = ({ value: newValue }: NumberFormatValues) => {
     pipe(
       onValueChange,
+      options.fromPredicate(() => newValue !== value),
       options.fromNullable,
+      options.flatten,
       options.chain((callback) =>
         pipe(
-          value,
+          newValue,
           options.fromPredicate((v) => !isEmpty(v) && v !== '0.0'),
-          options.map((value) => callback(props.selected, value))
+          options.map((newValue) => pipe(callback(props.selected, newValue)))
         )
       )
     );

@@ -23,6 +23,7 @@ import {
   useSwapInformation,
   UseSwapInformationProps,
 } from '../hooks/useFetchSwapInformation';
+import { WaitingForConfirmationSwap } from '../waiting-for-confirmation/waiting-for-confirmation';
 
 const Row = styled.div`
   ${tw`flex-row inline-flex justify-end gap-2`}
@@ -79,12 +80,13 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
       />
       <DarkModal
         title={'Confirm Swap'}
-        okText={'Confirm Swap'}
-        cancelText={''}
         footer={<Button {...form.bindSwapButton()}>Confirm Swap</Button>}
         {...form.bindConfirmModal()}
       >
         <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
+      </DarkModal>
+      <DarkModal title={''} {...form.bindWaitingForConfirmationModal()}>
+        <WaitingForConfirmationSwap {...form.bindWaitingForConfirmation()} />
       </DarkModal>
     </SwapForm>
   );

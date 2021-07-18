@@ -7,6 +7,7 @@ import tw from 'twin.macro';
 import { Maybe } from '../../core/maybe/maybe';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { pipe } from 'fp-ts/function';
+import { inverseRate } from '../core/rate';
 export interface PairPriceDisplayProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
@@ -33,13 +34,7 @@ export const PairPriceDisplay = ({
         tokenB={!inversed ? tokenB : tokenA}
         rate={pipe(
           rate,
-          options.map((rate) =>
-            !inversed
-              ? rate
-              : BigNumber.from(utils.parseEther('1'))
-                  .div(utils.parseEther(rate.toString()))
-                  .toString()
-          )
+          options.map((rate) => (!inversed ? rate : inverseRate(rate)))
         )}
       ></MaybeTokenRate>
     </StyledWrapper>
