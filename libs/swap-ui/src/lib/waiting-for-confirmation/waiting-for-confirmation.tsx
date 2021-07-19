@@ -1,10 +1,11 @@
+import React, { ReactNode } from 'react';
 import { Token } from '../types/index';
 import type { Option } from 'fp-ts/Option';
 import { BigNumberish } from 'ethers';
 import Maybe from '../../core/maybe/maybe';
-import React, { ReactElement, ReactNode } from 'react';
 import styled from 'styled-components';
 import tw from 'twin.macro';
+
 export interface WaitingForConfirmationSwapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;

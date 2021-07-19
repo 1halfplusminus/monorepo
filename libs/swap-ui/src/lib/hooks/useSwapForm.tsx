@@ -7,7 +7,7 @@ import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import type { Task } from 'fp-ts/Task';
-import { BigNumberish, BigNumber, utils } from 'ethers';
+import { BigNumberish } from 'ethers';
 import { useFetchRate } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
