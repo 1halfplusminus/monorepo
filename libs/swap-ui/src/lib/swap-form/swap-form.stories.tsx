@@ -100,8 +100,9 @@ Swap.args = {
     routes: some([some(ETH), some(USDC), some(DAI)]),
   }),
   slippageTolerance: 0.5,
-  swap: async () => {
+  onSwap: async (tokenA, tokenB, si, confirmSwap) => {
     console.log('Swapped');
+    setTimeout(() => confirmSwap(), 2000);
   },
 };
 

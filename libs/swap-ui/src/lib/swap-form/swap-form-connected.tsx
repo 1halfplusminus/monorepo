@@ -85,7 +85,11 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
       >
         <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
       </DarkModal>
-      <DarkModal title={''} {...form.bindWaitingForConfirmationModal()}>
+      <DarkModal
+        title={''}
+        {...form.bindWaitingForConfirmationModal()}
+        footer={null}
+      >
         <WaitingForConfirmationSwap {...form.bindWaitingForConfirmation()} />
       </DarkModal>
     </SwapForm>

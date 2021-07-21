@@ -7,7 +7,7 @@ import type { Option } from 'fp-ts/Option';
 import { Maybe } from '../../core/maybe/maybe';
 import TransactionSubmittedIcon from '../icon/transaction-submitted';
 const Col = styled.div`
-  ${tw`flex flex-col gap-3 bg-gray-700  pb-3 pt-6`}
+  ${tw`flex flex-col gap-3 bg-gray-800  pb-3 pt-6`}
 `;
 
 const Row = styled.div`

@@ -18,7 +18,7 @@ import {
   SwapInformation,
   useSwapInformation,
 } from './useFetchSwapInformation';
-import { calculeAmount, inverseRate } from '../core/rate';
+import { calculeAmountOption, inverseRate } from '../core/rate';
 
 export interface UseSwapFormProps {
   fetchBalance: (
@@ -32,10 +32,11 @@ export interface UseSwapFormProps {
   balances?: MapTokenValue;
   account: Option<string>;
   fetchRate: Task<Option<BigNumberish>>;
-  swap: (
+  onSwap: (
     tokenA: Token,
     tokenB: Token,
-    swapInformation: SwapInformation
+    swapInformation: SwapInformation,
+    confirmSwap: () => Promise<void>
   ) => Promise<void>;
   slippageTolerance: number;
   fetchSwapInformation: (
@@ -49,8 +50,9 @@ interface UseSwapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
   swapInformation: SwapInformation;
-  swap: UseSwapFormProps['swap'];
+  swap: UseSwapFormProps['onSwap'];
   onSwapEnd: () => Promise<void>;
+  onConfirmSwap: () => Promise<void>;
 }
 const useSwap = ({
   swapping,
@@ -59,6 +61,7 @@ const useSwap = ({
   swapInformation,
   swap,
   onSwapEnd,
+  onConfirmSwap,
 }: UseSwapProps) => {
   const [isSwapping, setIsSwapping] = useState(() => swapping);
   const handleSwap = useCallback(
@@ -77,7 +80,9 @@ const useSwap = ({
                 O.map((swapInformation) =>
                   flow(
                     () => setIsSwapping(true),
-                    () => swap(first, last, { ...swapInformation })
+                    () =>
+                      swap(first, last, { ...swapInformation }, onConfirmSwap),
+                    () => setIsSwapping(false)
                   )()
                 )
               )
@@ -85,7 +90,7 @@ const useSwap = ({
           )
         ),
         TO.fromOption,
-        task.map((r) => flow(() => setIsSwapping(false), onSwapEnd)),
+        task.map((r) => flow(onSwapEnd)),
         task.flatten
       )(),
     [swap, tokenA, tokenB, swapInformation, setIsSwapping, onSwapEnd]
@@ -108,18 +113,19 @@ export const useSwapForm = ({
   fetchBalance = task.never,
   account,
   fetchRate = zero(),
-  swap = task.never,
+  onSwap: swap = task.never,
   fetchSwapInformation = task.never,
   slippageTolerance,
   swapping = false,
 }: UseSwapFormProps) => {
+  const [pristine, setPristine] = useState(true);
   const { filteredTokenList, search } = useSearch(tokens);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
     commonlyUsed: commonBases,
     tokens: filteredTokenList,
     selected: selected,
   });
-  const { lookup, modifyAt, modifyAts } = useTokenValues({
+  const { lookup, modifyAts } = useTokenValues({
     valueByToken: amounts,
   });
   const {
@@ -158,7 +164,11 @@ export const useSwapForm = ({
       confirmSwapModal.handleCancel();
       waitingForConfirmSwapModal.showModal();
     },
+    onConfirmSwap: async () => {
+      waitingForConfirmSwapModal.handleCancel();
+    },
   });
+  // Fetch balance when token A or token B change
   useEffect(() => {
     pipe(
       task.sequenceSeqArray([
@@ -170,6 +180,38 @@ export const useSwapForm = ({
       )
     )();
   }, [first, account, fetchBalance, last]);
+
+  const changePairTokenValue = (
+    token: Option<Token>,
+    v: Option<BigNumberish>
+  ) =>
+    pipe(
+      rate,
+      O.map((rate) =>
+        pipe(
+          token,
+          O.fromPredicate(() => token === first),
+          O.fold(
+            () => modifyAts([token, first], [v, calculeAmountOption(v, rate)]),
+            () =>
+              modifyAts(
+                [token, last],
+                [v, calculeAmountOption(v, inverseRate(rate))]
+              )
+          ),
+          () => setPristine(false)
+        )
+      )
+    );
+  // Fetch pair token amount at launch if not specified based on rate
+  useEffect(() => {
+    if (!pristine) return;
+    changePairTokenValue(first, lookup(first));
+  }, [lookup(first)]);
+  useEffect(() => {
+    if (!pristine) return;
+    changePairTokenValue(last, lookup(last));
+  }, [lookup(last)]);
 
   const onSelected = useCallback(
     (index: 0 | 1) => (token: Token) => {
@@ -184,29 +226,9 @@ export const useSwapForm = ({
   );
   const onValueChange = useCallback(
     (token: Option<Token>, v: string) => {
-      pipe(
-        rate,
-        O.map((rate) =>
-          pipe(
-            token,
-            O.fromPredicate(() => token === first),
-            O.fold(
-              () =>
-                modifyAts(
-                  [token, first],
-                  [O.some(v), O.some(calculeAmount(v, rate))]
-                ),
-              () =>
-                modifyAts(
-                  [token, last],
-                  [O.some(v), O.some(calculeAmount(v, inverseRate(rate)))]
-                )
-            )
-          )
-        )
-      );
+      changePairTokenValue(token, O.some(v));
     },
-    [modifyAt, rate, last, first, modifyAts]
+    [changePairTokenValue]
   );
   const bindInput = useCallback(
     (index: 0 | 1) => (token: Option<Token>) => ({

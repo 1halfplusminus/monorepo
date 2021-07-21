@@ -22,7 +22,7 @@ export type MaybeWaitingForConfirmationSwapProps = WaitingForConfirmationSwapPro
 };
 
 const Col = styled.div`
-  ${tw`flex flex-col gap-2 bg-gray-900 p-3`}
+  ${tw`flex flex-col gap-2 bg-gray-800 p-3`}
 `;
 const Row = styled.div`
   ${tw`flex flex-row  justify-center`}
