@@ -6,7 +6,7 @@ const Row = styled.div`
   ${tw`flex flex-row justify-center`}
 `;
 const Col = styled.div`
-  ${tw`flex flex-col gap-1 pt-6 pb-6 bg-gray-600`}
+  ${tw`flex flex-col gap-1 pt-6 pb-6 bg-gray-800`}
 `;
 const Title = styled.div`
   ${tw`text-red-400 text-lg`}

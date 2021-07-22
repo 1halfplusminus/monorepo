@@ -19,11 +19,11 @@ import Button from 'antd/lib/button/button';
 import Maybe from '../../core/maybe/maybe';
 import styled from 'styled-components';
 import tw from 'twin.macro';
-import {
-  useSwapInformation,
-  UseSwapInformationProps,
-} from '../hooks/useFetchSwapInformation';
+import { UseSwapInformationProps } from '../hooks/useFetchSwapInformation';
 import { WaitingForConfirmationSwap } from '../waiting-for-confirmation/waiting-for-confirmation';
+import { TransactionRejected } from '../transaction-rejected/transaction-rejected';
+import { TransactionSubmitted } from '../transaction-submitted/transaction-submitted';
+import type { Option } from 'fp-ts/Option';
 
 const Row = styled.div`
   ${tw`flex-row inline-flex justify-end gap-2`}
@@ -39,14 +39,13 @@ export type ConnectedFormProps = SwapFormProps &
     | 'minimumReceived'
     | 'priceImpact'
     | 'slippageTolerance'
-  >;
+  > & { provider: Option<string> };
 
 export const ConnectedForm = (props: ConnectedFormProps) => {
   const form = useSwapForm({
     ...props,
   });
   const swapFormProps = form.bindSwapForm();
-
   return (
     <SwapForm {...props} {...swapFormProps}>
       <Row>
@@ -91,6 +90,30 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
         footer={null}
       >
         <WaitingForConfirmationSwap {...form.bindWaitingForConfirmation()} />
+      </DarkModal>
+      <DarkModal
+        footer={
+          <Button onClick={() => form.bindCancelModal().onCancel()}>
+            Dismiss
+          </Button>
+        }
+        {...form.bindCancelModal()}
+      >
+        <TransactionRejected />
+      </DarkModal>
+      <DarkModal
+        {...form.bindConfirmedSwapModal()}
+        footer={
+          <Button onClick={form.bindConfirmedSwapModal().onCancel}>
+            Close
+          </Button>
+        }
+      >
+        <TransactionSubmitted
+          provider={props.provider}
+          {...form.bindTransactionConfirmed()}
+          onClickExplorer={() => {}}
+        />
       </DarkModal>
     </SwapForm>
   );

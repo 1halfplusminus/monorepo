@@ -36,7 +36,8 @@ export interface UseSwapFormProps {
     tokenA: Token,
     tokenB: Token,
     swapInformation: SwapInformation,
-    confirmSwap: () => Promise<void>
+    confirmSwap: () => Promise<void>,
+    cancelSwap: () => Promise<void>
   ) => Promise<void>;
   slippageTolerance: number;
   fetchSwapInformation: (
@@ -53,6 +54,7 @@ interface UseSwapProps {
   swap: UseSwapFormProps['onSwap'];
   onSwapEnd: () => Promise<void>;
   onConfirmSwap: () => Promise<void>;
+  onCancelSwap: () => Promise<void>;
 }
 const useSwap = ({
   swapping,
@@ -62,6 +64,7 @@ const useSwap = ({
   swap,
   onSwapEnd,
   onConfirmSwap,
+  onCancelSwap,
 }: UseSwapProps) => {
   const [isSwapping, setIsSwapping] = useState(() => swapping);
   const handleSwap = useCallback(
@@ -81,7 +84,13 @@ const useSwap = ({
                   flow(
                     () => setIsSwapping(true),
                     () =>
-                      swap(first, last, { ...swapInformation }, onConfirmSwap),
+                      swap(
+                        first,
+                        last,
+                        { ...swapInformation },
+                        onConfirmSwap,
+                        onCancelSwap
+                      ),
                     () => setIsSwapping(false)
                   )()
                 )
@@ -149,6 +158,8 @@ export const useSwapForm = ({
 
   const confirmSwapModal = useModal();
   const waitingForConfirmSwapModal = useModal();
+  const cancelSwapModal = useModal();
+  const confirmedSwapModal = useModal();
   const swapInformation = useSwapInformation({
     tokenA: first,
     tokenB: last,
@@ -166,6 +177,11 @@ export const useSwapForm = ({
     },
     onConfirmSwap: async () => {
       waitingForConfirmSwapModal.handleCancel();
+      confirmedSwapModal.showModal();
+    },
+    onCancelSwap: async () => {
+      waitingForConfirmSwapModal.handleCancel();
+      cancelSwapModal.showModal();
     },
   });
   // Fetch balance when token A or token B change
@@ -251,12 +267,32 @@ export const useSwapForm = ({
     }),
     [first, last, bindInput, rate, swapInformation, inversePriceDisplay]
   );
+  const bindTransactionConfirmed = useCallback(
+    () => ({
+      tokenA: first,
+    }),
+    [first]
+  );
   const bindConfirmModal = useCallback(
     () => ({
       visible: confirmSwapModal.isModalVisible,
       onCancel: confirmSwapModal.handleCancel,
     }),
     [confirmSwapModal]
+  );
+  const bindCancelModal = useCallback(
+    () => ({
+      visible: cancelSwapModal.isModalVisible,
+      onCancel: cancelSwapModal.handleCancel,
+    }),
+    [cancelSwapModal]
+  );
+  const bindConfirmedSwapModal = useCallback(
+    () => ({
+      visible: confirmedSwapModal.isModalVisible,
+      onCancel: confirmedSwapModal.handleCancel,
+    }),
+    [confirmedSwapModal]
   );
   const bindSwapForm = useCallback(
     () => ({
@@ -336,5 +372,8 @@ export const useSwapForm = ({
     bindSwapButton: swapButton.bindSwapButton,
     bindWaitingForConfirmation,
     bindWaitingForConfirmationModal,
+    bindCancelModal,
+    bindConfirmedSwapModal,
+    bindTransactionConfirmed,
   };
 };

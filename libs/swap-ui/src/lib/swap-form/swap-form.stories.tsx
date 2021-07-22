@@ -9,7 +9,6 @@ import {
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
-import { swap } from './form-submit-button.stories';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -100,9 +99,13 @@ Swap.args = {
     routes: some([some(ETH), some(USDC), some(DAI)]),
   }),
   slippageTolerance: 0.5,
-  onSwap: async (tokenA, tokenB, si, confirmSwap) => {
-    console.log('Swapped');
+  onSwap: async (tokenA, tokenB, si, confirmSwap, cancelSwap) => {
+    /*     if ((window as any).swapped) {
+      setTimeout(() => cancelSwap(), 2000);
+      return;
+    } */
     setTimeout(() => confirmSwap(), 2000);
+    (window as any).swapped = true;
   },
 };
 
