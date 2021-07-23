@@ -38,7 +38,7 @@ export interface UseSwapFormProps {
     swapInformation: SwapInformation,
     confirmSwap: () => Promise<void>,
     cancelSwap: () => Promise<void>
-  ) => Promise<void>;
+  ) => Promise<Option<string>>;
   slippageTolerance: number;
   fetchSwapInformation: (
     tokenA: Token,
@@ -52,7 +52,7 @@ interface UseSwapProps {
   tokenB: Option<Token>;
   swapInformation: SwapInformation;
   swap: UseSwapFormProps['onSwap'];
-  onSwapEnd: () => Promise<void>;
+  onSwapEnd: (transactionId: string) => Promise<void>;
   onConfirmSwap: () => Promise<void>;
   onCancelSwap: () => Promise<void>;
 }
@@ -91,16 +91,17 @@ const useSwap = ({
                         onConfirmSwap,
                         onCancelSwap
                       ),
-                    () => setIsSwapping(false)
-                  )()
+                    (r) => pipe(setIsSwapping(false), () => r)
+                  )
                 )
               )
             )
           )
         ),
         TO.fromOption,
-        task.map((r) => flow(onSwapEnd)),
-        task.flatten
+        TO.flatten,
+        TO.map((r) => pipe(TO.tryCatch(() => onSwapEnd(r)))),
+        TO.flatten
       )(),
     [swap, tokenA, tokenB, swapInformation, setIsSwapping, onSwapEnd]
   );
@@ -170,16 +171,19 @@ export const useSwapForm = ({
     tokenA: first,
     tokenB: last,
     swapInformation: { ...swapInformation, slippageTolerance },
-    swap,
-    onSwapEnd: async () => {
-      confirmSwapModal.handleCancel();
+    swap: (...args) => {
       waitingForConfirmSwapModal.showModal();
+      return swap(...args);
+    },
+    onSwapEnd: async (e) => {
+      confirmSwapModal.handleCancel();
     },
     onConfirmSwap: async () => {
       waitingForConfirmSwapModal.handleCancel();
       confirmedSwapModal.showModal();
     },
     onCancelSwap: async () => {
+      confirmSwapModal.handleCancel();
       waitingForConfirmSwapModal.handleCancel();
       cancelSwapModal.showModal();
     },

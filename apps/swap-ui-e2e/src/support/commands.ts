@@ -18,6 +18,16 @@ Cypress.Commands.add('visitCaptureError', (url: string) => {
     },
   });
 });
+Cypress.Commands.add('getTransactionSubmittedModal', () =>
+  pipe('[class*="transaction-submitted__Col"]', (selector) =>
+    cy.get(selector).parents('.ant-modal-root').as('transaction-submitted')
+  )
+);
+Cypress.Commands.add('getTransactionRejectedModal', () => {
+  return pipe('[class*="transaction-rejected__Col"]', (selector) =>
+    cy.get(selector).parents('.ant-modal-root').as('transaction-rejected-modal')
+  );
+});
 Cypress.Commands.add('getSpawInformationTooltip', () => {
   return pipe('[class*="tooltip__Tooltip"]', (selector) =>
     cy.get(selector).as('swap-information-tooltip')
@@ -133,10 +143,17 @@ Cypress.Commands.add('typeTokenA', (value: string, backspace = 3) => {
     .type(value);
 });
 Cypress.Commands.add('typeTokenB', (value: string) => {
-  return cy
-    .getTokenBInput()
-    .type('{backspace} {backspace} {backspace}')
-    .type(value);
+  return cy.getTokenBInput().then((element) =>
+    cy
+      .getTokenBInput()
+      .type(
+        Array.from(Array(element.val().toLocaleString().length).keys())
+          .map(() => '{backspace} ')
+          .join(''),
+        { force: true }
+      )
+      .type(value, { force: true })
+  );
 });
 Cypress.Commands.add('getSubmitButton', () => {
   return cy

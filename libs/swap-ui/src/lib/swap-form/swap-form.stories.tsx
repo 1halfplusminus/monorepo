@@ -104,8 +104,12 @@ Swap.args = {
       setTimeout(() => cancelSwap(), 2000);
       return;
     } */
+    if (tokenB.name === 'USDC') {
+      cancelSwap();
+      return none;
+    }
     setTimeout(() => confirmSwap(), 2000);
-    (window as any).swapped = true;
+    return some('x18484844848');
   },
 };
 

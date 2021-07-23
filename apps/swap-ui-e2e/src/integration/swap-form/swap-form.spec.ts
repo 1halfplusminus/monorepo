@@ -34,7 +34,7 @@ describe('swap-ui: SwapForm Swap', () => {
       .getTokenAInput()
       .should('contain.value', '100')
       .getTokenBInput()
-      .should('contain.value', '100')
+      .should('contain.value', '52600.0')
       .getSpawInformationTooltip()
       .trigger('mouseover')
       .get('.ant-tooltip')
@@ -63,8 +63,13 @@ describe('swap-ui: SwapForm Swap', () => {
       )
       .get('@consoleError')
       .should('not.be.calledThrice')
-      .get('@consoleLog')
-      .should('have.been.calledWith', 'Swapped');
+      .getTransactionSubmittedModal()
+      .within(($modal) => cy.get('.ant-btn', { withinSubject: $modal }).click())
+      .selectTokenB('USDC')
+      .typeTokenB('10')
+      .getSubmitButton()
+      .click()
+      .getTransactionRejectedModal();
   });
 });
 

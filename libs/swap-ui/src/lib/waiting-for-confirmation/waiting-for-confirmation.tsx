@@ -3,8 +3,9 @@ import { Token } from '../types/index';
 import type { Option } from 'fp-ts/Option';
 import { BigNumberish } from 'ethers';
 import Maybe from '../../core/maybe/maybe';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import tw from 'twin.macro';
+import Loading from '../icon/loading';
 
 export interface WaitingForConfirmationSwapProps {
   tokenA: Option<Token>;
@@ -60,6 +61,20 @@ export const MaybeWaitingForConfirmationSwap = ({
     )}
   </Maybe>
 );
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`;
+const StyledLoading = styled(Loading)`
+  ${tw`h-16 text-blue-500 fill-current`}
+  animation: ${rotate} 2s linear infinite;
+`;
+
 export const WaitingForConfirmationSwap = ({
   tokenA,
   tokenB,
@@ -75,6 +90,9 @@ export const WaitingForConfirmationSwap = ({
     >
       {(tokenA, tokenB, valueA, valueB) => (
         <Col>
+          <Row>
+            <StyledLoading />
+          </Row>
           <Row>
             <Title> Waiting For Confirmation</Title>
           </Row>

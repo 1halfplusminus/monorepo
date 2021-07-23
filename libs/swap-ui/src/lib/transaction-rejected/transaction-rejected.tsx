@@ -16,6 +16,7 @@ const StyledIcon = styled(TransactionRejectedIcon)`
 `;
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TransactionRejectedProps {}
+
 export const TransactionRejected = (props: TransactionRejectedProps) => (
   <Col>
     <Row>
