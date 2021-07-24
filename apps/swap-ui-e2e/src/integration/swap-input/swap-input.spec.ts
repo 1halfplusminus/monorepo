@@ -5,8 +5,7 @@ describe('swap-ui: SwapInput Primary', () => {
     cy.get('input')
       .as('input')
       .should('have.value', '0.0')
-      .type('{backspace} {backspace} {backspace}')
-      .type('10.0')
+      .typeTokenA('10.0')
       .should('have.value', '10.0')
       .openTokenSelection()
       .get('#rcDialogTitle1')
@@ -14,7 +13,7 @@ describe('swap-ui: SwapInput Primary', () => {
   });
 });
 
-xdescribe('swap-ui: SwapInput With Sold', () => {
+describe('swap-ui: SwapInput With Sold', () => {
   beforeEach(() => cy.visit('/iframe.html?id=swapinput--with-sold'));
 
   it('should render the component', () => {

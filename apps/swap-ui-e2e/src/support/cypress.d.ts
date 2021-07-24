@@ -5,6 +5,7 @@ declare namespace Cypress {
     getTransactionRejectedModal(): Chainable<JQuery<HTMLInputElement>>;
     getSpawInformationTooltip(): Chainable<JQuery<HTMLInputElement>>;
     getTransactionSubmittedModal(): Chainable<JQuery<HTMLInputElement>>;
+    getWaitingForConfirmationModal(): Chainable<JQuery<HTMLInputElement>>;
     closeConfirmSwapModal(
       within: JQuery<HTMLElement> | HTMLElement
     ): Chainable<JQuery<HTMLInputElement>>;

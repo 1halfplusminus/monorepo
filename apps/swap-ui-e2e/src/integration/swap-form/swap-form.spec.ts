@@ -63,13 +63,37 @@ describe('swap-ui: SwapForm Swap', () => {
       )
       .get('@consoleError')
       .should('not.be.calledThrice')
+      .getWaitingForConfirmationModal()
       .getTransactionSubmittedModal()
-      .within(($modal) => cy.get('.ant-btn', { withinSubject: $modal }).click())
+      .within(($modal) =>
+        cy.get('.ant-modal-footer .ant-btn', { withinSubject: $modal }).click()
+      );
+    /*  .getTransactionSubmittedModal()
+      .within(($modal) =>
+        cy.get('.ant-modal-footer .ant-btn', { withinSubject: $modal }).click()
+      )
       .selectTokenB('USDC')
       .typeTokenB('10')
       .getSubmitButton()
       .click()
-      .getTransactionRejectedModal();
+      .getTransactionRejectedModal()
+      .within(($modal) =>
+        cy.get('.ant-btn', { withinSubject: $modal }).click()
+      ); */
+  });
+
+  it('It should display transaction rejected', () => {
+    cy.selectTokenB('USDC')
+      .typeTokenB('10')
+      .getSubmitButton()
+      .click()
+      .getConfirmSwapModal()
+      .within(($modal) => cy.closeConfirmSwapModal($modal))
+      .getWaitingForConfirmationModal()
+      .getTransactionRejectedModal()
+      .within(($modal) =>
+        cy.get('.ant-btn', { withinSubject: $modal }).click()
+      );
   });
 });
 

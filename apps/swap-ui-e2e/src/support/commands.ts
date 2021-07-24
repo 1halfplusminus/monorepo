@@ -23,6 +23,11 @@ Cypress.Commands.add('getTransactionSubmittedModal', () =>
     cy.get(selector).parents('.ant-modal-root').as('transaction-submitted')
   )
 );
+Cypress.Commands.add('getWaitingForConfirmationModal', () => {
+  return pipe('[class*="waiting-for-confirmation__Col"]', (selector) =>
+    cy.get(selector).parents('.ant-modal-root').as('waiting-for-confirmation')
+  );
+});
 Cypress.Commands.add('getTransactionRejectedModal', () => {
   return pipe('[class*="transaction-rejected__Col"]', (selector) =>
     cy.get(selector).parents('.ant-modal-root').as('transaction-rejected-modal')
@@ -133,14 +138,17 @@ Cypress.Commands.add('selectTokenB', (token: string) => {
     .click();
 });
 Cypress.Commands.add('typeTokenA', (value: string, backspace = 3) => {
-  return cy
-    .getTokenAInput()
-    .type(
-      Array.from(Array(backspace).keys())
-        .map(() => '{backspace} ')
-        .join('')
-    )
-    .type(value);
+  return cy.getTokenBInput().then((element) =>
+    cy
+      .getTokenAInput()
+      .type(
+        Array.from(Array(element.val().toLocaleString().length).keys())
+          .map(() => '{backspace} ')
+          .join(''),
+        { force: true }
+      )
+      .type(value, { force: true })
+  );
 });
 Cypress.Commands.add('typeTokenB', (value: string) => {
   return cy.getTokenBInput().then((element) =>

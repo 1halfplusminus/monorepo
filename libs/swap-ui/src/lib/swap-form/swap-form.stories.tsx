@@ -9,7 +9,7 @@ import {
   Web3WalletProvider,
 } from '../hooks/useWallet';
 import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
-
+import { getUniswapDefaultTokenList } from '@halfoneplusminus/redcross-swap-contract';
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
 
@@ -134,7 +134,6 @@ export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
 };
 
 WithEtherProviders.args = {
-  tokens: tokens,
   commonBases,
   selected: some([none, none]),
 };
