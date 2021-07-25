@@ -1,6 +1,6 @@
 import React from 'react';
 import { SwapForm, SwapFormProps } from './swap-form';
-import { none, some } from 'fp-ts/lib/Option';
+import { none, some } from 'fp-ts/Option';
 import FormSubmitButton, { FormSubmitButtonProps } from './form-submit-button';
 
 import { useSwapForm, UseSwapFormProps } from '../hooks/useSwapForm';
@@ -24,15 +24,17 @@ import { WaitingForConfirmationSwap } from '../waiting-for-confirmation/waiting-
 import { TransactionRejected } from '../transaction-rejected/transaction-rejected';
 import { TransactionSubmitted } from '../transaction-submitted/transaction-submitted';
 import type { Option } from 'fp-ts/Option';
-
+import { useTokenList, UseTokenList } from '../hooks/useTokenList';
+import { never } from 'fp-ts/Task';
 const Row = styled.div`
   ${tw`flex-row inline-flex justify-end gap-2`}
 `;
 
-export type ConnectedFormProps = SwapFormProps &
-  UseSwapInformationProps &
-  UseSwapFormProps &
+export type ConnectedFormProps = Omit<SwapFormProps, 'tokens'> &
+  Omit<UseSwapInformationProps, 'tokens'> &
+  Omit<UseSwapFormProps, 'tokens'> &
   Pick<FormSubmitButtonProps, 'connectButton' | 'connected'> &
+  Pick<UseTokenList, 'fetchTokenList'> &
   Pick<
     SwapInformationProps,
     | 'liquidityProviderFee'
@@ -42,8 +44,10 @@ export type ConnectedFormProps = SwapFormProps &
   > & { provider: Option<string> };
 
 export const ConnectedForm = (props: ConnectedFormProps) => {
+  const { tokenList } = useTokenList({ fetchTokenList: props.fetchTokenList });
   const form = useSwapForm({
     ...props,
+    tokens: tokenList,
   });
   const swapFormProps = form.bindSwapForm();
   return (
@@ -112,7 +116,7 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
         <TransactionSubmitted
           provider={props.provider}
           {...form.bindTransactionConfirmed()}
-          onClickExplorer={() => {}}
+          onClickExplorer={never}
         />
       </DarkModal>
     </SwapForm>

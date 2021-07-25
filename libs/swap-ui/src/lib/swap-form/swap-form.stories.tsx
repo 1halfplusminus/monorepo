@@ -10,6 +10,7 @@ import {
 } from '../hooks/useWallet';
 import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
 import { getUniswapDefaultTokenList } from '@halfoneplusminus/redcross-swap-contract';
+
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
 
@@ -41,7 +42,7 @@ export const disabled: Story<ConnectedFormProps> = (props) => {
   );
 };
 disabled.args = {
-  tokens: tokens,
+  fetchTokenList: async () => tokens,
   commonBases,
   selected: some([some(DAI), some(ETH)]),
   account: some('x100000'),
@@ -62,7 +63,7 @@ export const EnterAmount: Story<ConnectedFormProps> = (props) => {
 };
 
 EnterAmount.args = {
-  tokens: tokens,
+  fetchTokenList: async () => tokens,
   commonBases,
   selected: some([none, none]),
   account: some('x100000'),
@@ -85,7 +86,7 @@ Swap.argTypes = {
   swap: { action: 'clicked' },
 };
 Swap.args = {
-  tokens: tokens,
+  fetchTokenList: async () => tokens,
   commonBases,
   selected: some([some(ETH), some(DAI)]),
   account: some('x100000'),
@@ -136,4 +137,5 @@ export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
 WithEtherProviders.args = {
   commonBases,
   selected: some([none, none]),
+  fetchTokenList: getUniswapDefaultTokenList,
 };

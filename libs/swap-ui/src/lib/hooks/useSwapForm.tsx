@@ -201,37 +201,38 @@ export const useSwapForm = ({
     )();
   }, [first, account, fetchBalance, last]);
 
-  const changePairTokenValue = (
-    token: Option<Token>,
-    v: Option<BigNumberish>
-  ) =>
-    pipe(
-      rate,
-      O.map((rate) =>
-        pipe(
-          token,
-          O.fromPredicate(() => token === first),
-          O.fold(
-            () => modifyAts([token, first], [v, calculeAmountOption(v, rate)]),
-            () =>
-              modifyAts(
-                [token, last],
-                [v, calculeAmountOption(v, inverseRate(rate))]
-              )
-          ),
-          () => setPristine(false)
+  const changePairTokenValue = useCallback(
+    (token: Option<Token>, v: Option<BigNumberish>) =>
+      pipe(
+        rate,
+        O.map((rate) =>
+          pipe(
+            token,
+            O.fromPredicate(() => token === first),
+            O.fold(
+              () =>
+                modifyAts([token, first], [v, calculeAmountOption(v, rate)]),
+              () =>
+                modifyAts(
+                  [token, last],
+                  [v, calculeAmountOption(v, inverseRate(rate))]
+                )
+            ),
+            () => setPristine(false)
+          )
         )
-      )
-    );
+      ),
+    [first, last, rate]
+  );
   // Fetch pair token amount at launch if not specified based on rate
   useEffect(() => {
     if (!pristine) return;
     changePairTokenValue(first, lookup(first));
-  }, [lookup(first)]);
+  }, [lookup(first), pristine, changePairTokenValue]);
   useEffect(() => {
     if (!pristine) return;
     changePairTokenValue(last, lookup(last));
-  }, [lookup(last)]);
+  }, [lookup(last), changePairTokenValue, pristine]);
 
   const onSelected = useCallback(
     (index: 0 | 1) => (token: Token) => {
