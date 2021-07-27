@@ -10,6 +10,9 @@ import {
 } from '../hooks/useWallet';
 import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
 import { getUniswapDefaultTokenList } from '@halfoneplusminus/redcross-swap-contract';
+import { pipe } from 'fp-ts/function';
+import * as option from 'fp-ts/Option';
+import * as task from 'fp-ts/Task';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -115,7 +118,14 @@ Swap.args = {
 };
 
 const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
-  const { library, connected, isConnected, connect, account } = useWallets();
+  const {
+    library,
+    connected,
+    isConnected,
+    connect,
+    account,
+    chaindId,
+  } = useWallets();
   return (
     <ConnectedForm
       {...props}
@@ -123,6 +133,13 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
       connectButton={{ isConnected, connect }}
       connected={connected}
       fetchBalance={fetchOptionTokenBalance(library)}
+      fetchTokenList={pipe(
+        chaindId,
+        option.fold(
+          () => async () => option.some([]),
+          (chainId) => () => getUniswapDefaultTokenList(chainId)
+        )
+      )}
     />
   );
 };
@@ -137,5 +154,4 @@ export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
 WithEtherProviders.args = {
   commonBases,
   selected: some([none, none]),
-  fetchTokenList: getUniswapDefaultTokenList,
 };

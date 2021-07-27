@@ -102,6 +102,7 @@ export const useWallets = () => {
   useEagerConnect();
   const optionAccount = useMemo(() => options.fromNullable(account), [account]);
   const optionlibrary = useMemo(() => options.fromNullable(library), [library]);
+  const chaindId = useMemo(() => options.fromNullable(chainId), [chainId]);
   return {
     connect,
     isConnecting,
@@ -111,6 +112,7 @@ export const useWallets = () => {
     library: optionlibrary,
     connected,
     account: optionAccount,
+    chaindId,
   };
 };
 
