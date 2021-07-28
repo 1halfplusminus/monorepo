@@ -12,7 +12,7 @@ import {
   number as N,
 } from 'fp-ts';
 import { pipe, flow } from 'fp-ts/function';
-import { concatAll, Monoid, struct } from 'fp-ts/Monoid';
+import { concatAll, Monoid } from 'fp-ts/Monoid';
 
 export interface Token {
   symbol: string;
@@ -20,6 +20,8 @@ export interface Token {
   name: string;
   fullName?: string;
   isNative?: boolean;
+  decimals: number;
+  chainId: number;
 }
 type TokenListItem = {
   address: string;
@@ -29,6 +31,8 @@ type TokenListItem = {
   symbol: string;
   chainId: number;
 };
+
+export { ERC20 } from '../typechain/';
 
 export const ordChainId = ORD.fromCompare<TokenListItem>((a, b) =>
   N.Ord.compare(Number(a.chainId), Number(b.chainId))
@@ -112,6 +116,7 @@ export const concatInformation = (chainId: number) =>
 
 export const connectERC20 = (p: providers.Web3Provider) => (address: string) =>
   new ERC20__factory().attach(address).connect(p);
+
 export const mapTokenListItemToToken = (r: TokenListItem) =>
   ({
     symbol: r.logoURI,
@@ -119,6 +124,8 @@ export const mapTokenListItemToToken = (r: TokenListItem) =>
     name: r.symbol,
     fullName: r.name,
     isNative: r.symbol === 'ETH',
+    chainId: r.chainId,
+    decimals: r.decimals,
   } as Token);
 
 export const getUniswapDefaultTokenList = (chainId: number) =>

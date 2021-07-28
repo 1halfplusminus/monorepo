@@ -3,7 +3,12 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "declaration": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "@halfoneplusminus/redcross-swap-contract": [
+        "libs/redcross-swap-contract/libs"
+      ]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["**/*.spec.ts"]

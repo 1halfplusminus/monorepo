@@ -5,7 +5,7 @@ import { ETH } from '../__mocks__/tokens';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import { useFiatPrice, UseFiatPriceProps } from '../hooks/useFiatPrice';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 const Wrapper = styled.div`
   ${tw`w-28`}
@@ -32,8 +32,10 @@ export const primary: Story<FiatPriceDisplayProps> = (props) => (
 );
 
 primary.args = {
-  price: O.some('5'),
+  price: O.some(5),
   token: O.some(ETH),
+  fiatSymbol: '$',
+  amount: O.some(5),
 };
 
 export const WithState: Story<FiatPriceDisplayProps & UseFiatPriceProps> = ({
@@ -55,8 +57,9 @@ export const WithState: Story<FiatPriceDisplayProps & UseFiatPriceProps> = ({
 };
 
 WithState.args = {
-  price: O.none,
+  price: O.some(5),
   token: O.some(ETH),
   fiatSymbol: '$',
   fetchPrice: async () => '2500',
+  amount: O.some(5),
 };

@@ -24,7 +24,7 @@ export type SwapFormProps = {
 
 const Title = styled.h2`
   color: surface-color;
-  ${tw`text-lg text-white`}
+  ${tw`text-lg text-black `}
 `;
 
 const SwapIconWrapper = styled.div<{ height: number }>`
@@ -52,7 +52,7 @@ export function SwapForm({
   onInverse,
   children,
   disabled = false,
-  title = some('Permuter'),
+  title = some('Permuter 2'),
 }: PropsWithChildren<SwapFormProps>) {
   return (
     <StyledSwapSurface>

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import tw from 'twin.macro';
 import { Maybe } from '../../core/maybe/maybe';
 import { BigNumber } from 'ethers';
+
 export interface FiatPriceDisplayProps {
   token: Option<Token>;
   price: Option<BigNumberish>;
