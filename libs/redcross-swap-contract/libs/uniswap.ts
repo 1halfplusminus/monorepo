@@ -6,13 +6,17 @@ import { Address } from 'hardhat-deploy/dist/types';
 import { BigNumber } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { Token } from '.';
+import fetch from 'node-fetch';
+
+global.fetch = fetch as any;
+
 interface Immutables {
   factory: Address;
   token0: Address;
   token1: Address;
   fee: number;
   tickSpacing: number;
-  maxLiquidityPerTick: number;
+  maxLiquidityPerTick: BigNumber;
 }
 interface State {
   liquidity: BigNumber;
@@ -29,20 +33,19 @@ export const poolAddress = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
 export const createPoolContract = (provider: Provider) => (
   address: string = poolAddress
 ) => IUniswapV3Pool__factory.connect(address, provider);
-async function getPoolImmutables(poolContract: IUniswapV3Pool) {
+
+export async function getPoolImmutables(poolContract: IUniswapV3Pool) {
   const PoolImmutables: Immutables = {
     factory: await poolContract.factory(),
     token0: await poolContract.token0(),
     token1: await poolContract.token1(),
     fee: await poolContract.fee(),
     tickSpacing: await poolContract.tickSpacing(),
-    maxLiquidityPerTick: await (
-      await poolContract.maxLiquidityPerTick()
-    ).toNumber(),
+    maxLiquidityPerTick: await poolContract.maxLiquidityPerTick(),
   };
   return PoolImmutables;
 }
-async function getPoolState(poolContract: IUniswapV3Pool) {
+export async function getPoolState(poolContract: IUniswapV3Pool) {
   const slot = await poolContract.slot0();
   const PoolState: State = {
     liquidity: await poolContract.liquidity(),
