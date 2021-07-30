@@ -50,7 +50,6 @@ describe('Uniswap Lib', () => {
     );
     const pool = await createPool(poolContact, tokenA, tokenB, FeeAmount.LOW);
     console.log(pool.priceOf(tokenB).toFixed());
-
     /* const trade = Trade.bestTradeExactIn([pool], tokenA, tokenB, currencyOut); */
   });
 });
