@@ -1,4 +1,9 @@
-import { tickToPrice } from '@uniswap/v3-sdk';
+import {
+  computePoolAddress,
+  FACTORY_ADDRESS,
+  Pool,
+  tickToPrice,
+} from '@uniswap/v3-sdk';
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Provider } from '@ethersproject/providers';
@@ -7,6 +12,9 @@ import { BigNumber } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { Token } from '.';
 import fetch from 'node-fetch';
+import { constant, flow, hole, identity, pipe, tuple } from 'fp-ts/function';
+import { task as T } from 'fp-ts';
+import { FeeAmount } from '../test/shared/constants';
 
 global.fetch = fetch as any;
 
@@ -33,7 +41,20 @@ export const poolAddress = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
 export const createPoolContract = (provider: Provider) => (
   address: string = poolAddress
 ) => IUniswapV3Pool__factory.connect(address, provider);
-
+export const createPoolContractFromToken = (provider: Provider) => (
+  tokenA: UToken,
+  tokenB: UToken,
+  feeAmount: FeeAmount
+) =>
+  pipe(
+    computePoolAddress({
+      factoryAddress: FACTORY_ADDRESS,
+      fee: feeAmount,
+      tokenA: tokenA,
+      tokenB: tokenB,
+    }),
+    createPoolContract(provider)
+  );
 export async function getPoolImmutables(poolContract: IUniswapV3Pool) {
   const PoolImmutables: Immutables = {
     factory: await poolContract.factory(),
@@ -68,3 +89,24 @@ export const getPrice = (baseToken: Token, quoteToken: Token, tick: number) =>
     createUniswapToken(quoteToken),
     tick
   );
+
+export const createPool = (
+  poolContract: IUniswapV3Pool,
+  baseToken: UToken,
+  quoteToken: UToken,
+  feeAmount: FeeAmount
+) =>
+  pipe(
+    flow(constant(poolContract), getPoolState),
+    T.map(
+      (state) =>
+        new Pool(
+          baseToken,
+          quoteToken,
+          feeAmount,
+          state.sqrtPriceX96.toString(),
+          state.liquidity.toString(),
+          state.tick
+        )
+    )
+  )();
