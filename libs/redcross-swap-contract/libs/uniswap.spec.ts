@@ -1,12 +1,6 @@
-import {
-  getPrice,
-  createPoolContract,
-  createUniswapToken,
-  getPoolState,
-  createPool,
-} from './uniswap';
+import { createUniswapToken, createPool } from './uniswap';
 import { pipe } from 'fp-ts/function';
-import { getUniswapDefaultTokenList, Token, filterByChainId } from './index';
+import { filterByChainId } from './index';
 import {
   array as A,
   record as R,
@@ -14,17 +8,12 @@ import {
   nonEmptyArray as NEA,
 } from 'fp-ts';
 import { ethers } from 'ethers';
-import {
-  computePoolAddress,
-  FACTORY_ADDRESS,
-  Pool,
-  Trade,
-} from '@uniswap/v3-sdk';
 import { FeeAmount } from '../test/shared/constants';
-import { CurrencyAmount, TradeType } from '@uniswap/sdk-core';
 import { tokenList } from './__mocks__/index';
 import { createPoolContractFromToken } from './uniswap';
+import fetch from 'node-fetch';
 
+global.fetch = fetch as any;
 jest.setTimeout(100000);
 
 describe('Uniswap Lib', () => {

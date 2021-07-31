@@ -10,13 +10,14 @@ import { Provider } from '@ethersproject/providers';
 import { Address } from 'hardhat-deploy/dist/types';
 import { BigNumber } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
-import { Token } from '.';
-import fetch from 'node-fetch';
-import { constant, flow, hole, identity, pipe, tuple } from 'fp-ts/function';
-import { task as T } from 'fp-ts';
+import { constant, flow, pipe } from 'fp-ts/function';
+import { task as T, option as O, array as A, taskOption as TO } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
-
-global.fetch = fetch as any;
+import type { Option } from 'fp-ts/Option';
+import { Token } from '.';
+import { useMemo } from 'react';
+import { sequenceS, sequenceT } from 'fp-ts/lib/Apply';
+import { useEffect, useState } from 'react';
 
 interface Immutables {
   factory: Address;
@@ -55,6 +56,28 @@ export const createPoolContractFromToken = (provider: Provider) => (
     }),
     createPoolContract(provider)
   );
+export const createPoolContractFromOptionToken = (
+  provider: Option<Provider>
+) => (tokenA: Option<UToken>, tokenB: Option<UToken>, feeAmount: FeeAmount) =>
+  pipe(
+    provider,
+    O.map((provider) =>
+      pipe(
+        tokenA,
+        O.map((tokenA) =>
+          pipe(
+            tokenB,
+            O.map((tokenB) =>
+              createPoolContractFromToken(provider)(tokenA, tokenB, feeAmount)
+            )
+          )
+        )
+      )
+    ),
+    O.flatten,
+    O.flatten
+  );
+
 export async function getPoolImmutables(poolContract: IUniswapV3Pool) {
   const PoolImmutables: Immutables = {
     factory: await poolContract.factory(),
@@ -82,7 +105,11 @@ export async function getPoolState(poolContract: IUniswapV3Pool) {
 }
 export const createUniswapToken = (token: Token) =>
   new UToken(token.chainId, token.address, token.decimals);
-
+export const createUniswapTokenFromOption = (token: Option<Token>) =>
+  pipe(
+    token,
+    O.map((token) => createUniswapToken(token))
+  );
 export const getPrice = (baseToken: Token, quoteToken: Token, tick: number) =>
   tickToPrice(
     createUniswapToken(baseToken),
@@ -110,3 +137,46 @@ export const createPool = (
         )
     )
   )();
+
+export interface UseUniswapProps {
+  tokenA: Option<Token>;
+  tokenB: Option<Token>;
+  provider: Option<Provider>;
+  feeAmount: Option<FeeAmount>;
+}
+
+export const useUniswap = ({
+  tokenA,
+  tokenB,
+  provider,
+  feeAmount,
+}: UseUniswapProps) => {
+  const [pool, setPool] = useState<Option<Pool>>(O.none);
+  const tokenAUniswap = useMemo(() => createUniswapTokenFromOption(tokenA), [
+    tokenA,
+  ]);
+  const tokenBUniswap = useMemo(() => createUniswapTokenFromOption(tokenB), [
+    tokenB,
+  ]);
+  const poolContract = useMemo(
+    () =>
+      pipe(
+        sequenceT(O.Apply)(provider, tokenAUniswap, tokenBUniswap, feeAmount),
+        O.map(([provider, ...args]) =>
+          createPoolContractFromToken(provider)(...args)
+        )
+      ),
+    [tokenAUniswap, tokenBUniswap, provider]
+  );
+  useEffect(() => {
+    pipe(
+      sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap, feeAmount),
+      TO.fromOption,
+      TO.map((args) => TO.tryCatch(() => createPool(...args))),
+      TO.flatten,
+      T.map(setPool)
+    );
+  }, [, poolContract, tokenAUniswap, tokenBUniswap]);
+
+  return { pool, tokenAUniswap, tokenBUniswap };
+};
