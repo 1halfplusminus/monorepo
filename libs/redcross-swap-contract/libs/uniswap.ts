@@ -11,12 +11,18 @@ import { Address } from 'hardhat-deploy/dist/types';
 import { BigNumber } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { constant, flow, pipe } from 'fp-ts/function';
-import { task as T, option as O, array as A, taskOption as TO } from 'fp-ts';
+import {
+  task as T,
+  option as O,
+  array as A,
+  taskOption as TO,
+  taskEither as TE,
+} from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '.';
 import { useMemo } from 'react';
-import { sequenceS, sequenceT } from 'fp-ts/lib/Apply';
+import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 
 interface Immutables {
@@ -166,17 +172,25 @@ export const useUniswap = ({
           createPoolContractFromToken(provider)(...args)
         )
       ),
-    [tokenAUniswap, tokenBUniswap, provider]
+    [tokenAUniswap, tokenBUniswap, provider, feeAmount]
   );
   useEffect(() => {
     pipe(
       sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap, feeAmount),
-      TO.fromOption,
-      TO.map((args) => TO.tryCatch(() => createPool(...args))),
-      TO.flatten,
-      T.map(setPool)
-    );
-  }, [, poolContract, tokenAUniswap, tokenBUniswap]);
+      TE.fromOption(() => 'Invalid props'),
+      TE.map((args) =>
+        TE.tryCatch(
+          () => createPool(...args),
+          (e) => {
+            console.log(e);
+            return e;
+          }
+        )
+      ),
+      TE.flatten,
+      TE.map((p) => setPool(O.some(p)))
+    )();
+  }, [poolContract, tokenAUniswap, tokenBUniswap, feeAmount]);
 
-  return { pool, tokenAUniswap, tokenBUniswap };
+  return { pool, tokenAUniswap, tokenBUniswap, poolContract };
 };
