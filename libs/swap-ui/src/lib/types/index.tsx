@@ -1,10 +1,4 @@
-export interface Token {
-  symbol: string;
-  address: string;
-  name: string;
-  fullName?: string;
-  isNative?: boolean;
-}
+export { Token } from '@halfoneplusminus/redcross-swap-contract';
 
 export type WalletProvider =
   | 'metamask'

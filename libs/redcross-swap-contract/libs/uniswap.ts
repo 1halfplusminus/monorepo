@@ -17,13 +17,16 @@ import {
   array as A,
   taskOption as TO,
   taskEither as TE,
+  either as E,
 } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
 import type { Option } from 'fp-ts/Option';
-import { Token } from '.';
+import { getUniswapDefaultTokenList, Token } from '.';
 import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { CurrencyAmount } from '@uniswap/sdk-core';
 
 interface Immutables {
   factory: Address;
@@ -113,7 +116,7 @@ export const createUniswapToken = (token: Token) =>
   new UToken(token.chainId, token.address, token.decimals);
 export const createUniswapTokenFromOption = (token: Option<Token>) =>
   pipe(
-    token,
+    token ? token : O.none,
     O.map((token) => createUniswapToken(token))
   );
 export const getPrice = (baseToken: Token, quoteToken: Token, tick: number) =>
@@ -148,14 +151,16 @@ export interface UseUniswapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
   provider: Option<Provider>;
-  feeAmount: Option<FeeAmount>;
+  chainId: Option<number>;
+  feeAmount?: Option<FeeAmount>;
 }
 
 export const useUniswap = ({
   tokenA,
   tokenB,
   provider,
-  feeAmount,
+  chainId,
+  feeAmount = O.some(FeeAmount.LOW),
 }: UseUniswapProps) => {
   const [pool, setPool] = useState<Option<Pool>>(O.none);
   const tokenAUniswap = useMemo(() => createUniswapTokenFromOption(tokenA), [
@@ -191,6 +196,42 @@ export const useUniswap = ({
       TE.map((p) => setPool(O.some(p)))
     )();
   }, [poolContract, tokenAUniswap, tokenBUniswap, feeAmount]);
-
-  return { pool, tokenAUniswap, tokenBUniswap, poolContract };
+  const getTokenPrice = useCallback(
+    (token: Option<Token> | Token) =>
+      pipe(
+        O.some(token),
+        O.flatten,
+        (t) => sequenceT(O.Apply)(tokenAUniswap, tokenBUniswap, pool, t),
+        O.chain(([tokenAUniswap, tokenBUniswap, pool, token]) =>
+          pipe(
+            token.address === tokenAUniswap.address
+              ? O.some(tokenAUniswap)
+              : token.address === tokenBUniswap.address
+              ? O.some(tokenBUniswap)
+              : O.none,
+            O.map((t) => pool.priceOf(t).toFixed())
+          )
+        )
+      ),
+    [pool]
+  );
+  const tokenList = useMemo(
+    () =>
+      pipe(
+        chainId,
+        O.fold(
+          () => async () => O.some([]),
+          (chainId) => () => getUniswapDefaultTokenList(chainId)
+        )
+      ),
+    [chainId]
+  );
+  return {
+    pool,
+    tokenAUniswap,
+    tokenBUniswap,
+    poolContract,
+    getTokenPrice,
+    tokenList,
+  };
 };

@@ -19,7 +19,6 @@ import { tokenList } from './__mocks__/index';
 import { createPoolContractFromToken, getPrice } from './uniswap';
 import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { DAI, ETH } from './__mocks__/tokens';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { CurrencyAmount } from '@uniswap/sdk-core';
 
@@ -83,19 +82,21 @@ describe('Use uniswap hook', () => {
           result.current.tokenAUniswap,
           result.current.tokenBUniswap
         ),
-        O.map(([pool, tokenA, tokenB]) =>
-          TO.tryCatch(() =>
-            pool.getInputAmount(CurrencyAmount.fromRawAmount(tokenB, 1))
-          )
-        ),
-        TO.fromOption,
+        O.map(([pool, tokenA, tokenB]) => {
+          console.log(result.current.getTokenPrice(eth));
+          console.log(result.current.getTokenPrice(dai));
+          done();
+          return;
+        }),
+        O.getOrElse(() => done('Error'))
+        /* TO.fromOption,
         TO.flatten,
         TO.map((r) => {
           console.log(r[0].toFixed());
 
           done();
-        }),
-        TO.getOrElse(() => async () => done('error'))
+        }), */
+        /*   TO.getOrElse(() => async () => done('error')) */
         /*   O.map(([pool, tokenA, tokenB]) => {
           expect(pool).toBeTruthy();
 
@@ -106,7 +107,7 @@ describe('Use uniswap hook', () => {
           done();
         }),
         O.getOrElse(() => done('Error')) */
-      )();
+      );
     });
   });
 });

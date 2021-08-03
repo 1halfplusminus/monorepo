@@ -8,7 +8,7 @@ import { useEffect, useCallback } from 'react';
 import { pipe, flow } from 'fp-ts/function';
 import type { Task } from 'fp-ts/Task';
 import { BigNumberish } from 'ethers';
-import { useFetchRate } from './useFetchRate';
+import { useFetchRate, UseFetchRateProps } from './useFetchRate';
 import { zero } from 'fp-ts/TaskOption';
 import { useInversable } from './useInversable';
 import { useModal } from '../popup/hooks';
@@ -31,7 +31,7 @@ export interface UseSwapFormProps {
   amounts?: MapTokenValue;
   balances?: MapTokenValue;
   account: Option<string>;
-  fetchRate: Task<Option<BigNumberish>>;
+  fetchRate: UseFetchRateProps['fetchRate'];
   onSwap: (
     tokenA: Token,
     tokenB: Token,

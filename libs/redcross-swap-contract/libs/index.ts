@@ -144,3 +144,5 @@ export const getUniswapDefaultTokenList = (chainId: number) =>
       )
     )
   )();
+
+export * from './uniswap';
