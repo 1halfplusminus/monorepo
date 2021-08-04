@@ -20,12 +20,26 @@ import Maybe from '../../core/maybe/maybe';
 import styled from 'styled-components';
 import tw from 'twin.macro';
 import { UseSwapInformationProps } from '../hooks/useFetchSwapInformation';
-import { WaitingForConfirmationSwap } from '../waiting-for-confirmation/waiting-for-confirmation';
-import { TransactionRejected } from '../transaction-rejected/transaction-rejected';
-import { TransactionSubmitted } from '../transaction-submitted/transaction-submitted';
+import {
+  WaitingForConfirmationSwap,
+  WaitingForConfirmationSwapProps,
+} from '../waiting-for-confirmation/waiting-for-confirmation';
+import {
+  TransactionRejected,
+  TransactionRejectedProps,
+} from '../transaction-rejected/transaction-rejected';
+import {
+  TransactionSubmitted,
+  TransactionSubmittedProps,
+} from '../transaction-submitted/transaction-submitted';
 import type { Option } from 'fp-ts/Option';
 import { useTokenList, UseTokenList } from '../hooks/useTokenList';
 import { never } from 'fp-ts/Task';
+import { PairPriceDisplayProps } from './pair-price-display';
+import type { ButtonProps } from 'antd/lib/button';
+import { ConfirmSwapProps } from '../confirm-swap/confirm-swap';
+import type { ModalProps } from 'antd/lib/modal';
+
 const Row = styled.div`
   ${tw`flex-row inline-flex justify-end gap-2`}
 `;
@@ -43,26 +57,44 @@ export type ConnectedFormProps = Omit<SwapFormProps, 'tokens'> &
     | 'slippageTolerance'
   > & { provider: Option<string> };
 
-export const ConnectedForm = (props: ConnectedFormProps) => {
-  const { tokenList } = useTokenList({ fetchTokenList: props.fetchTokenList });
-  const form = useSwapForm({
-    ...props,
-    tokens: tokenList,
-  });
-  const swapFormProps = form.bindSwapForm();
+export const SwapFormWithModal = (
+  props: ConnectedFormProps &
+    UseSwapFormProps &
+    UseTokenList & { pairPriceDisplayProps: PairPriceDisplayProps } & {
+      swapFormProps: SwapFormProps;
+    } & {
+      swapInformationProps: SwapInformationProps;
+    } & {
+      formSubmitButtonProps: Omit<
+        FormSubmitButtonProps,
+        'loading' | 'tokens' | 'connected'
+      >;
+    } & {
+      swapButtonProps: ButtonProps;
+    } & { confirmModalProps: ModalProps } & {
+      confirmSwapProps: Omit<ConfirmSwapProps, 'slippageTolerance'>;
+    } & { waitingForConfirmationModalProps: ModalProps } & {
+      waitingForConfirmationProps: WaitingForConfirmationSwapProps;
+    } & { rejectedModalProps: ModalProps } & { submittedModal: ModalProps } & {
+      submittedSwap: Omit<
+        TransactionSubmittedProps,
+        'provider' | 'onClickExplorer'
+      >;
+    }
+) => {
   return (
-    <SwapForm {...props} {...swapFormProps}>
+    <SwapForm {...props} {...props.swapFormProps}>
       <Row>
-        <PairPriceDisplay {...form.bindPriceDisplay()} />
-        <Maybe option={swapFormProps.inputA.selected}>
+        <PairPriceDisplay {...props.pairPriceDisplayProps} />
+        <Maybe option={props.swapFormProps.inputA.selected}>
           {() => (
-            <Maybe option={swapFormProps.inputB.selected}>
+            <Maybe option={props.swapFormProps.inputB.selected}>
               {() => (
                 <Tooltip
                   placement="left"
                   title={
                     <TooltipWrapper>
-                      <SwapInformation {...form.bindSwapInformation()} />
+                      <SwapInformation {...props.swapInformationProps} />
                     </TooltipWrapper>
                   }
                 >
@@ -79,46 +111,73 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
         connectButton={props.connectButton}
         tokens={none}
         connected={props.connected}
-        {...form.bindSubmitButton()}
+        {...props.formSubmitButtonProps}
       />
       <DarkModal
         title={'Confirm Swap'}
-        footer={<Button {...form.bindSwapButton()}>Confirm Swap</Button>}
-        {...form.bindConfirmModal()}
+        footer={<Button {...props.swapButtonProps}>Confirm Swap</Button>}
+        {...props.confirmModalProps}
       >
-        <ConfirmSwap {...props} {...form.bindConfirmSwap()} />
+        <ConfirmSwap {...props} {...props.confirmSwapProps} />
       </DarkModal>
       <DarkModal
         title={''}
-        {...form.bindWaitingForConfirmationModal()}
+        {...props.waitingForConfirmationModalProps}
         footer={null}
       >
-        <WaitingForConfirmationSwap {...form.bindWaitingForConfirmation()} />
+        <WaitingForConfirmationSwap {...props.waitingForConfirmationProps} />
       </DarkModal>
       <DarkModal
         footer={
-          <Button onClick={() => form.bindCancelModal().onCancel()}>
+          <Button
+            onClick={(e) =>
+              props.rejectedModalProps.onCancel &&
+              props.rejectedModalProps.onCancel(e)
+            }
+          >
             Dismiss
           </Button>
         }
-        {...form.bindCancelModal()}
+        {...props.rejectedModalProps}
       >
         <TransactionRejected />
       </DarkModal>
       <DarkModal
-        {...form.bindConfirmedSwapModal()}
-        footer={
-          <Button onClick={form.bindConfirmedSwapModal().onCancel}>
-            Close
-          </Button>
-        }
+        {...props.submittedModal}
+        footer={<Button onClick={props.submittedModal.onCancel}>Close</Button>}
       >
         <TransactionSubmitted
           provider={props.provider}
-          {...form.bindTransactionConfirmed()}
+          {...props.submittedSwap}
           onClickExplorer={never}
         />
       </DarkModal>
     </SwapForm>
+  );
+};
+export const ConnectedForm = (props: ConnectedFormProps) => {
+  const { tokenList } = useTokenList({ fetchTokenList: props.fetchTokenList });
+  const form = useSwapForm({
+    ...props,
+    tokens: tokenList,
+  });
+  const swapFormProps = form.bindSwapForm();
+  return (
+    <SwapFormWithModal
+      {...props}
+      tokens={tokenList}
+      swapFormProps={swapFormProps}
+      pairPriceDisplayProps={form.bindPriceDisplay()}
+      formSubmitButtonProps={form.bindSubmitButton()}
+      confirmModalProps={form.bindConfirmModal()}
+      confirmSwapProps={form.bindConfirmSwap()}
+      waitingForConfirmationModalProps={form.bindWaitingForConfirmationModal()}
+      waitingForConfirmationProps={form.bindWaitingForConfirmation()}
+      rejectedModalProps={form.bindCancelModal()}
+      swapInformationProps={form.bindSwapInformation()}
+      swapButtonProps={form.bindSwapButton()}
+      submittedModal={form.bindConfirmedSwapModal()}
+      submittedSwap={form.bindTransactionConfirmed()}
+    />
   );
 };

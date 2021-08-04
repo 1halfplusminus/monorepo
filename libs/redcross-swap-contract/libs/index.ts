@@ -13,6 +13,7 @@ import {
 } from 'fp-ts';
 import { pipe, flow } from 'fp-ts/function';
 import { concatAll, Monoid } from 'fp-ts/Monoid';
+import { tokenList } from './__mocks__/index';
 
 export interface Token {
   symbol: string;
@@ -130,10 +131,7 @@ export const mapTokenListItemToToken = (r: TokenListItem) =>
 
 export const getUniswapDefaultTokenList = (chainId: number) =>
   pipe(
-    () =>
-      fetch('https://gateway.ipfs.io/ipns/tokens.uniswap.org').then((r) =>
-        r.json()
-      ),
+    async () => ({ tokens: tokenList }),
     T.map(selectTokens),
     TO.fromTask,
     TO.map((r) =>

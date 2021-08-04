@@ -8,14 +8,15 @@ import {
   useWallets,
   Web3WalletProvider,
 } from '../hooks/useWallet';
-import { ConnectedForm, ConnectedFormProps } from './swap-form-connected';
 import {
-  getUniswapDefaultTokenList,
-  getPrice,
-  useUniswap,
-} from '@halfoneplusminus/redcross-swap-contract';
-import { pipe } from 'fp-ts/function';
-import * as option from 'fp-ts/Option';
+  ConnectedForm,
+  ConnectedFormProps,
+  SwapFormWithModal,
+} from './swap-form-connected';
+import { useUniswap } from '@halfoneplusminus/redcross-swap-contract';
+
+import { useTokenList } from '../hooks/useTokenList';
+import { useSwapForm } from '../hooks/useSwapForm';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -129,21 +130,41 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     account,
     chaindId,
   } = useWallets();
-  const { getTokenPrice, tokenList } = useUniswap({
-    tokenA: props.tokenA,
-    tokenB: props.tokenB,
+  const { getTokenPrice, tokenList: fetchTokenList } = useUniswap({
+    tokenA: swapFormProps.inputA.selected,
+    tokenB: swapFormProps.inputB.selected,
     provider: library,
     chainId: chaindId,
   });
+  const { tokenList } = useTokenList({ fetchTokenList: fetchTokenList });
+
+  const form = useSwapForm({
+    ...props,
+    tokens: tokenList,
+  });
+  const swapFormProps = form.bindSwapForm();
   return (
-    <ConnectedForm
+    <SwapFormWithModal
       {...props}
       account={account}
       connectButton={{ isConnected, connect }}
       connected={connected}
       fetchBalance={fetchOptionTokenBalance(library)}
-      fetchTokenList={tokenList}
+      fetchTokenList={fetchTokenList}
       fetchRate={async (tokenA) => getTokenPrice(tokenA)}
+      tokens={tokenList}
+      swapFormProps={swapFormProps}
+      pairPriceDisplayProps={form.bindPriceDisplay()}
+      formSubmitButtonProps={form.bindSubmitButton()}
+      confirmModalProps={form.bindConfirmModal()}
+      confirmSwapProps={form.bindConfirmSwap()}
+      waitingForConfirmationModalProps={form.bindWaitingForConfirmationModal()}
+      waitingForConfirmationProps={form.bindWaitingForConfirmation()}
+      rejectedModalProps={form.bindCancelModal()}
+      swapInformationProps={form.bindSwapInformation()}
+      swapButtonProps={form.bindSwapButton()}
+      submittedModal={form.bindConfirmedSwapModal()}
+      submittedSwap={form.bindTransactionConfirmed()}
     />
   );
 };

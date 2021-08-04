@@ -264,11 +264,11 @@ export const useSwapForm = ({
   );
   const bindConfirmSwap = useCallback(
     () => ({
+      ...swapInformation,
       tokenA: bindInput(0)(first),
       tokenB: bindInput(1)(last),
       rate: rate,
       onRateClick: inversePriceDisplay,
-      ...swapInformation,
     }),
     [first, last, bindInput, rate, swapInformation, inversePriceDisplay]
   );

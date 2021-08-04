@@ -215,7 +215,7 @@ export const useUniswap = ({
       ),
     [pool]
   );
-  const tokenList = useMemo(
+  const tokenList = useCallback(
     () =>
       pipe(
         chainId,
@@ -223,7 +223,7 @@ export const useUniswap = ({
           () => async () => O.some([]),
           (chainId) => () => getUniswapDefaultTokenList(chainId)
         )
-      ),
+      )(),
     [chainId]
   );
   return {
