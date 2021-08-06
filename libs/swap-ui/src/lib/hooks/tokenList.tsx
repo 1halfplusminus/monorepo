@@ -9,20 +9,22 @@ import {
   dropLeft,
   findIndex,
   filter,
-} from 'fp-ts/lib/Array';
+  insertAt,
+} from 'fp-ts/Array';
 import { Token } from '../types';
 import type { Option } from 'fp-ts/Option';
 import * as options from 'fp-ts/Option';
 import { useCallback, useState } from 'react';
 import { toArray, fromArray, remove } from 'fp-ts/Set';
 import { useMemo } from 'react';
+import { selected } from '../token-select/token-select.stories';
 
 export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;
 declare type UseTokenProps = {
-  commonlyUsed: TokenList;
+  commonlyUsed?: TokenList;
   tokens: TokenList;
-  selected: TokenList;
+  selected?: TokenList;
 };
 declare type UseToken = {
   selected: TokenList;
@@ -34,50 +36,64 @@ declare type UseToken = {
   inverse: () => void;
 };
 declare type UseTokenHook = (props: UseTokenProps) => UseToken;
+const selectedOrDefault = (selected: TokenList) =>
+  pipe(
+    selected,
+    options.getOrElse<options.Option<Token>[]>(() => [
+      options.none,
+      options.none,
+    ]),
+    options.of
+  );
 export const selectAtIndex = (selected: TokenList) => (
   token: Token,
   index: Index
 ) =>
-  pipe(
-    selected,
-    findToken(token),
-    options.chain((s) =>
-      pipe(
-        s,
-        findIndex((a) => eqOptionToken.equals(a, options.some(token))),
-        options.map((foundIndex) =>
-          pipe(
-            s,
-            updateAt<Option<Token>>(
-              foundIndex,
-              pipe(
-                lookup(index)(s),
-                options.filter(() => index !== foundIndex),
-                options.chain((v) => v)
+  pipe(selectedOrDefault(selected), (selected) =>
+    pipe(
+      selected,
+      findToken(token),
+      options.chain((s) =>
+        pipe(
+          s,
+          findIndex((a) => eqOptionToken.equals(a, options.some(token))),
+          options.map((foundIndex) =>
+            pipe(
+              s,
+              updateAt<Option<Token>>(
+                foundIndex,
+                pipe(
+                  lookup(index)(s),
+                  options.filter(() => index !== foundIndex),
+                  options.chain((v) => v)
+                )
+              ),
+              options.chain((r) =>
+                index !== foundIndex
+                  ? updateAt(index, options.some(token))(r)
+                  : options.some(r)
               )
-            ),
-            options.chain((r) =>
-              index !== foundIndex
-                ? updateAt(index, options.some(token))(r)
-                : options.some(r)
             )
           )
         )
-      )
-    ),
-    options.getOrElse(() =>
-      pipe(
-        selected,
-        options.chain((selected) =>
-          updateAt(index, options.some(token))(selected)
+      ),
+      options.getOrElse(() =>
+        pipe(
+          selected,
+          options.chain((selected) =>
+            updateAt(index, options.some(token))(selected)
+          ),
+          (remove) => {
+            return remove;
+          }
         )
       )
     )
   );
 export const useSelectToken: UseTokenHook = ({
-  commonlyUsed,
+  commonlyUsed = options.some([]),
   tokens,
-  selected: defaultSelected = options.none,
+  selected: defaultSelected = options.some([options.none, options.none]),
 }) => {
   const [selected, setSelected] = useState(
     selectedOrFirstCommonlyUsed(tokens, defaultSelected, commonlyUsed)
@@ -217,12 +233,11 @@ export const selectFirst = (tokens: TokenList) => (selections: TokenList) =>
 
 export const defaultSelected = (tokens: TokenList) => (selected: TokenList) =>
   pipe(
-    tokens ? tokens : options.none,
-    options.map((tokens) =>
+    tokens ? tokens : options.some([]),
+    options.map(() =>
       pipe(
-        selected,
+        selected
         /*         options.map(intersectionToken(tokens)), */
-        options.filter((f) => f.length > 0)
       )
     ),
     options.chain((v) => v)

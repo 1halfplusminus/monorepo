@@ -55,11 +55,11 @@ export type ConnectedFormProps = Omit<SwapFormProps, 'tokens'> &
     | 'minimumReceived'
     | 'priceImpact'
     | 'slippageTolerance'
-  > & { provider: Option<string> };
+  > & { provider: Option<string> } & { chainId: Option<number> };
 
 export const SwapFormWithModal = (
   props: ConnectedFormProps &
-    UseSwapFormProps &
+    Omit<UseSwapFormProps, 'tokens'> &
     UseTokenList & { pairPriceDisplayProps: PairPriceDisplayProps } & {
       swapFormProps: SwapFormProps;
     } & {
@@ -156,17 +156,19 @@ export const SwapFormWithModal = (
   );
 };
 export const ConnectedForm = (props: ConnectedFormProps) => {
-  const { tokenList } = useTokenList({ fetchTokenList: props.fetchTokenList });
+  const { tokenList } = useTokenList({
+    fetchTokenList: props.fetchTokenList,
+    chainId: props.chainId,
+  });
   const form = useSwapForm({
     ...props,
     tokens: tokenList,
   });
-  const swapFormProps = form.bindSwapForm();
+
   return (
     <SwapFormWithModal
       {...props}
-      tokens={tokenList}
-      swapFormProps={swapFormProps}
+      swapFormProps={form.bindSwapForm()}
       pairPriceDisplayProps={form.bindPriceDisplay()}
       formSubmitButtonProps={form.bindSubmitButton()}
       confirmModalProps={form.bindConfirmModal()}

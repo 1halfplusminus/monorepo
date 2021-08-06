@@ -9,8 +9,10 @@ import {
   UseTokenValueProps,
 } from '../hooks/useTokenValue';
 import { none, some } from 'fp-ts/Option';
-import { ETH } from '../__mocks__/tokens';
+import { DAI, ETH } from '../__mocks__/tokens';
 import { surface } from '../core/classes';
+import { useSelectToken } from '../hooks/tokenList';
+import { selected } from '../token-select/token-select.stories';
 
 export default {
   component: SwapInput,
@@ -82,12 +84,19 @@ export const WithState: Story<SwapInputProps & UseTokenValueProps> = (
   const { lookup, modifyAt } = useTokenValues({
     valueByToken: props.valueByToken,
   });
+  const selectToken = useSelectToken({
+    tokens: props.tokens,
+    selected: some([props.selected]),
+  });
   return (
     <Wrapper>
       <SwapInput
         {...props}
-        value={getOrElse(lookup(props.selected))}
+        value={getOrElse(lookup(selectToken.first))}
         onValueChange={modifyAt}
+        onSelected={(token) => selectToken.selectAtIndex(token, 0)}
+        selected={selectToken.first}
+        isSelected={(t) => selectToken.isSelected(t)}
       />
     </Wrapper>
   );
@@ -95,7 +104,8 @@ export const WithState: Story<SwapInputProps & UseTokenValueProps> = (
 
 WithState.args = {
   sold: none,
-  selected: some(ETH),
+  selected: none,
   valueByToken: some(new Map().set(ETH, 100)),
   fiatPrice: some('1000'),
+  tokens: some([some(ETH), some(DAI)]),
 };

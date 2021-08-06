@@ -156,7 +156,6 @@ export const useSwapForm = ({
   const { inversed, inverse: inversePriceDisplay } = useInversable({
     inversed: false,
   });
-
   const confirmSwapModal = useModal();
   const waitingForConfirmSwapModal = useModal();
   const cancelSwapModal = useModal();

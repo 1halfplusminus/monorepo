@@ -151,7 +151,6 @@ export interface UseUniswapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
   provider: Option<Provider>;
-  chainId: Option<number>;
   feeAmount?: Option<FeeAmount>;
 }
 
@@ -159,7 +158,6 @@ export const useUniswap = ({
   tokenA,
   tokenB,
   provider,
-  chainId,
   feeAmount = O.some(FeeAmount.LOW),
 }: UseUniswapProps) => {
   const [pool, setPool] = useState<Option<Pool>>(O.none);
@@ -181,15 +179,20 @@ export const useUniswap = ({
   );
   useEffect(() => {
     pipe(
-      sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap, feeAmount),
+      sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap),
       TE.fromOption(() => 'Invalid props'),
       TE.map((args) =>
-        TE.tryCatch(
-          () => createPool(...args),
-          (e) => {
-            console.log(e);
-            return e;
-          }
+        pipe(
+          TE.tryCatch(
+            () =>
+              createPool(...args, FeeAmount.LOW)
+                .catch(() => createPool(...args, FeeAmount.MEDIUM))
+                .catch(() => createPool(...args, FeeAmount.HIGH)),
+            (e) => {
+              console.log(e);
+              return e;
+            }
+          )
         )
       ),
       TE.flatten,
@@ -199,8 +202,7 @@ export const useUniswap = ({
   const getTokenPrice = useCallback(
     (token: Option<Token> | Token) =>
       pipe(
-        O.some(token),
-        O.flatten,
+        '_tag' in token ? token : O.some(token),
         (t) => sequenceT(O.Apply)(tokenAUniswap, tokenBUniswap, pool, t),
         O.chain(([tokenAUniswap, tokenBUniswap, pool, token]) =>
           pipe(
@@ -213,25 +215,14 @@ export const useUniswap = ({
           )
         )
       ),
-    [pool]
+    [pool, tokenAUniswap, tokenBUniswap]
   );
-  const tokenList = useCallback(
-    () =>
-      pipe(
-        chainId,
-        O.fold(
-          () => async () => O.some([]),
-          (chainId) => () => getUniswapDefaultTokenList(chainId)
-        )
-      )(),
-    [chainId]
-  );
+
   return {
     pool,
     tokenAUniswap,
     tokenBUniswap,
     poolContract,
     getTokenPrice,
-    tokenList,
   };
 };

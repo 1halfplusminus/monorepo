@@ -57,5 +57,6 @@ describe('Token selection', () => {
     expect(selectAtIndex(some([some(ETH), some(DAI)]))(ETH, 1)).toStrictEqual(
       some([some(DAI), some(ETH)])
     );
+    expect(selectAtIndex(none)(ETH, 0)).toStrictEqual(some([some(ETH), none]));
   });
 });

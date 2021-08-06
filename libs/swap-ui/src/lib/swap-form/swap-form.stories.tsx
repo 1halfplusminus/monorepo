@@ -3,17 +3,16 @@ import { SwapForm, SwapFormProps } from './swap-form';
 import { Meta, Story } from '@storybook/react';
 import { none, some } from 'fp-ts/lib/Option';
 import { DAI, ETH, USDC } from '../__mocks__/tokens';
-import {
-  fetchOptionTokenBalance,
-  useWallets,
-  Web3WalletProvider,
-} from '../hooks/useWallet';
+import { useWallets, Web3WalletProvider } from '../hooks/useWallet';
 import {
   ConnectedForm,
   ConnectedFormProps,
   SwapFormWithModal,
 } from './swap-form-connected';
-import { useUniswap } from '@halfoneplusminus/redcross-swap-contract';
+import {
+  useUniswap,
+  getUniswapDefaultTokenList,
+} from '@halfoneplusminus/redcross-swap-contract';
 
 import { useTokenList } from '../hooks/useTokenList';
 import { useSwapForm } from '../hooks/useSwapForm';
@@ -93,6 +92,7 @@ Swap.argTypes = {
   swap: { action: 'clicked' },
 };
 Swap.args = {
+  chainId: some(1),
   fetchTokenList: async () => tokens,
   commonBases,
   selected: some([some(ETH), some(DAI)]),
@@ -128,32 +128,32 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     isConnected,
     connect,
     account,
-    chaindId,
+    chainId,
   } = useWallets();
-  const { getTokenPrice, tokenList: fetchTokenList } = useUniswap({
-    tokenA: swapFormProps.inputA.selected,
-    tokenB: swapFormProps.inputB.selected,
-    provider: library,
-    chainId: chaindId,
+
+  const { tokenList } = useTokenList({
+    fetchTokenList: getUniswapDefaultTokenList,
+    chainId,
   });
-  const { tokenList } = useTokenList({ fetchTokenList: fetchTokenList });
 
   const form = useSwapForm({
     ...props,
     tokens: tokenList,
   });
   const swapFormProps = form.bindSwapForm();
+  const { getTokenPrice } = useUniswap({
+    tokenA: swapFormProps.inputA.selected,
+    tokenB: swapFormProps.inputB.selected,
+    provider: library,
+  });
   return (
     <SwapFormWithModal
       {...props}
       account={account}
       connectButton={{ isConnected, connect }}
       connected={connected}
-      fetchBalance={fetchOptionTokenBalance(library)}
-      fetchTokenList={fetchTokenList}
-      fetchRate={async (tokenA) => getTokenPrice(tokenA)}
-      tokens={tokenList}
-      swapFormProps={swapFormProps}
+      chainId={chainId}
+      swapFormProps={form.bindSwapForm()}
       pairPriceDisplayProps={form.bindPriceDisplay()}
       formSubmitButtonProps={form.bindSubmitButton()}
       confirmModalProps={form.bindConfirmModal()}
@@ -165,6 +165,7 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
       swapButtonProps={form.bindSwapButton()}
       submittedModal={form.bindConfirmedSwapModal()}
       submittedSwap={form.bindTransactionConfirmed()}
+      fetchTokenList={async () => tokenList}
     />
   );
 };
@@ -177,6 +178,6 @@ export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
 };
 
 WithEtherProviders.args = {
-  commonBases,
+  commonBases: some([]),
   selected: some([none, none]),
 };
