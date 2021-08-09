@@ -21,12 +21,11 @@ import {
 } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
 import type { Option } from 'fp-ts/Option';
-import { getUniswapDefaultTokenList, Token } from '.';
+import { Token } from '.';
 import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { CurrencyAmount } from '@uniswap/sdk-core';
 
 interface Immutables {
   factory: Address;
@@ -54,11 +53,12 @@ export const createPoolContract = (provider: Provider) => (
 export const createPoolContractFromToken = (provider: Provider) => (
   tokenA: UToken,
   tokenB: UToken,
-  feeAmount: FeeAmount
+  feeAmount: FeeAmount,
+  factoryAddress: Address = FACTORY_ADDRESS
 ) =>
   pipe(
     computePoolAddress({
-      factoryAddress: FACTORY_ADDRESS,
+      factoryAddress: factoryAddress,
       fee: feeAmount,
       tokenA: tokenA,
       tokenB: tokenB,
@@ -67,7 +67,12 @@ export const createPoolContractFromToken = (provider: Provider) => (
   );
 export const createPoolContractFromOptionToken = (
   provider: Option<Provider>
-) => (tokenA: Option<UToken>, tokenB: Option<UToken>, feeAmount: FeeAmount) =>
+) => (
+  tokenA: Option<UToken>,
+  tokenB: Option<UToken>,
+  feeAmount: FeeAmount,
+  factoryAddress: Address = FACTORY_ADDRESS
+) =>
   pipe(
     provider,
     O.map((provider) =>
@@ -77,7 +82,12 @@ export const createPoolContractFromOptionToken = (
           pipe(
             tokenB,
             O.map((tokenB) =>
-              createPoolContractFromToken(provider)(tokenA, tokenB, feeAmount)
+              createPoolContractFromToken(provider)(
+                tokenA,
+                tokenB,
+                feeAmount,
+                factoryAddress
+              )
             )
           )
         )
@@ -154,13 +164,11 @@ export interface UseUniswapProps {
   feeAmount?: Option<FeeAmount>;
 }
 
-export const useUniswap = ({
-  tokenA,
-  tokenB,
-  provider,
-  feeAmount = O.some(FeeAmount.LOW),
-}: UseUniswapProps) => {
+export const useUniswap = ({ tokenA, tokenB, provider }: UseUniswapProps) => {
   const [pool, setPool] = useState<Option<Pool>>(O.none);
+  const [poolImmutables, setPoolImmutables] = useState<Option<Immutables>>(
+    O.none
+  );
   const tokenAUniswap = useMemo(() => createUniswapTokenFromOption(tokenA), [
     tokenA,
   ]);
@@ -170,24 +178,50 @@ export const useUniswap = ({
   const poolContract = useMemo(
     () =>
       pipe(
-        sequenceT(O.Apply)(provider, tokenAUniswap, tokenBUniswap, feeAmount),
+        sequenceT(O.Apply)(
+          provider,
+          tokenAUniswap,
+          tokenBUniswap,
+          O.some(FeeAmount.HIGH)
+        ),
         O.map(([provider, ...args]) =>
           createPoolContractFromToken(provider)(...args)
         )
       ),
-    [tokenAUniswap, tokenBUniswap, provider, feeAmount]
+    [tokenAUniswap, tokenBUniswap, provider]
   );
   useEffect(() => {
     pipe(
-      sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap),
+      poolContract,
+      O.map((poolContract) =>
+        pipe(TO.tryCatch(() => getPoolImmutables(poolContract)))
+      ),
+      TO.fromOption,
+      TO.flatten,
+      TO.map((r) => setPoolImmutables(O.some(r)))
+    )();
+  }, [poolContract]);
+  useEffect(() => {
+    pipe(
+      poolContract,
+      O.map((poolContract) => getPoolImmutables(poolContract))
+    );
+  }, [poolContract]);
+  console.log(poolImmutables);
+  useEffect(() => {
+    pipe(
+      sequenceT(O.Apply)(poolImmutables, poolContract),
       TE.fromOption(() => 'Invalid props'),
-      TE.map((args) =>
+      TE.map(([immutable, poolContract]) =>
         pipe(
           TE.tryCatch(
             () =>
-              createPool(...args, FeeAmount.LOW)
-                .catch(() => createPool(...args, FeeAmount.MEDIUM))
-                .catch(() => createPool(...args, FeeAmount.HIGH)),
+              createPool(
+                poolContract,
+                new UToken(1, immutable.token0, 6, 'USDC', 'USD Coin'),
+                new UToken(1, immutable.token1, 18, 'WETH', 'USD Coin'),
+                immutable.fee
+              ),
             (e) => {
               console.log(e);
               return e;
@@ -198,7 +232,7 @@ export const useUniswap = ({
       TE.flatten,
       TE.map((p) => setPool(O.some(p)))
     )();
-  }, [poolContract, tokenAUniswap, tokenBUniswap, feeAmount]);
+  }, [poolImmutables, poolContract, tokenAUniswap, tokenBUniswap]);
   const getTokenPrice = useCallback(
     (token: Option<Token> | Token) =>
       pipe(
@@ -213,8 +247,9 @@ export const useUniswap = ({
               : O.none,
             O.map((t) => pool.priceOf(t).toFixed())
           )
-        )
-      ),
+        ),
+        TO.fromOption
+      )(),
     [pool, tokenAUniswap, tokenBUniswap]
   );
 
@@ -224,5 +259,6 @@ export const useUniswap = ({
     tokenBUniswap,
     poolContract,
     getTokenPrice,
+    poolImmutables,
   };
 };

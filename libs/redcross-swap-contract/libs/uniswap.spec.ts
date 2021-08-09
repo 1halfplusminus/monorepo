@@ -5,7 +5,7 @@ import {
   UseUniswapProps,
 } from './uniswap';
 import { pipe } from 'fp-ts/function';
-import { filterByChainId } from './index';
+import { filterByChainId, getPoolImmutables } from './index';
 import {
   array as A,
   record as R,
@@ -36,7 +36,7 @@ const getMockTokens = () =>
 describe('Uniswap Lib', () => {
   it('it should fetch price correctly', async () => {
     const tokens = getMockTokens();
-    const eth = tokens['WETH'];
+    const eth = tokens['AAVE'];
     const dai = tokens['DAI'];
 
     const provider = new ethers.providers.JsonRpcProvider(
@@ -45,9 +45,9 @@ describe('Uniswap Lib', () => {
     const tokenA = createUniswapToken(eth);
     const tokenB = createUniswapToken(dai);
     const poolContact = createPoolContractFromToken(provider)(
-      tokenA,
       tokenB,
-      FeeAmount.LOW
+      tokenA,
+      FeeAmount.MEDIUM
     );
     const pool = await createPool(poolContact, tokenA, tokenB, FeeAmount.LOW);
     console.log(pool.priceOf(tokenB).toFixed());
@@ -57,11 +57,11 @@ describe('Uniswap Lib', () => {
 
 describe('Use uniswap hook', () => {
   const tokens = getMockTokens();
-  const eth = tokens['WETH'];
-  const dai = tokens['DAI'];
+  const tokenA = tokens['DAI'];
+  const tokenB = tokens['AAVE'];
   const props = {
-    tokenA: O.some(eth),
-    tokenB: O.some(dai),
+    tokenA: O.some(tokenA),
+    tokenB: O.some(tokenB),
     feeAmount: O.some(FeeAmount.LOW),
     provider: O.some(
       new ethers.providers.JsonRpcProvider(
@@ -74,6 +74,10 @@ describe('Use uniswap hook', () => {
     const { result, waitForValueToChange } = renderHook(() =>
       useUniswap(props)
     );
+
+    await waitForValueToChange(() => result.current.poolImmutables, {
+      timeout: 10000,
+    });
     await waitForValueToChange(() => result.current.pool, { timeout: 10000 });
     act(() => {
       pipe(
@@ -82,9 +86,9 @@ describe('Use uniswap hook', () => {
           result.current.tokenAUniswap,
           result.current.tokenBUniswap
         ),
-        O.map(([pool, tokenA, tokenB]) => {
-          console.log(result.current.getTokenPrice(eth));
-          console.log(result.current.getTokenPrice(dai));
+        O.map(([pool]) => {
+          console.log(result.current.getTokenPrice(tokenA));
+          console.log(result.current.getTokenPrice(tokenB));
           done();
           return;
         }),

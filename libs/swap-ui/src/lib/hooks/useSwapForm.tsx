@@ -1,7 +1,14 @@
 import { task, taskOption as TO, option as O, either as E } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import { Token } from '../types';
-import { TokenList, useSearch, useSelectToken } from './tokenList';
+import {
+  TokenList,
+  UseSearch,
+  useSearch,
+  useSelectToken,
+  UseToken,
+  UseTokenProps,
+} from './tokenList';
 import { MapTokenValue, useTokenValues, getOrElse } from './useTokenValue';
 import { some } from 'fp-ts/Option';
 import { useEffect, useCallback } from 'react';
@@ -20,7 +27,7 @@ import {
 } from './useFetchSwapInformation';
 import { calculeAmountOption, inverseRate } from '../core/rate';
 
-export interface UseSwapFormProps {
+export type UseSwapFormProps = {
   fetchBalance: (
     token: Option<Token>,
     account: Option<string>
@@ -45,7 +52,8 @@ export interface UseSwapFormProps {
     tokenB: Token
   ) => Promise<Omit<SwapInformation, 'slippageTolerance'>>;
   swapping?: boolean;
-}
+} & UseToken &
+  Pick<UseSearch, 'search'>;
 interface UseSwapProps {
   swapping: boolean;
   tokenA: Option<Token>;
@@ -115,8 +123,6 @@ const useSwap = ({
   return { isSwapping, setIsSwapping, bindSwapButton };
 };
 export const useSwapForm = ({
-  tokens,
-  selected,
   commonBases,
   amounts = some(new Map()),
   balances: defaultBalances = some(new Map()),
@@ -127,14 +133,15 @@ export const useSwapForm = ({
   fetchSwapInformation = task.never,
   slippageTolerance,
   swapping = false,
+  isSelected,
+  first,
+  last,
+  selectAtIndex,
+  inverse,
+  search,
+  tokens: filteredTokenList,
 }: UseSwapFormProps) => {
   const [pristine, setPristine] = useState(true);
-  const { filteredTokenList, search } = useSearch(tokens);
-  const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
-    commonlyUsed: commonBases,
-    tokens: filteredTokenList,
-    selected: selected,
-  });
   const { lookup, modifyAts } = useTokenValues({
     valueByToken: amounts,
   });

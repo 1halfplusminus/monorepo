@@ -21,12 +21,12 @@ import { selected } from '../token-select/token-select.stories';
 
 export declare type TokenList = Option<Array<Option<Token>>>;
 declare type Index = 0 | 1;
-declare type UseTokenProps = {
+export declare type UseTokenProps = {
   commonlyUsed?: TokenList;
   tokens: TokenList;
   selected?: TokenList;
 };
-declare type UseToken = {
+export declare type UseToken = {
   selected: TokenList;
   isSelected: (token: Token) => boolean;
   select: (token: Token) => void;
@@ -313,3 +313,5 @@ export const useSearch = (
     search,
   };
 };
+
+export type UseSearch = ReturnType<typeof useSearch>;

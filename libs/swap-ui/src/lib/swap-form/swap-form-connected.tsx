@@ -39,6 +39,7 @@ import { PairPriceDisplayProps } from './pair-price-display';
 import type { ButtonProps } from 'antd/lib/button';
 import { ConfirmSwapProps } from '../confirm-swap/confirm-swap';
 import type { ModalProps } from 'antd/lib/modal';
+import { useSearch, useSelectToken } from '../hooks/tokenList';
 
 const Row = styled.div`
   ${tw`flex-row inline-flex justify-end gap-2`}
@@ -58,32 +59,36 @@ export type ConnectedFormProps = Omit<SwapFormProps, 'tokens'> &
   > & { provider: Option<string> } & { chainId: Option<number> };
 
 export const SwapFormWithModal = (
-  props: ConnectedFormProps &
-    Omit<UseSwapFormProps, 'tokens'> &
-    UseTokenList & { pairPriceDisplayProps: PairPriceDisplayProps } & {
-      swapFormProps: SwapFormProps;
-    } & {
-      swapInformationProps: SwapInformationProps;
-    } & {
-      formSubmitButtonProps: Omit<
-        FormSubmitButtonProps,
-        'loading' | 'tokens' | 'connected'
-      >;
-    } & {
-      swapButtonProps: ButtonProps;
-    } & { confirmModalProps: ModalProps } & {
-      confirmSwapProps: Omit<ConfirmSwapProps, 'slippageTolerance'>;
-    } & { waitingForConfirmationModalProps: ModalProps } & {
-      waitingForConfirmationProps: WaitingForConfirmationSwapProps;
-    } & { rejectedModalProps: ModalProps } & { submittedModal: ModalProps } & {
-      submittedSwap: Omit<
-        TransactionSubmittedProps,
-        'provider' | 'onClickExplorer'
-      >;
-    }
+  props: ConnectedFormProps & {
+    pairPriceDisplayProps: PairPriceDisplayProps;
+  } & {
+    swapFormProps: SwapFormProps;
+  } & {
+    swapInformationProps: SwapInformationProps;
+  } & {
+    formSubmitButtonProps: Omit<
+      FormSubmitButtonProps,
+      'loading' | 'tokens' | 'connected'
+    >;
+  } & {
+    swapButtonProps: ButtonProps;
+  } & { confirmModalProps: ModalProps } & {
+    confirmSwapProps: Omit<ConfirmSwapProps, 'slippageTolerance'>;
+  } & { waitingForConfirmationModalProps: ModalProps } & {
+    waitingForConfirmationProps: WaitingForConfirmationSwapProps;
+  } & { rejectedModalProps: ModalProps } & { submittedModal: ModalProps } & {
+    submittedSwap: Omit<
+      TransactionSubmittedProps,
+      'provider' | 'onClickExplorer'
+    >;
+  }
 ) => {
   return (
-    <SwapForm {...props} {...props.swapFormProps}>
+    <SwapForm
+      {...props}
+      {...props.swapFormProps}
+      tokens={props.swapFormProps.tokens}
+    >
       <Row>
         <PairPriceDisplay {...props.pairPriceDisplayProps} />
         <Maybe option={props.swapFormProps.inputA.selected}>
@@ -160,9 +165,21 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
     fetchTokenList: props.fetchTokenList,
     chainId: props.chainId,
   });
+  const { filteredTokenList, search } = useSearch(tokenList);
+  const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
+    commonlyUsed: props.commonBases,
+    tokens: filteredTokenList,
+    selected: props.selected,
+  });
   const form = useSwapForm({
     ...props,
     tokens: tokenList,
+    search,
+    isSelected,
+    first,
+    last,
+    selectAtIndex,
+    inverse,
   });
 
   return (

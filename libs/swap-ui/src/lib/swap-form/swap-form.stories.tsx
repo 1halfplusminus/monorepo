@@ -16,6 +16,7 @@ import {
 
 import { useTokenList } from '../hooks/useTokenList';
 import { useSwapForm } from '../hooks/useSwapForm';
+import { useSearch, useSelectToken } from '../hooks/tokenList';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
@@ -135,17 +136,29 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     fetchTokenList: getUniswapDefaultTokenList,
     chainId,
   });
-
-  const form = useSwapForm({
-    ...props,
-    tokens: tokenList,
+  const { filteredTokenList, search } = useSearch(tokenList);
+  const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
+    commonlyUsed: props.commonBases,
+    tokens: filteredTokenList,
+    selected: props.selected,
   });
-  const swapFormProps = form.bindSwapForm();
   const { getTokenPrice } = useUniswap({
-    tokenA: swapFormProps.inputA.selected,
-    tokenB: swapFormProps.inputB.selected,
+    tokenA: first,
+    tokenB: last,
     provider: library,
   });
+  const form = useSwapForm({
+    ...props,
+    tokens: filteredTokenList,
+    first,
+    last,
+    selectAtIndex,
+    inverse,
+    isSelected,
+    search,
+    fetchRate: getTokenPrice,
+  });
+
   return (
     <SwapFormWithModal
       {...props}
@@ -165,7 +178,6 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
       swapButtonProps={form.bindSwapButton()}
       submittedModal={form.bindConfirmedSwapModal()}
       submittedSwap={form.bindTransactionConfirmed()}
-      fetchTokenList={async () => tokenList}
     />
   );
 };
@@ -180,4 +192,5 @@ export const WithEtherProviders: Story<ConnectedFormProps> = (props) => {
 WithEtherProviders.args = {
   commonBases: some([]),
   selected: some([none, none]),
+  fetchTokenList: async () => some([some(ETH), some(DAI)]),
 };
