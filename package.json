@@ -28,6 +28,7 @@
   },
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.4.7",
     "@openzeppelin/test-environment": "^0.1.9",
     "@react-three/fiber": "^7.0.5",
     "@storybook/addon-actions": "^6.2.9",
@@ -39,6 +40,7 @@
     "document-register-element": "1.13.1",
     "fp-ts": "^2.10.5",
     "gltfjsx": "^4.2.3",
+    "graphql": "^15.5.1",
     "lodash": "^4.17.21",
     "next": "10.2.0",
     "random-js": "^2.1.0",

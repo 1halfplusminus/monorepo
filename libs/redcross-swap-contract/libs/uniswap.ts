@@ -207,7 +207,6 @@ export const useUniswap = ({ tokenA, tokenB, provider }: UseUniswapProps) => {
       O.map((poolContract) => getPoolImmutables(poolContract))
     );
   }, [poolContract]);
-  console.log(poolImmutables);
   useEffect(() => {
     pipe(
       sequenceT(O.Apply)(poolImmutables, poolContract),
