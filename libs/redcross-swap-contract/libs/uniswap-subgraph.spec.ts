@@ -1,7 +1,7 @@
 import { groupBySymbol, selectPool, selectPools } from './uniswap-subgraph';
-import { QUERY_POOLS_RESULT } from './__mocks__/tokens';
 import { pipe } from 'fp-ts/function';
 import { array as A, option as O } from 'fp-ts';
+import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 
 describe('Uniswap subgrap', () => {
   it('should group pool correctly', () => {

@@ -12,10 +12,11 @@ import {
 import type { Option } from 'fp-ts/Option';
 import type { Task } from 'fp-ts/Task';
 import { Provider, useEffect, useState } from 'react';
-import { QUERY_POOLS_RESULT } from './__mocks__/tokens';
+
 import { sequenceT } from 'fp-ts/Apply';
 import { createPoolContract } from './uniswap';
 import TokenList from '../../swap-ui/src/lib/token-list/token-list';
+import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 export const QUERY_POOLS = gql`
   query Pools {
     pools(first: 1) {
@@ -72,7 +73,9 @@ const queryPools = (apolloClient: ApolloClient<unknown>) =>
       }),
     T.map((r) => selectPools(r))
   );
+
 const defaultFetchPool = async () => pipe(QUERY_POOLS_RESULT, selectPools);
+
 export const usePools = ({
   chainId,
   fetchPools = defaultFetchPool,
