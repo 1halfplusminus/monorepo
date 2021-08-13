@@ -26,6 +26,7 @@ import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
+import { usePool, usePools } from './uniswap-subgraph';
 
 interface Immutables {
   factory: Address;
@@ -161,10 +162,15 @@ export interface UseUniswapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
   provider: Option<Provider>;
-  feeAmount?: Option<FeeAmount>;
+  chainId: Option<number>;
 }
 
-export const useUniswap = ({ tokenA, tokenB, provider }: UseUniswapProps) => {
+export const useUniswap = ({
+  tokenA,
+  tokenB,
+  provider,
+  chainId,
+}: UseUniswapProps) => {
   const [pool, setPool] = useState<Option<Pool>>(O.none);
   const [poolImmutables, setPoolImmutables] = useState<Option<Immutables>>(
     O.none
@@ -175,20 +181,17 @@ export const useUniswap = ({ tokenA, tokenB, provider }: UseUniswapProps) => {
   const tokenBUniswap = useMemo(() => createUniswapTokenFromOption(tokenB), [
     tokenB,
   ]);
+  const { pools } = usePools({ chainId });
+  const { pool: poolInfo } = usePool({ tokenA, tokenB, pools });
   const poolContract = useMemo(
     () =>
       pipe(
-        sequenceT(O.Apply)(
-          provider,
-          tokenAUniswap,
-          tokenBUniswap,
-          O.some(FeeAmount.HIGH)
-        ),
-        O.map(([provider, ...args]) =>
-          createPoolContractFromToken(provider)(...args)
+        sequenceT(O.Apply)(provider, poolInfo),
+        O.map(([provider, poolInfo]) =>
+          createPoolContract(provider)(poolInfo.id)
         )
       ),
-    [tokenAUniswap, tokenBUniswap, provider]
+    [poolAddress, provider]
   );
   useEffect(() => {
     pipe(

@@ -1,18 +1,8 @@
 import { groupBySymbol, selectPool, selectPools } from './uniswap-subgraph';
 import { QUERY_POOLS_RESULT } from './__mocks__/tokens';
 import { pipe } from 'fp-ts/function';
-import {
-  array as A,
-  record as R,
-  nonEmptyArray as NEA,
-  option as O,
-  semigroup as SG,
-} from 'fp-ts';
-import {
-  Pools_pools,
-  Pools_pools_token0,
-  Pools_pools_token1,
-} from './__generated__/Pools';
+import { array as A, option as O } from 'fp-ts';
+
 describe('Uniswap subgrap', () => {
   it('should group pool correctly', () => {
     const result = pipe(QUERY_POOLS_RESULT, selectPools, groupBySymbol);

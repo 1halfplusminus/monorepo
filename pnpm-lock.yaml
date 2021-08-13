@@ -8270,7 +8270,7 @@ packages:
     resolution: {integrity: sha512-LOmVnY1iTU2D8tv4Xf6MVMZZ+juIJ87Kt/plMijjN20NMAXGmH4u8bS1t0uT74cZ5gwpocYueV58YwyI8y+GKw==}
     engines: {node: '>=8'}
     dependencies:
-      tslib: 2.3.0
+      tslib: 2.3.1
     dev: false
 
   /@wry/equality/0.1.11:
@@ -8289,7 +8289,7 @@ packages:
     resolution: {integrity: sha512-oVMxbUXL48EV/C0/M7gLVsoK6qRHPS85x8zECofEZOVvxGmIPLA9o5Z27cc2PoAyZz1S2VoM2A7FLAnpfGlneA==}
     engines: {node: '>=8'}
     dependencies:
-      tslib: 2.3.0
+      tslib: 2.3.1
     dev: false
 
   /@wry/trie/0.3.0:
@@ -16334,7 +16334,7 @@ packages:
       graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     dependencies:
       graphql: 15.5.1
-      tslib: 2.3.0
+      tslib: 2.3.1
     dev: false
 
   /graphql-upload/12.0.0_graphql@15.5.0:
@@ -28657,7 +28657,7 @@ packages:
     resolution: {integrity: sha512-hSeYibh29ULlHkuEfukcoiyTct+s2RzczMLTv4x3NWC/YrBy7x7ps5eYq/b4Y3Sb9/uAlf54+/5CAEMVxPhuQw==}
     engines: {node: '>=8'}
     dependencies:
-      tslib: 2.3.0
+      tslib: 2.3.1
     dev: false
 
   /ts-jest/26.5.5_jest@26.2.2+typescript@4.3.2:
@@ -28767,6 +28767,10 @@ packages:
 
   /tslib/2.3.0:
     resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+
+  /tslib/2.3.1:
+    resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
+    dev: false
 
   /tsort/0.0.1:
     resolution: {integrity: sha1-4igPXoF/i/QnVlf9D5rr1E9aJ4Y=}

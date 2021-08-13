@@ -36,8 +36,8 @@ const getMockTokens = () =>
 describe('Uniswap Lib', () => {
   it('it should fetch price correctly', async () => {
     const tokens = getMockTokens();
-    const eth = tokens['AAVE'];
-    const dai = tokens['DAI'];
+    const eth = tokens['BUSD'];
+    const dai = tokens['WETH'];
 
     const provider = new ethers.providers.JsonRpcProvider(
       'https://eth-mainnet.alchemyapi.io/v2/ULYUeg7ZHZIpzzAsWhf7rS80BAnaclQn'
@@ -57,9 +57,10 @@ describe('Uniswap Lib', () => {
 
 describe('Use uniswap hook', () => {
   const tokens = getMockTokens();
-  const tokenA = tokens['DAI'];
-  const tokenB = tokens['AAVE'];
+  const tokenA = tokens['WETH'];
+  const tokenB = tokens['DOGGE'];
   const props = {
+    chainId: O.some(1),
     tokenA: O.some(tokenA),
     tokenB: O.some(tokenB),
     feeAmount: O.some(FeeAmount.LOW),
