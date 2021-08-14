@@ -1,5 +1,10 @@
-import { gql, QueryResult, ApolloClient, InMemoryCache } from '@apollo/client';
-import { Pools, Pools_pools } from './__generated__/Pools';
+import { gql, QueryResult, ApolloClient } from '@apollo/client';
+import {
+  Pools,
+  Pools_pools,
+  Pools_pools_token0,
+  Pools_pools_token1,
+} from './__generated__/Pools';
 import { pipe } from 'fp-ts/function';
 import { Token } from './index';
 import {
@@ -8,15 +13,14 @@ import {
   record as R,
   array as A,
   task as T,
+  eq as EQ,
 } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import type { Task } from 'fp-ts/Task';
-import { Provider, useEffect, useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import { sequenceT } from 'fp-ts/Apply';
-import { createPoolContract } from './uniswap';
-import TokenList from '../../swap-ui/src/lib/token-list/token-list';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
+
 export const QUERY_POOLS = gql`
   query Pools {
     pools(first: 1) {
@@ -74,11 +78,13 @@ const queryPools = (apolloClient: ApolloClient<unknown>) =>
     T.map((r) => selectPools(r))
   );
 
-const defaultFetchPool = async () => pipe(QUERY_POOLS_RESULT, selectPools);
+export const defaultPools = pipe(QUERY_POOLS_RESULT, selectPools);
+
+const defaultFetchPools = async () => defaultPools;
 
 export const usePools = ({
   chainId,
-  fetchPools = defaultFetchPool,
+  fetchPools = defaultFetchPools,
 }: UsePools) => {
   const [pools, setPools] = useState<Option<PoolsList>>(O.none);
   useEffect(() => {
@@ -108,6 +114,10 @@ export const usePool = ({ tokenA, tokenB, pools }: UsePool) => {
   }, [tokenA, tokenB, pools]);
   return { pool };
 };
+export const eqPoolTokenToken = (
+  a: Pools_pools_token0 | Pools_pools_token1,
+  b: Token
+) => a.id.toUpperCase() == b.address.toUpperCase();
 
 export const intersectTokenList = (tokenList: Option<Array<Option<Token>>>) => (
   pools: Pools_pools[]
@@ -124,7 +134,9 @@ export const intersectTokenList = (tokenList: Option<Array<Option<Token>>>) => (
               pipe(
                 pools,
                 A.findFirst(
-                  (p) => p.token0.id === t.address || p.token1.id === t.address
+                  (p) =>
+                    eqPoolTokenToken(p.token0, t) ||
+                    eqPoolTokenToken(p.token1, t)
                 ),
                 O.map(() => t)
               )
