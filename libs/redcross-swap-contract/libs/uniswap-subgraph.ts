@@ -23,7 +23,7 @@ import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 
 export const QUERY_POOLS = gql`
   query Pools {
-    pools(first: 1) {
+    pools(skip: 1000, first: 1000, orderBy: liquidity, orderDirection: desc) {
       id
       token0 {
         id
