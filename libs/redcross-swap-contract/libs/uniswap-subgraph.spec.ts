@@ -10,7 +10,6 @@ import { pipe } from 'fp-ts/function';
 import { array as A, option as O, record as R } from 'fp-ts';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 import { tokenList } from './__mocks__/index';
-import { ap } from 'fp-ts/Apply';
 import { usePools } from './uniswap-subgraph';
 import { renderHook } from '@testing-library/react-hooks';
 

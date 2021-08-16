@@ -12,6 +12,8 @@ import {
   option as O,
   nonEmptyArray as NEA,
   taskOption as TO,
+  function as F,
+  task as T,
 } from 'fp-ts';
 import { ethers } from 'ethers';
 import { FeeAmount } from '../test/shared/constants';
@@ -21,6 +23,7 @@ import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { CurrencyAmount } from '@uniswap/sdk-core';
+import { useFetchMore, UseFetchMore } from './uniswap-subgraph';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
@@ -70,7 +73,28 @@ describe('Use uniswap hook', () => {
       )
     ),
   } as UseUniswapProps;
-
+  it('should fetch more correctly', async () => {
+    const fetchMoreProps: UseFetchMore<void> = {
+      fetchMore: async () => F.constNull(),
+      first: 0,
+      skip: 0,
+    };
+    const { result, waitForValueToChange } = renderHook(() =>
+      useFetchMore(fetchMoreProps)
+    );
+    result.current.fetchMore(1000);
+    await waitForValueToChange(() => result.current.first);
+    expect(result.current.first).toEqual(1000);
+    expect(result.current.skip).toEqual(0);
+    result.current.fetchMore(500);
+    await waitForValueToChange(() => result.current.first);
+    expect(result.current.first).toEqual(500);
+    expect(result.current.skip).toEqual(1000);
+    result.current.fetchMore(500);
+    await waitForValueToChange(() => result.current.skip);
+    expect(result.current.first).toEqual(500);
+    expect(result.current.skip).toEqual(1500);
+  });
   it('should fetch price correctly', async (done) => {
     const { result, waitForValueToChange } = renderHook(() =>
       useUniswap(props)
@@ -94,24 +118,6 @@ describe('Use uniswap hook', () => {
           return;
         }),
         O.getOrElse(() => done('Error'))
-        /* TO.fromOption,
-        TO.flatten,
-        TO.map((r) => {
-          console.log(r[0].toFixed());
-
-          done();
-        }), */
-        /*   TO.getOrElse(() => async () => done('error')) */
-        /*   O.map(([pool, tokenA, tokenB]) => {
-          expect(pool).toBeTruthy();
-
-          return pool.priceOf(tokenB).toFixed();
-        }),
-        O.map((r) => {
-          expect(r).toBeTruthy();
-          done();
-        }),
-        O.getOrElse(() => done('Error')) */
       );
     });
   });

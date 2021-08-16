@@ -17,7 +17,7 @@ import {
 } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import type { Task } from 'fp-ts/Task';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { sequenceT } from 'fp-ts/Apply';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 
@@ -82,6 +82,30 @@ export const defaultPools = pipe(QUERY_POOLS_RESULT, selectPools);
 
 const defaultFetchPools = async () => defaultPools;
 
+export interface UseFetchMore<T> {
+  first: number;
+  skip?: number;
+  fetchMore: (skip: number, first: number) => Promise<T>;
+}
+export const useFetchMore = <T>({
+  skip: skipDefault = 0,
+  first: firstDefault,
+  fetchMore: fetchMoreCallback,
+}: UseFetchMore<T>) => {
+  const [{ first, skip }, setPagination] = useState({
+    skip: skipDefault,
+    first: firstDefault,
+  });
+  const fetchMore = useCallback(
+    (more: number) =>
+      pipe(
+        () => fetchMoreCallback(first, skip),
+        T.map(() => setPagination({ first: more, skip: skip + first }))
+      )(),
+    [first, skip, fetchMoreCallback]
+  );
+  return { fetchMore, first, skip };
+};
 export const usePools = ({
   chainId,
   fetchPools = defaultFetchPools,
