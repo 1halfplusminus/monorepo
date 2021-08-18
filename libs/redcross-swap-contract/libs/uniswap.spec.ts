@@ -23,7 +23,13 @@ import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { CurrencyAmount } from '@uniswap/sdk-core';
-import { useFetchMore, UseFetchMore } from './uniswap-subgraph';
+import { Pools_pools } from './__generated__/Pools';
+import {
+  defaultFetchPools,
+  useFetchMore,
+  UseFetchMore,
+  usePools,
+} from './uniswap-subgraph';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
@@ -62,7 +68,7 @@ describe('Use uniswap hook', () => {
   const tokens = getMockTokens();
   const tokenA = tokens['WETH'];
   const tokenB = tokens['DOGGE'];
-  const props = {
+  const useUniswapProps = {
     chainId: O.some(1),
     tokenA: O.some(tokenA),
     tokenB: O.some(tokenB),
@@ -74,30 +80,50 @@ describe('Use uniswap hook', () => {
     ),
   } as UseUniswapProps;
   it('should fetch more correctly', async () => {
-    const fetchMoreProps: UseFetchMore<void> = {
-      fetchMore: async () => F.constNull(),
+    const fetchMoreProps: UseFetchMore<Pools_pools[]> = {
+      fetchMore: defaultFetchPools,
       first: 0,
       skip: 0,
     };
     const { result, waitForValueToChange } = renderHook(() =>
       useFetchMore(fetchMoreProps)
     );
-    result.current.fetchMore(1000);
-    await waitForValueToChange(() => result.current.first);
-    expect(result.current.first).toEqual(1000);
-    expect(result.current.skip).toEqual(0);
-    result.current.fetchMore(500);
-    await waitForValueToChange(() => result.current.first);
-    expect(result.current.first).toEqual(500);
-    expect(result.current.skip).toEqual(1000);
-    result.current.fetchMore(500);
-    await waitForValueToChange(() => result.current.skip);
-    expect(result.current.first).toEqual(500);
-    expect(result.current.skip).toEqual(1500);
+    await act(async () => {
+      let fetchResult = await result.current.fetchMore(1000);
+      expect(fetchResult.length == 1000).toBe(true);
+      expect(result.current.first).toEqual(1000);
+      expect(result.current.skip).toEqual(0);
+      fetchResult = await result.current.fetchMore(500);
+
+      expect(result.current.first).toEqual(500);
+      expect(result.current.skip).toEqual(1000);
+
+      fetchResult = await result.current.fetchMore(500);
+
+      expect(fetchResult.length == 500).toBe(true);
+      expect(result.current.first).toEqual(500);
+      expect(result.current.skip).toEqual(1500);
+    });
   });
-  it('should fetch price correctly', async (done) => {
+  it('should use pools correctly', async () => {
+    /*   expect((await defaultFetchPools(0, 50)).length).toEqual(50);
+    expect((await defaultFetchPools(10, 40)).length).toEqual(40);
+    expect((await defaultFetchPools(1, 1))[0].id).toEqual(
+      '0x06bd1af522f43bc270203e96a019b4779195b870'
+    ); */
     const { result, waitForValueToChange } = renderHook(() =>
-      useUniswap(props)
+      usePools({ chainId: useUniswapProps.chainId, first: 0 })
+    );
+    await waitForValueToChange(() => result.current.pools);
+    const length = pipe(
+      result.current.pools,
+      O.map((r) => r)
+    );
+    console.log(length);
+  });
+  it('should use uniswap correctly', async (done) => {
+    const { result, waitForValueToChange } = renderHook(() =>
+      useUniswap(useUniswapProps)
     );
 
     await waitForValueToChange(() => result.current.poolImmutables, {

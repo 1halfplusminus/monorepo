@@ -14,6 +14,8 @@ import {
   array as A,
   task as T,
   eq as EQ,
+  function as F,
+  taskOption as TO,
 } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import type { Task } from 'fp-ts/Task';
@@ -22,8 +24,8 @@ import { sequenceT } from 'fp-ts/Apply';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 
 export const QUERY_POOLS = gql`
-  query Pools {
-    pools(skip: 1000, first: 1000, orderBy: liquidity, orderDirection: desc) {
+  query Pools($skip: Int, $fist: Int) {
+    pools(skip: $skip, first: $fist, orderBy: liquidity, orderDirection: desc) {
       id
       token0 {
         id
@@ -67,55 +69,120 @@ export const groupBySymbol = (pools: Pools_pools[]) =>
 
 export interface UsePools {
   chainId: Option<number>;
-  fetchPools?: Task<Pools_pools[]>;
+  fetchPools?: (skip: number, first: number) => Promise<Pools_pools[]>;
+  first?: number;
 }
-const queryPools = (apolloClient: ApolloClient<unknown>) =>
+const queryPools = (apolloClient: ApolloClient<unknown>) => (
+  skip: number,
+  first: number
+) =>
   pipe(
     () =>
       apolloClient.query<Pools>({
         query: QUERY_POOLS,
+        variables: { skip, first },
       }),
     T.map((r) => selectPools(r))
   );
 
 export const defaultPools = pipe(QUERY_POOLS_RESULT, selectPools);
 
-const defaultFetchPools = async () => defaultPools;
+export const defaultFetchPools = async (skip: number, first: number) =>
+  defaultPools.slice(skip, skip + first);
 
 export interface UseFetchMore<T> {
   first: number;
   skip?: number;
   fetchMore: (skip: number, first: number) => Promise<T>;
 }
-export const useFetchMore = <T>({
+export const useFetchMore = <T extends []>({
   skip: skipDefault = 0,
   first: firstDefault,
   fetchMore: fetchMoreCallback,
 }: UseFetchMore<T>) => {
-  const [{ first, skip }, setPagination] = useState({
+  const [{ first, skip, hasMore }, setPagination] = useState({
     skip: skipDefault,
     first: firstDefault,
+    hasMore: O.none as O.Some<boolean>,
   });
   const fetchMore = useCallback(
     (more: number) =>
       pipe(
-        () => fetchMoreCallback(first, skip),
-        T.map(() => setPagination({ first: more, skip: skip + first }))
+        () => fetchMoreCallback(skip, first + more),
+        T.map((r) =>
+          pipe(
+            setPagination({
+              first: more,
+              skip: skip + first,
+              hasMore: O.some(r.length > 0),
+            }),
+            F.flow(F.constant(r))
+          )
+        )
       )(),
     [first, skip, fetchMoreCallback]
   );
-  return { fetchMore, first, skip };
+  return { fetchMore, first, skip, hasMore };
 };
+const poolListToArray = F.flow(
+  (poolList: PoolsList) => poolList,
+  R.collect((k, v) => v),
+  A.flatten
+);
+const foldPools = (poolList: Option<PoolsList>) =>
+  pipe(
+    poolList,
+    O.fold(() => [] as Array<Pools_pools>, poolListToArray)
+  );
 export const usePools = ({
   chainId,
   fetchPools = defaultFetchPools,
+  first = 0,
 }: UsePools) => {
+  const { fetchMore } = useFetchMore({
+    first,
+    skip: 0,
+    fetchMore: fetchPools,
+  });
   const [pools, setPools] = useState<Option<PoolsList>>(O.none);
+  const fetchMoreAndSetPools = useCallback(
+    () =>
+      pipe(
+        F.constant(fetchMore(10)),
+        T.map((r) =>
+          pipe(
+            pools,
+            (pools) => pipe(console.log(r), F.constant(pools)),
+            foldPools,
+            (pools) => [...r],
+            groupBySymbol,
+            O.some,
+            setPools,
+            F.constant(r)
+          )
+        )
+      )(),
+    [fetchMore]
+  );
+  /* const fetchWhileExists = useCallback(
+    () =>
+      F.flow(
+        pipe(
+          TO.tryCatch(fetchMoreAndSetPools),
+          TO.chain((r) =>
+            pipe(
+              r,
+              O.fromPredicate((r) => r.length > 0),
+              O.map((r) => fetchWhileExists),
+              TO.fromOption
+            )
+          )
+        )
+      )(),
+    [fetchMore]
+  ); */
   useEffect(() => {
-    pipe(
-      fetchPools,
-      T.map((r) => pipe(r, groupBySymbol, O.some, setPools))
-    )();
+    pipe(fetchMoreAndSetPools)();
   }, [chainId]);
   return { pools };
 };
