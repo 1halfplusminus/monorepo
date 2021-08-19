@@ -18,6 +18,7 @@ import {
   taskOption as TO,
   taskEither as TE,
   either as E,
+  record as R,
 } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
 import type { Option } from 'fp-ts/Option';
@@ -26,7 +27,7 @@ import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { usePool, usePools } from './uniswap-subgraph';
+import { usePool, usePools, createPoolIndex } from './uniswap-subgraph';
 
 interface Immutables {
   factory: Address;
@@ -186,12 +187,17 @@ export const useUniswap = ({
   const poolContract = useMemo(
     () =>
       pipe(
-        sequenceT(O.Apply)(provider, poolInfo),
-        O.map(([provider, poolInfo]) =>
-          createPoolContract(provider)(poolInfo.id)
+        sequenceT(O.Apply)(provider, pools, tokenA, tokenB),
+        O.chain(([provider, pools, tokenA, tokenB]) =>
+          pipe(
+            pools,
+            R.lookup(createPoolIndex(tokenA.symbol, tokenB.symbol)),
+            O.ap,
+            A.head
+          )
         )
       ),
-    [poolAddress, provider]
+    [pools]
   );
   useEffect(() => {
     pipe(
@@ -225,7 +231,6 @@ export const useUniswap = ({
                 immutable.fee
               ),
             (e) => {
-              console.log(e);
               return e;
             }
           )

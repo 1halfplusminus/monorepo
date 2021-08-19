@@ -19,7 +19,7 @@ import {
 } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
 import type { Task } from 'fp-ts/Task';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { sequenceT } from 'fp-ts/Apply';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 
@@ -71,6 +71,7 @@ export interface UsePools {
   chainId: Option<number>;
   fetchPools?: (skip: number, first: number) => Promise<Pools_pools[]>;
   first?: number;
+  more?: number;
 }
 const queryPools = (apolloClient: ApolloClient<unknown>) => (
   skip: number,
@@ -93,9 +94,9 @@ export const defaultFetchPools = async (skip: number, first: number) =>
 export interface UseFetchMore<T> {
   first: number;
   skip?: number;
-  fetchMore: (skip: number, first: number) => Promise<T>;
+  fetchMore: (skip: number, first: number) => Promise<Array<T>>;
 }
-export const useFetchMore = <T extends []>({
+export const useFetchMore = <T>({
   skip: skipDefault = 0,
   first: firstDefault,
   fetchMore: fetchMoreCallback,
@@ -103,7 +104,7 @@ export const useFetchMore = <T extends []>({
   const [{ first, skip, hasMore }, setPagination] = useState({
     skip: skipDefault,
     first: firstDefault,
-    hasMore: O.none as O.Some<boolean>,
+    hasMore: O.none as O.Option<boolean>,
   });
   const fetchMore = useCallback(
     (more: number) =>
@@ -122,7 +123,20 @@ export const useFetchMore = <T extends []>({
       )(),
     [first, skip, fetchMoreCallback]
   );
-  return { fetchMore, first, skip, hasMore };
+  const hasMoreMemo = useMemo(
+    () =>
+      pipe(
+        hasMore,
+        O.chain((hasMore) =>
+          pipe(
+            hasMore,
+            O.fromPredicate((r) => r)
+          )
+        )
+      ),
+    [hasMore]
+  );
+  return { fetchMore, first, skip, hasMore: hasMoreMemo };
 };
 const poolListToArray = F.flow(
   (poolList: PoolsList) => poolList,
@@ -138,8 +152,9 @@ export const usePools = ({
   chainId,
   fetchPools = defaultFetchPools,
   first = 0,
+  more = 1000,
 }: UsePools) => {
-  const { fetchMore } = useFetchMore({
+  const { fetchMore, hasMore } = useFetchMore({
     first,
     skip: 0,
     fetchMore: fetchPools,
@@ -148,13 +163,12 @@ export const usePools = ({
   const fetchMoreAndSetPools = useCallback(
     () =>
       pipe(
-        F.constant(fetchMore(10)),
+        F.constant(fetchMore(more)),
         T.map((r) =>
           pipe(
             pools,
-            (pools) => pipe(console.log(r), F.constant(pools)),
             foldPools,
-            (pools) => [...r],
+            (pools) => [...r, ...pools],
             groupBySymbol,
             O.some,
             setPools,
@@ -182,8 +196,15 @@ export const usePools = ({
     [fetchMore]
   ); */
   useEffect(() => {
-    pipe(fetchMoreAndSetPools)();
+    fetchMoreAndSetPools();
   }, [chainId]);
+  useEffect(() => {
+    pipe(
+      hasMore,
+      TO.fromOption,
+      TO.chain(() => TO.tryCatch(F.flow(fetchMoreAndSetPools)))
+    )();
+  }, [hasMore]);
   return { pools };
 };
 export interface UsePool {
