@@ -14,6 +14,7 @@ import {
 import { pipe, flow } from 'fp-ts/function';
 import { concatAll, Monoid } from 'fp-ts/Monoid';
 import { tokenList } from './__mocks__/index';
+import { useEffect, useRef } from 'react';
 
 export interface Token {
   symbol: string;
@@ -144,3 +145,14 @@ export const getUniswapDefaultTokenList = (chainId: number) =>
   )();
 
 export * from './uniswap';
+
+export const useIsMounted = () => {
+  const isMounted = useRef(false);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+  return isMounted;
+};

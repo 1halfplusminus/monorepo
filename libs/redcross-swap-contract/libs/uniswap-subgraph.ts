@@ -178,23 +178,6 @@ export const usePools = ({
       )(),
     [fetchMore]
   );
-  /* const fetchWhileExists = useCallback(
-    () =>
-      F.flow(
-        pipe(
-          TO.tryCatch(fetchMoreAndSetPools),
-          TO.chain((r) =>
-            pipe(
-              r,
-              O.fromPredicate((r) => r.length > 0),
-              O.map((r) => fetchWhileExists),
-              TO.fromOption
-            )
-          )
-        )
-      )(),
-    [fetchMore]
-  ); */
   useEffect(() => {
     fetchMoreAndSetPools();
   }, [chainId]);

@@ -19,6 +19,7 @@ import {
   taskEither as TE,
   either as E,
   record as R,
+  function as F,
 } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
 import type { Option } from 'fp-ts/Option';
@@ -28,6 +29,7 @@ import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { usePool, usePools, createPoolIndex } from './uniswap-subgraph';
+import { useIsMounted } from './index';
 
 interface Immutables {
   factory: Address;
@@ -56,7 +58,7 @@ export const createPoolContractFromToken = (provider: Provider) => (
   tokenA: UToken,
   tokenB: UToken,
   feeAmount: FeeAmount,
-  factoryAddress: Address = FACTORY_ADDRESS
+  factoryAddress: Address
 ) =>
   pipe(
     computePoolAddress({
@@ -69,12 +71,7 @@ export const createPoolContractFromToken = (provider: Provider) => (
   );
 export const createPoolContractFromOptionToken = (
   provider: Option<Provider>
-) => (
-  tokenA: Option<UToken>,
-  tokenB: Option<UToken>,
-  feeAmount: FeeAmount,
-  factoryAddress: Address = FACTORY_ADDRESS
-) =>
+) => (tokenA: Option<UToken>, tokenB: Option<UToken>, feeAmount: FeeAmount) =>
   pipe(
     provider,
     O.map((provider) =>
@@ -88,7 +85,7 @@ export const createPoolContractFromOptionToken = (
                 tokenA,
                 tokenB,
                 feeAmount,
-                factoryAddress
+                ''
               )
             )
           )
@@ -100,15 +97,30 @@ export const createPoolContractFromOptionToken = (
   );
 
 export async function getPoolImmutables(poolContract: IUniswapV3Pool) {
-  const PoolImmutables: Immutables = {
-    factory: await poolContract.factory(),
-    token0: await poolContract.token0(),
-    token1: await poolContract.token1(),
-    fee: await poolContract.fee(),
-    tickSpacing: await poolContract.tickSpacing(),
-    maxLiquidityPerTick: await poolContract.maxLiquidityPerTick(),
+  const [
+    factory,
+    token0,
+    token1,
+    fee,
+    tickSpacing,
+    maxLiquidityPerTick,
+  ] = await Promise.all([
+    await poolContract.factory(),
+    await poolContract.token0(),
+    await poolContract.token1(),
+    await poolContract.fee(),
+    await poolContract.tickSpacing(),
+    await poolContract.maxLiquidityPerTick(),
+  ]);
+  const poolImmutables: Immutables = {
+    factory,
+    token0,
+    token1,
+    fee,
+    tickSpacing,
+    maxLiquidityPerTick,
   };
-  return PoolImmutables;
+  return poolImmutables;
 }
 export async function getPoolState(poolContract: IUniswapV3Pool) {
   const slot = await poolContract.slot0();
@@ -125,7 +137,14 @@ export async function getPoolState(poolContract: IUniswapV3Pool) {
   return PoolState;
 }
 export const createUniswapToken = (token: Token) =>
-  new UToken(token.chainId, token.address, token.decimals);
+  new UToken(
+    token.chainId,
+    token.address,
+    token.decimals,
+    token.symbol,
+    token.name
+  );
+
 export const createUniswapTokenFromOption = (token: Option<Token>) =>
   pipe(
     token ? token : O.none,
@@ -172,6 +191,7 @@ export const useUniswap = ({
   provider,
   chainId,
 }: UseUniswapProps) => {
+  const isMounted = useIsMounted();
   const [pool, setPool] = useState<Option<Pool>>(O.none);
   const [poolImmutables, setPoolImmutables] = useState<Option<Immutables>>(
     O.none
@@ -187,58 +207,59 @@ export const useUniswap = ({
   const poolContract = useMemo(
     () =>
       pipe(
-        sequenceT(O.Apply)(provider, pools, tokenA, tokenB),
-        O.chain(([provider, pools, tokenA, tokenB]) =>
+        O.some(createPoolContract),
+        O.ap(provider),
+        O.ap(
           pipe(
-            pools,
-            R.lookup(createPoolIndex(tokenA.symbol, tokenB.symbol)),
-            O.ap,
-            A.head
+            poolInfo,
+            O.map((p) => p.id)
           )
         )
       ),
-    [pools]
+    [poolInfo, provider]
   );
   useEffect(() => {
     pipe(
       poolContract,
-      O.map((poolContract) =>
-        pipe(TO.tryCatch(() => getPoolImmutables(poolContract)))
-      ),
       TO.fromOption,
-      TO.flatten,
-      TO.map((r) => setPoolImmutables(O.some(r)))
-    )();
-  }, [poolContract]);
-  useEffect(() => {
-    pipe(
-      poolContract,
-      O.map((poolContract) => getPoolImmutables(poolContract))
-    );
-  }, [poolContract]);
-  useEffect(() => {
-    pipe(
-      sequenceT(O.Apply)(poolImmutables, poolContract),
-      TE.fromOption(() => 'Invalid props'),
-      TE.map(([immutable, poolContract]) =>
+      TO.chain((p) => TO.tryCatch(() => getPoolImmutables(p))),
+      TO.chain((r) => async () =>
         pipe(
-          TE.tryCatch(
-            () =>
-              createPool(
-                poolContract,
-                new UToken(1, immutable.token0, 6, 'USDC', 'USD Coin'),
-                new UToken(1, immutable.token1, 18, 'WETH', 'USD Coin'),
-                immutable.fee
-              ),
-            (e) => {
-              return e;
-            }
-          )
+          r,
+          O.fromPredicate(() => isMounted.current)
         )
       ),
-      TE.flatten,
-      TE.map((p) => setPool(O.some(p)))
+      TO.map((r) => setPoolImmutables(O.some(r)))
     )();
+    return () => {
+      setPoolImmutables(O.none);
+    };
+  }, [poolContract]);
+  useEffect(() => {
+    pipe(
+      sequenceT(O.Apply)(
+        poolImmutables,
+        poolContract,
+        tokenAUniswap,
+        tokenBUniswap
+      ),
+      TO.fromOption,
+      TO.chain(([immutable, poolContract, tokenA, tokenB]) =>
+        TO.tryCatch(() =>
+          createPool(poolContract, tokenA, tokenB, immutable.fee)
+        )
+      ),
+      TO.chain((r) => async () =>
+        pipe(
+          r,
+          O.fromPredicate(() => isMounted.current)
+        )
+      ),
+      TO.map((p) => setPool(O.some(p)))
+    )();
+    return () => {
+      setPool(O.none);
+    };
   }, [poolImmutables, poolContract, tokenAUniswap, tokenBUniswap]);
   const getTokenPrice = useCallback(
     (token: Option<Token> | Token) =>
@@ -267,5 +288,7 @@ export const useUniswap = ({
     poolContract,
     getTokenPrice,
     poolImmutables,
+    pools,
+    poolInfo,
   };
 };

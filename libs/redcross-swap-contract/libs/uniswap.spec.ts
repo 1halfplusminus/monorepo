@@ -31,6 +31,7 @@ import {
   UseFetchMore,
   usePools,
 } from './uniswap-subgraph';
+import { FACTORY_ADDRESS } from '@uniswap/v3-sdk';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
@@ -57,7 +58,8 @@ describe('Uniswap Lib', () => {
     const poolContact = createPoolContractFromToken(provider)(
       tokenB,
       tokenA,
-      FeeAmount.MEDIUM
+      FeeAmount.MEDIUM,
+      FACTORY_ADDRESS
     );
     const pool = await createPool(poolContact, tokenA, tokenB, FeeAmount.LOW);
     console.log(pool.priceOf(tokenB).toFixed());
@@ -67,13 +69,12 @@ describe('Uniswap Lib', () => {
 
 describe('Use uniswap hook', () => {
   const tokens = getMockTokens();
-  const tokenA = tokens['WETH'];
-  const tokenB = tokens['DOGGE'];
+  const tokenA = pipe(tokens, R.lookup('WETH'));
+  const tokenB = pipe(tokens, R.lookup('DAI'));
   const useUniswapProps = {
     chainId: O.some(1),
-    tokenA: O.some(tokenA),
-    tokenB: O.some(tokenB),
-    feeAmount: O.some(FeeAmount.LOW),
+    tokenA: tokenA,
+    tokenB: tokenB,
     provider: O.some(
       new ethers.providers.JsonRpcProvider(
         'https://eth-mainnet.alchemyapi.io/v2/ULYUeg7ZHZIpzzAsWhf7rS80BAnaclQn'
@@ -131,30 +132,50 @@ describe('Use uniswap hook', () => {
       }
     `);
   });
-  it('should use uniswap correctly', async (done) => {
-    const { result, waitForValueToChange } = renderHook(() =>
-      useUniswap(useUniswapProps)
+  it('should use uniswap correctly', async () => {
+    const { result, waitForValueToChange, waitForNextUpdate } = renderHook(() =>
+      useUniswap({ ...useUniswapProps })
     );
-
-    await waitForValueToChange(() => result.current.poolImmutables, {
-      timeout: 10000,
+    await waitForValueToChange(() => result.current.pool, {
+      timeout: 100000,
     });
-    await waitForValueToChange(() => result.current.pool, { timeout: 10000 });
-    act(() => {
-      pipe(
-        sequenceT(O.Apply)(
-          result.current.pool,
-          result.current.tokenAUniswap,
-          result.current.tokenBUniswap
-        ),
-        O.map(([pool]) => {
-          console.log(result.current.getTokenPrice(tokenA));
-          console.log(result.current.getTokenPrice(tokenB));
-          done();
-          return;
-        }),
-        O.getOrElse(() => done('Error'))
-      );
-    });
+    await pipe(
+      sequenceT(O.Apply)(
+        result.current.pool,
+        result.current.tokenAUniswap,
+        result.current.tokenBUniswap
+      ),
+      O.map(([pool]) => {
+        return pool;
+      }),
+      TO.fromOption,
+      TO.chain((p) => async () => {
+        console.log(await result.current.getTokenPrice(tokenA));
+        console.log(await result.current.getTokenPrice(tokenB));
+        await waitForNextUpdate({
+          timeout: 1000000,
+        });
+        return O.some(p);
+      })
+    )();
+    /* await pipe(
+      sequenceT(O.Apply)(
+        result.current.pool,
+        result.current.tokenAUniswap,
+        result.current.tokenBUniswap
+      ),
+      O.map(([pool]) => {
+        return pool;
+      }),
+      TO.fromOption,
+      TO.chain((p) => async () => {
+        console.log(await result.current.getTokenPrice(tokenA));
+        console.log(await result.current.getTokenPrice(tokenB));
+        await waitForNextUpdate({
+          timeout: 1000000,
+        });
+        return O.some(p);
+      })
+    )(); */
   });
 });
