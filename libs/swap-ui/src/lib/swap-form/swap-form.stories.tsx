@@ -12,6 +12,7 @@ import {
 import {
   useUniswap,
   getUniswapDefaultTokenList,
+  usePools,
 } from '@halfoneplusminus/redcross-swap-contract';
 
 import { useTokenList } from '../hooks/useTokenList';
@@ -136,7 +137,11 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     fetchTokenList: getUniswapDefaultTokenList,
     chainId,
   });
-  const { filteredTokenList, search } = useSearch(tokenList);
+  const { pools, tokenList: poolTokenList } = usePools({
+    chainId,
+    tokens: tokenList,
+  });
+  const { filteredTokenList, search } = useSearch(poolTokenList);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({
     commonlyUsed: props.commonBases,
     tokens: filteredTokenList,
@@ -146,6 +151,7 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     tokenA: first,
     tokenB: last,
     provider: library,
+    pools,
   });
   const form = useSwapForm({
     ...props,

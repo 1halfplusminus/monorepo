@@ -59,7 +59,7 @@ export const selectPool = (tokenASymbol: string, tokenBSymbol: string) => (
 ) => pipe(pools, R.lookup(createPoolIndex(tokenASymbol, tokenBSymbol)));
 
 export const selectPools = (result: Pick<QueryResult<Pools>, 'data'>) =>
-  result.data.pools;
+  result.data ? result.data?.pools : [];
 
 export const groupBySymbol = (pools: Pools_pools[]) =>
   pipe(
@@ -72,6 +72,7 @@ export interface UsePools {
   fetchPools?: (skip: number, first: number) => Promise<Pools_pools[]>;
   first?: number;
   more?: number;
+  tokens?: Option<Array<Option<Token>>>;
 }
 const queryPools = (apolloClient: ApolloClient<unknown>) => (
   skip: number,
@@ -153,6 +154,7 @@ export const usePools = ({
   fetchPools = defaultFetchPools,
   first = 0,
   more = 1000,
+  tokens = O.none,
 }: UsePools) => {
   const { fetchMore, hasMore } = useFetchMore({
     first,
@@ -178,6 +180,19 @@ export const usePools = ({
       )(),
     [fetchMore]
   );
+  const intersectedTokenList = useMemo(
+    () =>
+      pipe(
+        tokens,
+        O.chain((t: Array<Option<Token>>) =>
+          pipe(
+            sequenceT(O.Apply)(pools),
+            O.map(([pools]) => intersectTokenList(t)(poolListToArray(pools)))
+          )
+        )
+      ),
+    [tokens, pools]
+  );
   useEffect(() => {
     fetchMoreAndSetPools();
   }, [chainId]);
@@ -188,7 +203,7 @@ export const usePools = ({
       TO.chain(() => TO.tryCatch(F.flow(fetchMoreAndSetPools)))
     )();
   }, [hasMore]);
-  return { pools };
+  return { pools, tokenList: intersectedTokenList };
 };
 export interface UsePool {
   tokenA: Option<Token>;
@@ -214,33 +229,27 @@ export const eqPoolTokenToken = (
   b: Token
 ) => a.id.toUpperCase() == b.address.toUpperCase();
 
-export const intersectTokenList = (tokenList: Option<Array<Option<Token>>>) => (
+export const intersectTokenList = (tokenList: Array<Option<Token>>) => (
   pools: Pools_pools[]
 ) =>
   pipe(
     tokenList,
-    O.map((list) =>
+    A.map((r) =>
       pipe(
-        list,
-        A.map((r) =>
+        r,
+        O.chain((t) =>
           pipe(
-            r,
-            O.chain((t) =>
-              pipe(
-                pools,
-                A.findFirst(
-                  (p) =>
-                    eqPoolTokenToken(p.token0, t) ||
-                    eqPoolTokenToken(p.token1, t)
-                ),
-                O.map(() => t)
-              )
-            )
+            pools,
+            A.findFirst(
+              (p) =>
+                eqPoolTokenToken(p.token0, t) || eqPoolTokenToken(p.token1, t)
+            ),
+            O.map(() => t)
           )
-        ),
-        A.reduce([] as Array<O.Some<Token>>, (acc, v) =>
-          O.isSome(v) ? [...acc, v] : acc
         )
       )
+    ),
+    A.reduce([] as Array<O.Some<Token>>, (acc, v) =>
+      O.isSome(v) ? [...acc, v] : acc
     )
   );

@@ -80,6 +80,7 @@ describe('Use uniswap hook', () => {
         'https://eth-mainnet.alchemyapi.io/v2/ULYUeg7ZHZIpzzAsWhf7rS80BAnaclQn'
       )
     ),
+    pools: O.none,
   } as UseUniswapProps;
   it('should fetch more correctly', async () => {
     const fetchMoreProps: UseFetchMore<Pools_pools> = {
@@ -110,14 +111,16 @@ describe('Use uniswap hook', () => {
       expect(result.current.skip).toEqual(1500); */
     });
   });
-  it('should use pools correctly', async () => {
-    /*   expect((await defaultFetchPools(0, 50)).length).toEqual(50);
+  it('it should fetch default pools correctly', async () => {
+    expect((await defaultFetchPools(0, 50)).length).toEqual(50);
     expect((await defaultFetchPools(10, 40)).length).toEqual(40);
     expect((await defaultFetchPools(1, 1))[0].id).toEqual(
       '0x06bd1af522f43bc270203e96a019b4779195b870'
-    ); */
+    );
+  });
+  it('should use pools correctly', async () => {
     const { result, waitForValueToChange } = renderHook(() =>
-      usePools({ chainId: useUniswapProps.chainId, first: 0 })
+      usePools({ chainId: O.some(1), first: 0 })
     );
     await waitForValueToChange(() => result.current.pools);
 
@@ -133,8 +136,9 @@ describe('Use uniswap hook', () => {
     `);
   });
   it('should use uniswap correctly', async () => {
+    const { pools } = usePools({ chainId: O.some(1) });
     const { result, waitForValueToChange, waitForNextUpdate } = renderHook(() =>
-      useUniswap({ ...useUniswapProps })
+      useUniswap({ ...useUniswapProps, pools })
     );
     await waitForValueToChange(() => result.current.pool, {
       timeout: 100000,

@@ -1,9 +1,4 @@
-import {
-  computePoolAddress,
-  FACTORY_ADDRESS,
-  Pool,
-  tickToPrice,
-} from '@uniswap/v3-sdk';
+import { computePoolAddress, Pool, tickToPrice } from '@uniswap/v3-sdk';
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Provider } from '@ethersproject/providers';
@@ -28,7 +23,7 @@ import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { usePool, usePools, createPoolIndex } from './uniswap-subgraph';
+import { usePool, PoolsList } from './uniswap-subgraph';
 import { useIsMounted } from './index';
 
 interface Immutables {
@@ -182,14 +177,16 @@ export interface UseUniswapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
   provider: Option<Provider>;
-  chainId: Option<number>;
+  pools: Option<PoolsList>;
+  fetchPoolsImmutable?: (contrat: IUniswapV3Pool) => Promise<Immutables>;
 }
 
 export const useUniswap = ({
   tokenA,
   tokenB,
   provider,
-  chainId,
+  fetchPoolsImmutable = getPoolImmutables,
+  pools,
 }: UseUniswapProps) => {
   const isMounted = useIsMounted();
   const [pool, setPool] = useState<Option<Pool>>(O.none);
@@ -202,7 +199,6 @@ export const useUniswap = ({
   const tokenBUniswap = useMemo(() => createUniswapTokenFromOption(tokenB), [
     tokenB,
   ]);
-  const { pools } = usePools({ chainId });
   const { pool: poolInfo } = usePool({ tokenA, tokenB, pools });
   const poolContract = useMemo(
     () =>
@@ -222,7 +218,7 @@ export const useUniswap = ({
     pipe(
       poolContract,
       TO.fromOption,
-      TO.chain((p) => TO.tryCatch(() => getPoolImmutables(p))),
+      TO.chain((p) => TO.tryCatch(() => fetchPoolsImmutable(p))),
       TO.chain((r) => async () =>
         pipe(
           r,
