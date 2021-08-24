@@ -5,6 +5,7 @@ import {
   intersectTokenList,
   defaultPools,
   UsePools,
+  defaultFetchPools,
 } from './uniswap-subgraph';
 import { pipe } from 'fp-ts/function';
 import { array as A, option as O, record as R } from 'fp-ts';
@@ -397,16 +398,27 @@ describe('Uniswap subgrap', () => {
   });
   const usePoolsProps: UsePools = {
     chainId: O.some(1),
-    fetchPools: async () => defaultPools,
+    fetchPools: defaultFetchPools,
+    tokens: O.some(pipe(tokenList, A.map(O.some))),
   };
   it('should use pools correctly', async () => {
-    const { result: usePoolsResult, waitForValueToChange } = renderHook(() =>
-      usePools(usePoolsProps)
+    const { result, waitForValueToChange } = renderHook(() =>
+      usePools({ ...usePoolsProps })
     );
-    await waitForValueToChange(() => usePoolsResult.current.pools);
-    expect(O.isSome(usePoolsResult.current.pools)).toBe(true);
-    if (O.isSome(usePoolsResult.current.pools)) {
-      expect(pipe(usePoolsResult.current.pools.value, R.isEmpty)).toBeFalsy();
+    await waitForValueToChange(() => result.current.pools);
+    await waitForValueToChange(() => result.current.tokenList, {
+      timeout: 10000,
+    });
+    expect(O.isSome(result.current.pools)).toBe(true);
+    if (O.isSome(result.current.pools)) {
+      expect(pipe(result.current.pools.value, R.isEmpty)).toBeFalsy();
+    } else {
+      expect(false).toBe(true);
+    }
+    if (O.isSome(result.current.tokenList)) {
+      expect(pipe(result.current.tokenList.value, A.isEmpty)).toBeFalsy();
+    } else {
+      expect(false).toBe(true);
     }
   });
 });

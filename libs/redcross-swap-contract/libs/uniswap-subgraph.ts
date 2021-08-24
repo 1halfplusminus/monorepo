@@ -22,6 +22,7 @@ import type { Task } from 'fp-ts/Task';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { sequenceT } from 'fp-ts/Apply';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
+import { tokenList } from './__mocks__/index';
 
 export const QUERY_POOLS = gql`
   query Pools($skip: Int, $fist: Int) {
@@ -74,7 +75,7 @@ export interface UsePools {
   more?: number;
   tokens?: Option<Array<Option<Token>>>;
 }
-const queryPools = (apolloClient: ApolloClient<unknown>) => (
+export const queryPools = (apolloClient: ApolloClient<unknown>) => (
   skip: number,
   first: number
 ) =>
@@ -85,7 +86,7 @@ const queryPools = (apolloClient: ApolloClient<unknown>) => (
         variables: { skip, first },
       }),
     T.map((r) => selectPools(r))
-  );
+  )();
 
 export const defaultPools = pipe(QUERY_POOLS_RESULT, selectPools);
 
@@ -154,7 +155,7 @@ export const usePools = ({
   fetchPools = defaultFetchPools,
   first = 0,
   more = 1000,
-  tokens = O.none,
+  tokens = O.some([]),
 }: UsePools) => {
   const { fetchMore, hasMore } = useFetchMore({
     first,
@@ -180,19 +181,7 @@ export const usePools = ({
       )(),
     [fetchMore]
   );
-  const intersectedTokenList = useMemo(
-    () =>
-      pipe(
-        tokens,
-        O.chain((t: Array<Option<Token>>) =>
-          pipe(
-            sequenceT(O.Apply)(pools),
-            O.map(([pools]) => intersectTokenList(t)(poolListToArray(pools)))
-          )
-        )
-      ),
-    [tokens, pools]
-  );
+
   useEffect(() => {
     fetchMoreAndSetPools();
   }, [chainId]);
@@ -203,6 +192,28 @@ export const usePools = ({
       TO.chain(() => TO.tryCatch(F.flow(fetchMoreAndSetPools)))
     )();
   }, [hasMore]);
+  const intersectedTokenList = useMemo(
+    () =>
+      pipe(
+        hasMore,
+        O.fold(
+          () =>
+            pipe(
+              tokens,
+              O.chain((t: Array<Option<Token>>) =>
+                pipe(
+                  sequenceT(O.Apply)(pools),
+                  O.map(([pools]) =>
+                    intersectTokenList(t)(poolListToArray(pools))
+                  )
+                )
+              )
+            ),
+          () => O.some([])
+        )
+      ),
+    [tokens, pools, hasMore]
+  );
   return { pools, tokenList: intersectedTokenList };
 };
 export interface UsePool {

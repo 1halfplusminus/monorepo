@@ -1,8 +1,8 @@
 import {
   createUniswapToken,
   createPool,
-  useUniswap,
   UseUniswapProps,
+  useUniswap,
 } from './uniswap';
 import { pipe } from 'fp-ts/function';
 import { filterByChainId, getPoolImmutables } from './index';
@@ -21,17 +21,17 @@ import { tokenList } from './__mocks__/index';
 import { createPoolContractFromToken, getPrice } from './uniswap';
 import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { sequenceT } from 'fp-ts/lib/Apply';
-import { CurrencyAmount } from '@uniswap/sdk-core';
 import { Pools_pools } from './__generated__/Pools';
-import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 import {
   defaultFetchPools,
+  defaultPools,
+  groupBySymbol,
   useFetchMore,
   UseFetchMore,
   usePools,
 } from './uniswap-subgraph';
 import { FACTORY_ADDRESS } from '@uniswap/v3-sdk';
+import { sequenceT } from 'fp-ts/Apply';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
@@ -136,10 +136,14 @@ describe('Use uniswap hook', () => {
     `);
   });
   it('should use uniswap correctly', async () => {
-    const { pools } = usePools({ chainId: O.some(1) });
+    const pools = O.some(groupBySymbol(defaultPools));
     const { result, waitForValueToChange, waitForNextUpdate } = renderHook(() =>
-      useUniswap({ ...useUniswapProps, pools })
+      useUniswap({
+        ...useUniswapProps,
+        pools: pools,
+      })
     );
+    console.log('here');
     await waitForValueToChange(() => result.current.pool, {
       timeout: 100000,
     });
@@ -156,30 +160,8 @@ describe('Use uniswap hook', () => {
       TO.chain((p) => async () => {
         console.log(await result.current.getTokenPrice(tokenA));
         console.log(await result.current.getTokenPrice(tokenB));
-        await waitForNextUpdate({
-          timeout: 1000000,
-        });
         return O.some(p);
       })
     )();
-    /* await pipe(
-      sequenceT(O.Apply)(
-        result.current.pool,
-        result.current.tokenAUniswap,
-        result.current.tokenBUniswap
-      ),
-      O.map(([pool]) => {
-        return pool;
-      }),
-      TO.fromOption,
-      TO.chain((p) => async () => {
-        console.log(await result.current.getTokenPrice(tokenA));
-        console.log(await result.current.getTokenPrice(tokenB));
-        await waitForNextUpdate({
-          timeout: 1000000,
-        });
-        return O.some(p);
-      })
-    )(); */
   });
 });

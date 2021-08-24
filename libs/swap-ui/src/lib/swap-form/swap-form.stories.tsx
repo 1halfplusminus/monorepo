@@ -13,15 +13,20 @@ import {
   useUniswap,
   getUniswapDefaultTokenList,
   usePools,
+  queryPools,
 } from '@halfoneplusminus/redcross-swap-contract';
 
 import { useTokenList } from '../hooks/useTokenList';
 import { useSwapForm } from '../hooks/useSwapForm';
 import { useSearch, useSelectToken } from '../hooks/tokenList';
+import { InMemoryCache, ApolloClient } from '@apollo/client';
 
 const commonBases = some([some(ETH), some(DAI)]);
 const tokens = some([some(ETH), some(DAI), some(USDC)]);
-
+const client = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+  cache: new InMemoryCache(),
+});
 export default {
   component: SwapForm,
   title: 'SwapForm/Form',
@@ -140,6 +145,7 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
   const { pools, tokenList: poolTokenList } = usePools({
     chainId,
     tokens: tokenList,
+    fetchPools: queryPools(client),
   });
   const { filteredTokenList, search } = useSearch(poolTokenList);
   const { isSelected, first, last, selectAtIndex, inverse } = useSelectToken({

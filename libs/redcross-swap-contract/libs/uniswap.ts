@@ -25,6 +25,13 @@ import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { usePool, PoolsList } from './uniswap-subgraph';
 import { useIsMounted } from './index';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  useQuery,
+  gql,
+} from '@apollo/client';
 
 interface Immutables {
   factory: Address;
@@ -284,7 +291,6 @@ export const useUniswap = ({
     poolContract,
     getTokenPrice,
     poolImmutables,
-    pools,
     poolInfo,
   };
 };
