@@ -26,7 +26,7 @@ export interface Token {
   decimals: number;
   chainId: number;
 }
-type TokenListItem = {
+export type TokenListItem = {
   address: string;
   name: string;
   decimals: number;

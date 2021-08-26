@@ -13,6 +13,10 @@ import { QUERY_POOLS_RESULT } from './__mocks__/pools';
 import { tokenList } from './__mocks__/index';
 import { usePools } from './uniswap-subgraph';
 import { renderHook } from '@testing-library/react-hooks';
+import fetch from 'node-fetch';
+
+global.fetch = fetch as any;
+jest.setTimeout(100000);
 
 describe('Uniswap subgrap', () => {
   it('should group pool correctly', () => {
@@ -406,9 +410,6 @@ describe('Uniswap subgrap', () => {
       usePools({ ...usePoolsProps })
     );
     await waitForValueToChange(() => result.current.pools);
-    await waitForValueToChange(() => result.current.tokenList, {
-      timeout: 10000,
-    });
     expect(O.isSome(result.current.pools)).toBe(true);
     if (O.isSome(result.current.pools)) {
       expect(pipe(result.current.pools.value, R.isEmpty)).toBeFalsy();

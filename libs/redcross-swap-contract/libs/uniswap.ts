@@ -3,7 +3,7 @@ import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Provider } from '@ethersproject/providers';
 import { Address } from 'hardhat-deploy/dist/types';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { constant, flow, pipe } from 'fp-ts/function';
 import {
@@ -23,15 +23,8 @@ import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { usePool, PoolsList } from './uniswap-subgraph';
+import { usePool, PoolsList, poolSelector } from './uniswap-subgraph';
 import { useIsMounted } from './index';
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  useQuery,
-  gql,
-} from '@apollo/client';
 
 interface Immutables {
   factory: Address;
@@ -143,8 +136,8 @@ export const createUniswapToken = (token: Token) =>
     token.chainId,
     token.address,
     token.decimals,
-    token.symbol,
-    token.name
+    poolSelector(token),
+    token.fullName
   );
 
 export const createUniswapTokenFromOption = (token: Option<Token>) =>
@@ -179,7 +172,8 @@ export const createPool = (
         )
     )
   )();
-
+const eqTokenUToken = (token: Token) => (uToken: UToken) =>
+  token.address.toUpperCase() == uToken.address.toUpperCase();
 export interface UseUniswapProps {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
@@ -207,6 +201,7 @@ export const useUniswap = ({
     tokenB,
   ]);
   const { pool: poolInfo } = usePool({ tokenA, tokenB, pools });
+
   const poolContract = useMemo(
     () =>
       pipe(
@@ -240,16 +235,11 @@ export const useUniswap = ({
   }, [poolContract]);
   useEffect(() => {
     pipe(
-      sequenceT(O.Apply)(
-        poolImmutables,
-        poolContract,
-        tokenAUniswap,
-        tokenBUniswap
-      ),
+      sequenceT(O.Apply)(poolContract, tokenAUniswap, tokenBUniswap, poolInfo),
       TO.fromOption,
-      TO.chain(([immutable, poolContract, tokenA, tokenB]) =>
+      TO.chain(([poolContract, tokenA, tokenB, poolInfo]) =>
         TO.tryCatch(() =>
-          createPool(poolContract, tokenA, tokenB, immutable.fee)
+          createPool(poolContract, tokenA, tokenB, Number(poolInfo.feeTier))
         )
       ),
       TO.chain((r) => async () =>
@@ -263,25 +253,31 @@ export const useUniswap = ({
     return () => {
       setPool(O.none);
     };
-  }, [poolImmutables, poolContract, tokenAUniswap, tokenBUniswap]);
+  }, [poolContract, tokenAUniswap, tokenBUniswap, poolInfo]);
   const getTokenPrice = useCallback(
-    (token: Option<Token> | Token) =>
+    async (token: Option<Token> | Token) =>
       pipe(
         '_tag' in token ? token : O.some(token),
-        (t) => sequenceT(O.Apply)(tokenAUniswap, tokenBUniswap, pool, t),
-        O.chain(([tokenAUniswap, tokenBUniswap, pool, token]) =>
+        (t) => sequenceT(O.Apply)(tokenAUniswap, tokenBUniswap, t, poolInfo),
+        O.chain(([tokenAUniswap, tokenBUniswap, token, poolInfo]) =>
           pipe(
-            token.address === tokenAUniswap.address
-              ? O.some(tokenAUniswap)
-              : token.address === tokenBUniswap.address
-              ? O.some(tokenBUniswap)
+            eqTokenUToken(token)(tokenAUniswap)
+              ? O.some(poolInfo.token0Price)
+              : eqTokenUToken(token)(tokenBUniswap)
+              ? O.some(poolInfo.token1Price)
               : O.none,
-            O.map((t) => pool.priceOf(t).toFixed())
+            O.map((t) => {
+              return BigNumber.from(
+                ethers.FixedNumber.fromString(
+                  Number('0.0003195977026122766693897703618994122').toFixed(18),
+                  'fixed128x18'
+                )
+              );
+            })
           )
-        ),
-        TO.fromOption
-      )(),
-    [pool, tokenAUniswap, tokenBUniswap]
+        )
+      ),
+    [pool, tokenAUniswap, tokenBUniswap, poolInfo]
   );
 
   return {

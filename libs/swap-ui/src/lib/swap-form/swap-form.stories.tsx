@@ -168,7 +168,10 @@ const EtherConnectedSwapForm = (props: ConnectedFormProps) => {
     inverse,
     isSelected,
     search,
-    fetchRate: getTokenPrice,
+    fetchRate: (token) => {
+      console.log('here', token);
+      return getTokenPrice(token);
+    },
   });
 
   return (

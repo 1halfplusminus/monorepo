@@ -15,7 +15,7 @@ import {
   function as F,
   task as T,
 } from 'fp-ts';
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { FeeAmount } from '../test/shared/constants';
 import { tokenList } from './__mocks__/index';
 import { createPoolContractFromToken, getPrice } from './uniswap';
@@ -39,6 +39,7 @@ jest.setTimeout(100000);
 const getMockTokens = () =>
   pipe(
     tokenList,
+
     filterByChainId(1),
     NEA.groupBy((t) => t.symbol),
     R.map((v) => v[0])
@@ -143,10 +144,9 @@ describe('Use uniswap hook', () => {
         pools: pools,
       })
     );
-    console.log('here');
-    await waitForValueToChange(() => result.current.pool, {
-      timeout: 100000,
-    });
+
+    await waitForValueToChange(() => result.current.pool, { timeout: 10000 });
+
     await pipe(
       sequenceT(O.Apply)(
         result.current.pool,
@@ -160,6 +160,7 @@ describe('Use uniswap hook', () => {
       TO.chain((p) => async () => {
         console.log(await result.current.getTokenPrice(tokenA));
         console.log(await result.current.getTokenPrice(tokenB));
+
         return O.some(p);
       })
     )();

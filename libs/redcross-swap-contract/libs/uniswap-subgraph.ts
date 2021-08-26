@@ -6,7 +6,7 @@ import {
   Pools_pools_token1,
 } from './__generated__/Pools';
 import { pipe } from 'fp-ts/function';
-import { Token } from './index';
+import { Token, TokenListItem } from './index';
 import {
   nonEmptyArray as NEA,
   option as O,
@@ -18,11 +18,10 @@ import {
   taskOption as TO,
 } from 'fp-ts';
 import type { Option } from 'fp-ts/Option';
-import type { Task } from 'fp-ts/Task';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { sequenceT } from 'fp-ts/Apply';
 import { QUERY_POOLS_RESULT } from './__mocks__/pools';
-import { tokenList } from './__mocks__/index';
+import { Token as UToken } from '@uniswap/sdk-core';
 
 export const QUERY_POOLS = gql`
   query Pools($skip: Int, $fist: Int) {
@@ -53,7 +52,11 @@ export const createPoolIndex = (tokenASymbol: string, tokenBSymbol: string) =>
 
 export const selectPoolByToken = (tokenA: Token, tokenB: Token) => (
   pools: PoolsList
-) => pipe(createPoolIndex(tokenA.symbol, tokenB.symbol), (key) => pools[key]);
+) =>
+  pipe(
+    createPoolIndex(poolSelector(tokenA), poolSelector(tokenB)),
+    (key) => pools[key]
+  );
 
 export const selectPool = (tokenASymbol: string, tokenBSymbol: string) => (
   pools: PoolsList
@@ -216,6 +219,13 @@ export const usePools = ({
   );
   return { pools, tokenList: intersectedTokenList };
 };
+
+export const poolSelector = (token: UToken | Token | TokenListItem) =>
+  'isToken' in token
+    ? token.symbol
+    : 'logoURI' in token
+    ? token.symbol
+    : token.name;
 export interface UsePool {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
@@ -227,12 +237,13 @@ export const usePool = ({ tokenA, tokenB, pools }: UsePool) => {
     pipe(
       sequenceT(O.Apply)(tokenA, tokenB, pools),
       O.chain(([tokenA, tokenB, pools]) =>
-        pipe(pools, selectPool(tokenA.symbol, tokenB.symbol))
+        pipe(pools, selectPool(poolSelector(tokenA), poolSelector(tokenB)))
       ),
       O.chain((r) => A.head(r)),
       setPool
     );
   }, [tokenA, tokenB, pools]);
+
   return { pool };
 };
 export const eqPoolTokenToken = (
