@@ -23,7 +23,12 @@ import { useMemo } from 'react';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { usePool, PoolsList, poolSelector } from './uniswap-subgraph';
+import {
+  usePool,
+  PoolsList,
+  poolSelector,
+  eqPoolTokenToken,
+} from './uniswap-subgraph';
 import { useIsMounted } from './index';
 
 interface Immutables {
@@ -261,18 +266,17 @@ export const useUniswap = ({
         (t) => sequenceT(O.Apply)(tokenAUniswap, tokenBUniswap, t, poolInfo),
         O.chain(([tokenAUniswap, tokenBUniswap, token, poolInfo]) =>
           pipe(
-            eqTokenUToken(token)(tokenAUniswap)
+            eqPoolTokenToken(poolInfo.token0, token)
               ? O.some(poolInfo.token0Price)
-              : eqTokenUToken(token)(tokenBUniswap)
+              : eqPoolTokenToken(poolInfo.token1, token)
               ? O.some(poolInfo.token1Price)
               : O.none,
             O.map((t) => {
-              return BigNumber.from(
-                ethers.FixedNumber.fromString(
-                  Number('0.0003195977026122766693897703618994122').toFixed(18),
-                  'fixed128x18'
-                )
-              );
+              console.log(t);
+              return ethers.FixedNumber.fromString(
+                Number(t).toFixed(18),
+                'fixed128x18'
+              ).toString();
             })
           )
         )

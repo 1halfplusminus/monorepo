@@ -105,8 +105,15 @@ Cypress.Commands.add('getTokenBInput', () => {
 Cypress.Commands.add('openTokenASelection', () => {
   return cy
     .get('[class*="token-select__CaretDown"]')
-    .as('tokenA-select-carret')
     .first()
+    .as('tokenA-select-carret')
+    .click();
+});
+Cypress.Commands.add('openTokenBSelection', () => {
+  return cy
+    .get('[class*="token-select__CaretDown"]')
+    .last()
+    .as('tokenB-select-carret')
     .click();
 });
 Cypress.Commands.add('selectTokenA', (token: string) => {

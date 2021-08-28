@@ -21,6 +21,7 @@ declare namespace Cypress {
     getTokenBFlatPrice(): Chainable<JQuery<HTMLInputElement>>;
     openTokenSelection(): Chainable<JQuery<HTMLInputElement>>;
     openTokenASelection(): Chainable<JQuery<HTMLInputElement>>;
+    openTokenBSelection(): Chainable<JQuery<HTMLInputElement>>;
     getTokenASold(): Chainable<JQuery<HTMLInputElement>>;
     getTokenAInput(): Chainable<JQuery<HTMLInputElement>>;
     getTokenBInput(): Chainable<JQuery<HTMLInputElement>>;

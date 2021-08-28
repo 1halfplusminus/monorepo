@@ -66,6 +66,9 @@ export function TokenSelect({
   const noSelection = useMemo(() => isNone(selected), [selected]);
   const { showModal, isModalVisible, handleCancel } = useModal();
   const handleCarretDown = () => {
+    if (onSearch) {
+      onSearch('');
+    }
     showModal();
   };
   return (

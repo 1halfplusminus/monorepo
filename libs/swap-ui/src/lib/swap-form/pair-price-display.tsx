@@ -53,7 +53,7 @@ const MaybeTokenRate = ({
           <Maybe option={rate}>
             {(rate) => (
               <>
-                1 {tokenB.name} = {rate} {tokenA.name}
+                1 {tokenB.name} = {rate.toString()} {tokenA.name}
               </>
             )}
           </Maybe>

@@ -173,7 +173,7 @@ export const ConnectedForm = (props: ConnectedFormProps) => {
   });
   const form = useSwapForm({
     ...props,
-    tokens: tokenList,
+    tokens: filteredTokenList,
     search,
     isSelected,
     first,
