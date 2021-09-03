@@ -1,4 +1,4 @@
-import { gql, QueryResult, ApolloClient } from '@apollo/client';
+import { gql, ApolloClient } from '@apollo/client';
 import {
   Pools,
   Pools_pools,
@@ -37,9 +37,17 @@ export const QUERY_POOLS = gql`
         symbol
         decimals
       }
+      liquidity
+      tick
+      sqrtPrice
       feeTier
       token0Price
       token1Price
+      ticks {
+        liquidityNet
+        liquidityGross
+        id
+      }
     }
   }
 `;
@@ -62,8 +70,9 @@ export const selectPool = (tokenASymbol: string, tokenBSymbol: string) => (
   pools: PoolsList
 ) => pipe(pools, R.lookup(createPoolIndex(tokenASymbol, tokenBSymbol)));
 
-export const selectPools = (result: Pick<QueryResult<Pools>, 'data'>) =>
-  result.data ? result.data?.pools : [];
+export const selectPools = (result: {
+  data: { pools: Omit<Pools_pools, '__typename'>[] };
+}) => (result.data ? result.data?.pools : []);
 
 export const groupBySymbol = (pools: Pools_pools[]) =>
   pipe(
@@ -231,6 +240,7 @@ export interface UsePool {
   tokenB: Option<Token>;
   pools: Option<PoolsList>;
 }
+const createUniswapPool = () => {};
 export const usePool = ({ tokenA, tokenB, pools }: UsePool) => {
   const [pool, setPool] = useState<Option<Pools_pools>>(O.none);
   useEffect(() => {

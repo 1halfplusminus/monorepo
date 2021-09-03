@@ -14,11 +14,16 @@ import {
   taskOption as TO,
   function as F,
   task as T,
+  number as N,
 } from 'fp-ts';
 import { ethers, BigNumber } from 'ethers';
 import { FeeAmount } from '../test/shared/constants';
 import { tokenList } from './__mocks__/index';
-import { createPoolContractFromToken, getPrice } from './uniswap';
+import {
+  createPoolContractFromToken,
+  getPrice,
+  createPoolFromSubgrap,
+} from './uniswap';
 import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Pools_pools } from './__generated__/Pools';
@@ -30,8 +35,11 @@ import {
   UseFetchMore,
   usePools,
 } from './uniswap-subgraph';
-import { FACTORY_ADDRESS } from '@uniswap/v3-sdk';
+import { FACTORY_ADDRESS, Trade, Tick, Route } from '@uniswap/v3-sdk';
 import { sequenceT } from 'fp-ts/Apply';
+import { CurrencyAmount } from '@uniswap/sdk-core';
+import { createPoolContract, useQuoter } from './uniswap';
+import { contramap } from 'fp-ts/Ord';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
@@ -135,6 +143,112 @@ describe('Use uniswap hook', () => {
         "value": 901,
       }
     `);
+  });
+
+  it('should trade', async () => {
+    const pools = O.some(groupBySymbol(defaultPools));
+    const { result, waitForValueToChange, waitForNextUpdate } = renderHook(
+      () => ({
+        ...useUniswap({
+          ...useUniswapProps,
+          pools: pools,
+        }),
+        quoter: useQuoter({ provider: useUniswapProps.provider }),
+      })
+    );
+
+    await waitForValueToChange(() => result.current.pool, { timeout: 10000 });
+    await waitForValueToChange(() => result.current.quoter);
+    await pipe(
+      sequenceT(O.Apply)(
+        pools,
+        result.current.pool,
+        result.current.tokenAUniswap,
+        result.current.tokenBUniswap,
+        useUniswapProps.provider,
+        result.current.quoter
+      ),
+      O.map(([pools, p, tokenA, tokenB, provider, q]) => {
+        return [
+          /*  pipe(
+            pools,
+            R.toArray,
+            A.map((p) => createPoolFromSubgrap(1)(p[1][0]))
+          ), */
+          /*      pools, */
+          tokenA,
+          tokenB,
+          provider,
+          pipe(
+            pools,
+            R.toArray,
+            A.map((p) => p[1]),
+            A.flatten,
+            A.map((p) => [p, createPoolContract(provider)(p.id)] as const)
+          ),
+          q,
+        ] as const;
+      }),
+      TO.fromOption,
+      TO.chain(([tokenA, tokenB, p, poolsAndContracts, q]) => async () => {
+        const sortTickByIndex = pipe(
+          N.Ord,
+          contramap((t: Tick) => t.index)
+        );
+        const uniswapPools = await pipe(
+          poolsAndContracts,
+          A.map(([p, c]) => async () => {
+            const ticks = pipe(
+              p.ticks,
+              A.map((t) => {
+                return new Tick({
+                  liquidityGross: t.liquidityGross,
+                  liquidityNet: t.liquidityNet,
+                  index: Number(t.id.split('#')[1]),
+                });
+              }),
+              A.sort(sortTickByIndex)
+            );
+            try {
+              return createPoolFromSubgrap(1)(p, await c.tickSpacing(), []);
+            } catch (e) {
+              console.log(e);
+              console.log('invalid pool for', p.token0.symbol, p.token1.symbol);
+            }
+          }),
+          T.sequenceArray,
+          T.map((pools) =>
+            pipe(
+              [...pools],
+              A.filter((t) => t != null)
+            )
+          )
+        )();
+        return O.some([uniswapPools, tokenA, tokenB, p, q] as const);
+      }),
+      TO.chain(([pools, tokenA, tokenB, p, q]) => async () => {
+        return O.some([pools, tokenA, tokenB, p,q] as const);
+      }),
+      TO.chain(([pools, tokenA, tokenB, p,q]) => async () => {
+        console.log(tokenA, tokenB);
+        const test = q.
+        const filteredPools = pipe(
+          pools,
+          A.filter((p) => p.involvesToken(tokenA) || p.involvesToken(tokenB))
+        );
+        const routes = new Route(filteredPools, tokenB, tokenA);
+        console.log('here', routes.tokenPath);
+        /*     const trade = await Trade.bestTradeExactIn(
+          pools,
+          CurrencyAmount.fromRawAmount(tokenA, 1),
+          tokenB,
+          { maxNumResults: 1, maxHops: 3 }
+        );
+
+        console.log(trade); */
+        return O.some(pools);
+      })
+    )();
   });
   it('should use uniswap correctly', async () => {
     const pools = O.some(groupBySymbol(defaultPools));

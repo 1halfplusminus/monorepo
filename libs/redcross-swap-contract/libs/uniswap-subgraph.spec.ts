@@ -405,6 +405,7 @@ describe('Uniswap subgrap', () => {
     fetchPools: defaultFetchPools,
     tokens: O.some(pipe(tokenList, A.map(O.some))),
   };
+
   it('should use pools correctly', async () => {
     const { result, waitForValueToChange } = renderHook(() =>
       usePools({ ...usePoolsProps })

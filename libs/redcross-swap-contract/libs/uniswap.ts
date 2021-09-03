@@ -1,4 +1,10 @@
-import { computePoolAddress, Pool, tickToPrice } from '@uniswap/v3-sdk';
+import {
+  computePoolAddress,
+  Pool,
+  Tick,
+  TickListDataProvider,
+  tickToPrice,
+} from '@uniswap/v3-sdk';
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Provider } from '@ethersproject/providers';
@@ -30,6 +36,12 @@ import {
   eqPoolTokenToken,
 } from './uniswap-subgraph';
 import { useIsMounted } from './index';
+import { IQuoter__factory } from '../typechain/factories/IQuoter__factory';
+import {
+  Pools_pools,
+  Pools_pools_token0,
+  Pools_pools_token1,
+} from './__generated__/Pools';
 
 interface Immutables {
   factory: Address;
@@ -50,7 +62,25 @@ interface State {
   unlocked: boolean;
 }
 export const poolAddress = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
-
+export interface UseQuoter {
+  provider: Option<Provider>;
+}
+export const useQuoter = ({ provider }: UseQuoter) => {
+  const quoter = useMemo(
+    () =>
+      pipe(
+        provider,
+        O.map((p) =>
+          IQuoter__factory.connect(
+            '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6',
+            p
+          )
+        )
+      ),
+    [provider]
+  );
+  return quoter;
+};
 export const createPoolContract = (provider: Provider) => (
   address: string = poolAddress
 ) => IUniswapV3Pool__factory.connect(address, provider);
@@ -156,7 +186,26 @@ export const getPrice = (baseToken: Token, quoteToken: Token, tick: number) =>
     createUniswapToken(quoteToken),
     tick
   );
+export const createTokenFromSubgraph = (chainId: number) => (
+  token: Pools_pools_token0 | Pools_pools_token1
+) => pipe(new UToken(chainId, token.id, Number(token.decimals), token.symbol));
 
+export const createPoolFromSubgrap = (chainId: number) => (
+  pool: Pools_pools,
+  tickSpacing: number,
+  ticks: Tick[]
+) =>
+  pipe(
+    new Pool(
+      createTokenFromSubgraph(chainId)(pool.token0),
+      createTokenFromSubgraph(chainId)(pool.token1),
+      Number(pool.feeTier),
+      Number(pool.sqrtPrice),
+      Number(pool.liquidity),
+      Number(pool.tick),
+      new TickListDataProvider(ticks, tickSpacing)
+    )
+  );
 export const createPool = (
   poolContract: IUniswapV3Pool,
   baseToken: UToken,
@@ -186,7 +235,7 @@ export interface UseUniswapProps {
   pools: Option<PoolsList>;
   fetchPoolsImmutable?: (contrat: IUniswapV3Pool) => Promise<Immutables>;
 }
-
+export const useUniswapPools = () => {};
 export const useUniswap = ({
   tokenA,
   tokenB,
