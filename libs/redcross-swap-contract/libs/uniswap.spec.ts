@@ -10,20 +10,14 @@ import {
   array as A,
   record as R,
   option as O,
-  nonEmptyArray as NEA,
   taskOption as TO,
   function as F,
   task as T,
   number as N,
 } from 'fp-ts';
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { FeeAmount } from '../test/shared/constants';
-import { tokenList } from './__mocks__/index';
-import {
-  createPoolContractFromToken,
-  getPrice,
-  createPoolFromSubgrap,
-} from './uniswap';
+import { createPoolContractFromToken, createPoolFromSubgrap } from './uniswap';
 import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Pools_pools } from './__generated__/Pools';
@@ -35,23 +29,14 @@ import {
   UseFetchMore,
   usePools,
 } from './uniswap-subgraph';
-import { FACTORY_ADDRESS, Trade, Tick, Route } from '@uniswap/v3-sdk';
+import { FACTORY_ADDRESS, Tick, Route } from '@uniswap/v3-sdk';
 import { sequenceT } from 'fp-ts/Apply';
-import { CurrencyAmount } from '@uniswap/sdk-core';
 import { createPoolContract, useQuoter } from './uniswap';
 import { contramap } from 'fp-ts/Ord';
+import { getMockTokens } from './utils/getMockTokens';
 
 global.fetch = fetch as any;
 jest.setTimeout(100000);
-
-const getMockTokens = () =>
-  pipe(
-    tokenList,
-
-    filterByChainId(1),
-    NEA.groupBy((t) => t.symbol),
-    R.map((v) => v[0])
-  );
 
 describe('Uniswap Lib', () => {
   it('it should fetch price correctly', async () => {
@@ -227,11 +212,11 @@ describe('Use uniswap hook', () => {
         return O.some([uniswapPools, tokenA, tokenB, p, q] as const);
       }),
       TO.chain(([pools, tokenA, tokenB, p, q]) => async () => {
-        return O.some([pools, tokenA, tokenB, p,q] as const);
+        return O.some([pools, tokenA, tokenB, p, q] as const);
       }),
-      TO.chain(([pools, tokenA, tokenB, p,q]) => async () => {
+      TO.chain(([pools, tokenA, tokenB, p, q]) => async () => {
         console.log(tokenA, tokenB);
-        const test = q.
+
         const filteredPools = pipe(
           pools,
           A.filter((p) => p.involvesToken(tokenA) || p.involvesToken(tokenB))

@@ -4,11 +4,15 @@ import { pipe } from 'fp-ts/function';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { option as O } from 'fp-ts';
 import { useMemo } from 'react';
-import { BASES_TO_CHECK_TRADES_AGAINST } from '../constants/routing';
+import {
+  ADDITIONAL_BASES,
+  BASES_TO_CHECK_TRADES_AGAINST,
+} from '../constants/routing';
+import { getAdditionalBases } from '../utils/getAddionalBases';
 export interface UseAllCurrencyCombinations {
   tokenA: Option<Token>;
   tokenB: Option<Token>;
-  chainId: Option<string>;
+  chainId: Option<number>;
 }
 export const useAllCurrencyCombinations = ({
   tokenA,
@@ -16,11 +20,17 @@ export const useAllCurrencyCombinations = ({
   chainId,
 }: UseAllCurrencyCombinations) => {
   const bases = useMemo(
-    () => pipe(sequenceT(O.Apply)(tokenA, tokenB, chainId),,
-    O.map(([tokenA, tokenB, chainId]) => {
-        const common = BASES_TO_CHECK_TRADES_AGAINST[chainId] ?? []
-      return tokenA;
-    })),
+    () =>
+      pipe(
+        sequenceT(O.Apply)(tokenA, tokenB, chainId),
+        O.map(([tokenA, tokenB, chainId]) => {
+          const common = BASES_TO_CHECK_TRADES_AGAINST[chainId] ?? [];
+          const additionalA = getAdditionalBases(chainId)(tokenA);
+          const additionalB = getAdditionalBases(chainId)(tokenB);
+          return [...common, ...additionalA, ...additionalB];
+        })
+      ),
     [chainId, tokenA, tokenB]
   );
+  return bases;
 };
