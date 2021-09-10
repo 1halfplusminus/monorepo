@@ -61,9 +61,8 @@ export const createPoolIndex = (tokenASymbol: string, tokenBSymbol: string) =>
 export const selectPoolByToken = (tokenA: Token, tokenB: Token) => (
   pools: PoolsList
 ) =>
-  pipe(
-    createPoolIndex(poolSelector(tokenA), poolSelector(tokenB)),
-    (key) => pools[key]
+  pipe(createPoolIndex(poolSelector(tokenA), poolSelector(tokenB)), (k) =>
+    R.lookup(k)(pools)
   );
 
 export const selectPool = (tokenASymbol: string, tokenBSymbol: string) => (
