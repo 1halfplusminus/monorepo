@@ -8,7 +8,10 @@ import {
 } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { Token } from '@uniswap/sdk-core';
-import { ap } from 'fp-ts/lib/Apply';
+import type { Option } from 'fp-ts/Option';
+import { PoolsList } from '../uniswap-subgraph';
+import { useMemo } from 'react';
+import { sequenceT } from 'fp-ts/lib/Apply';
 
 export const poolEquals = (poolA: Pool) => (poolB: Pool) =>
   pipe(
@@ -92,4 +95,44 @@ export const computeAllRoutes = (
       )
     ),
     A.flatten
+  );
+
+export interface UseAllRoute {
+  tokenOut: Option<Token>;
+  tokenIn: Option<Token>;
+  chainId: Option<number>;
+  pools: Option<Pool[]>;
+  singleHopOnly?: Option<boolean>;
+}
+export const useAllRoute = ({
+  chainId,
+  tokenIn,
+  tokenOut,
+  pools,
+  singleHopOnly = O.none,
+}: UseAllRoute) =>
+  useMemo(
+    () =>
+      pipe(
+        singleHopOnly,
+        O.chain((r) => (r ? O.some(1) : O.none)),
+        O.getOrElse(() => 2),
+        (singleHopOnly) =>
+          pipe(
+            sequenceT(O.Apply)(chainId, tokenIn, tokenOut, pools),
+            O.map(([chainId, currencyIn, currencyOut, pools]) =>
+              computeAllRoutes(
+                currencyIn,
+                currencyOut,
+                pools,
+                chainId,
+                [],
+                [],
+                currencyIn,
+                singleHopOnly
+              )
+            )
+          )
+      ),
+    [chainId, tokenIn, tokenOut, pools, singleHopOnly]
   );
