@@ -10,7 +10,7 @@ import { CurrencyAmount, Token } from '@uniswap/sdk-core';
 import { IQuoter } from '../../typechain/IQuoter';
 import { useAllRoute } from './useAllRoute';
 import { encodeRouteToPath, Pool, Route } from '@uniswap/v3-sdk';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, BigNumber } from 'ethers';
 import { useMemo } from 'react';
 import { pipe } from 'fp-ts/function';
 import { sequenceT } from 'fp-ts/lib/Apply';
@@ -75,7 +75,18 @@ export const useBestV3TradeExactIn = ({
             A.map(([path, amountIn]) =>
               TO.tryCatch(() => quoter.quoteExactInput(path, amountIn))
             ),
-            TO.sequenceArray
+            TO.sequenceArray,
+            TO.map((r) =>
+              pipe(
+                [...r],
+                A.map((r) =>
+                  quoter.interface.decodeFunctionResult(
+                    'quoteExactInput',
+                    r.data
+                  )
+                )
+              )
+            )
           )
         ),
         TO.fromOption,
@@ -87,15 +98,30 @@ export const useBestV3TradeExactIn = ({
   return useMemo(
     () =>
       pipe(
-        quotesResults,
-        TO.map((results) =>
+        sequenceT(O.Apply)(amountIn),
+        O.map(() =>
           pipe(
-            [...results],
-            A.reduce(
-              {} as { bestRoute: Route<Token, Token>; amountOut: BigNumberish },
-              (acc) => {
-                return acc;
-              }
+            quotesResults,
+            TO.map((results) =>
+              pipe(
+                [...results],
+                A.reduceWithIndex(
+                  { bestRoute: null, amountOut: null } as {
+                    bestRoute: Route<Token, Token>;
+                    amountOut: BigNumber;
+                  },
+                  (i, acc) => {
+                    const r = results[i];
+                    if (!r) return acc;
+                    if (acc.amountOut == null) {
+                      return { bestRoute: routes[i], amountOut: r.amountOut };
+                    } else if (acc.amountOut.lt(r.amountIn)) {
+                      return { bestRoute: routes[i], amountOut: r.amountOut };
+                    }
+                    return acc;
+                  }
+                )
+              )
             )
           )
         )
