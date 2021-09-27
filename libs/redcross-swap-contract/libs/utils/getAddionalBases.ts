@@ -2,7 +2,6 @@ import { Token } from '@uniswap/sdk-core';
 import { flow, pipe } from 'fp-ts/function';
 import { ADDITIONAL_BASES } from '../constants/routing';
 import { record as R, option as O } from 'fp-ts';
-import { NonEmptyArray } from 'fp-ts/lib/NonEmptyArray';
 
 export const getAdditionalBases = flow((chaindId: number) =>
   flow((token: Token) =>

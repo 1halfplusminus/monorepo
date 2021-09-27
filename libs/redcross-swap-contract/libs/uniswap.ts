@@ -7,9 +7,8 @@ import {
 } from '@uniswap/v3-sdk';
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
-import { Provider } from '@ethersproject/providers';
 import { Address } from 'hardhat-deploy/dist/types';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, ethers, Signer } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { constant, flow, pipe } from 'fp-ts/function';
 import {
@@ -37,6 +36,8 @@ import {
 } from './uniswap-subgraph';
 import { useIsMounted } from './index';
 import { IQuoter__factory } from '../typechain/factories/IQuoter__factory';
+import { QUOTER_ADDRESSES } from './constants/addresses';
+import { JsonRpcProvider, Provider } from '@ethersproject/providers';
 import {
   Pools_pools,
   Pools_pools_token0,
@@ -63,21 +64,19 @@ interface State {
 }
 export const poolAddress = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
 export interface UseQuoter {
-  provider: Option<Provider>;
+  provider: Option<Provider | Signer>;
+  chainId: Option<number>;
 }
-export const useQuoter = ({ provider }: UseQuoter) => {
+export const useQuoter = ({ provider, chainId }: UseQuoter) => {
   const quoter = useMemo(
     () =>
       pipe(
-        provider,
-        O.map((p) =>
-          IQuoter__factory.connect(
-            '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6',
-            p
-          )
+        sequenceT(O.Apply)(provider, chainId),
+        O.map(([p, chainId]) =>
+          IQuoter__factory.connect(QUOTER_ADDRESSES[chainId], p)
         )
       ),
-    [provider]
+    [provider, chainId]
   );
   return quoter;
 };
@@ -203,7 +202,9 @@ export const createPoolFromSubgrap = (chainId: number) => (
       Number(pool.sqrtPrice),
       Number(pool.liquidity),
       Number(pool.tick),
-      new TickListDataProvider(ticks, tickSpacing)
+      ticks.length > 0 && false
+        ? new TickListDataProvider(ticks, tickSpacing)
+        : null
     )
   );
 export const createPool = (

@@ -5,7 +5,6 @@ import {
   useUniswap,
 } from './uniswap';
 import { pipe } from 'fp-ts/function';
-import { filterByChainId, getPoolImmutables } from './index';
 import {
   array as A,
   record as R,
@@ -15,10 +14,8 @@ import {
   task as T,
   number as N,
 } from 'fp-ts';
-import { ethers } from 'ethers';
 import { FeeAmount } from '../test/shared/constants';
 import { createPoolContractFromToken, createPoolFromSubgrap } from './uniswap';
-import fetch from 'node-fetch';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Pools_pools } from './__generated__/Pools';
 import {
@@ -34,7 +31,9 @@ import { sequenceT } from 'fp-ts/Apply';
 import { createPoolContract, useQuoter } from './uniswap';
 import { contramap } from 'fp-ts/Ord';
 import { getMockTokens } from './utils/getMockTokens';
+import { chainId, provider } from './__mocks__/providers';
 
+import fetch from 'node-fetch';
 global.fetch = fetch as any;
 jest.setTimeout(100000);
 
@@ -44,9 +43,6 @@ describe('Uniswap Lib', () => {
     const eth = tokens['BUSD'];
     const dai = tokens['WETH'];
 
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://eth-mainnet.alchemyapi.io/v2/ULYUeg7ZHZIpzzAsWhf7rS80BAnaclQn'
-    );
     const tokenA = createUniswapToken(eth);
     const tokenB = createUniswapToken(dai);
     const poolContact = createPoolContractFromToken(provider)(
@@ -69,11 +65,7 @@ describe('Use uniswap hook', () => {
     chainId: O.some(1),
     tokenA: tokenA,
     tokenB: tokenB,
-    provider: O.some(
-      new ethers.providers.JsonRpcProvider(
-        'https://eth-mainnet.alchemyapi.io/v2/ULYUeg7ZHZIpzzAsWhf7rS80BAnaclQn'
-      )
-    ),
+    provider: O.some(provider),
     pools: O.none,
   } as UseUniswapProps;
   it('should fetch more correctly', async () => {
@@ -138,7 +130,10 @@ describe('Use uniswap hook', () => {
           ...useUniswapProps,
           pools: pools,
         }),
-        quoter: useQuoter({ provider: useUniswapProps.provider }),
+        quoter: useQuoter({
+          provider: useUniswapProps.provider,
+          chainId: O.some(chainId),
+        }),
       })
     );
 

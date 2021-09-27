@@ -25,7 +25,13 @@ import { Token as UToken } from '@uniswap/sdk-core';
 
 export const QUERY_POOLS = gql`
   query Pools($skip: Int, $fist: Int) {
-    pools(skip: $skip, first: $fist, orderBy: liquidity, orderDirection: desc) {
+    pools(
+      where: { tick_not: 0 }
+      skip: $skip
+      first: $fist
+      orderBy: liquidity
+      orderDirection: desc
+    ) {
       id
       token0 {
         id
@@ -43,7 +49,7 @@ export const QUERY_POOLS = gql`
       feeTier
       token0Price
       token1Price
-      ticks {
+      ticks(where: { liquidityNet_gt: 0 }) {
         liquidityNet
         liquidityGross
         id
@@ -68,10 +74,10 @@ export const selectPoolByToken = (tokenA: Token, tokenB: Token) => (
 export const selectPool = (tokenASymbol: string, tokenBSymbol: string) => (
   pools: PoolsList
 ) => pipe(pools, R.lookup(createPoolIndex(tokenASymbol, tokenBSymbol)));
-
+export const filterBadPool = (p: Pools_pools) => p.tick != 0;
 export const selectPools = (result: {
   data: { pools: Omit<Pools_pools, '__typename'>[] };
-}) => (result.data ? result.data?.pools : []);
+}) => (result?.data ? pipe(result.data?.pools) : []);
 
 export const groupBySymbol = (pools: Pools_pools[]) =>
   pipe(
@@ -239,7 +245,7 @@ export interface UsePool {
   tokenB: Option<Token>;
   pools: Option<PoolsList>;
 }
-const createUniswapPool = () => {};
+
 export const usePool = ({ tokenA, tokenB, pools }: UsePool) => {
   const [pool, setPool] = useState<Option<Pools_pools>>(O.none);
   useEffect(() => {

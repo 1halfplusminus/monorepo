@@ -11,7 +11,7 @@
     "outDir": "dist",
     "resolveJsonModule": true,
     "allowJs": true,
-    "types": ["hardhat-deploy"],
+    "types": ["hardhat-deploy", "jest", "node"],
     "allowSyntheticDefaultImports": true
   },
   "include": ["./scripts", "./test", "./typechain", "scripts", "./deploy"],

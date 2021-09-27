@@ -168,3 +168,4 @@ libs/redcross-swap-contract/typechain/factories/IUniswapV3Factory__factory.ts
 libs/redcross-swap-contract/typechain/factories/IUniswapV3SwapCallback__factory.ts
 libs/redcross-swap-contract/typechain/factories/IWETH9__factory.ts
 libs/redcross-swap-contract/typechain/factories/TestERC20__factory.ts
+.env
