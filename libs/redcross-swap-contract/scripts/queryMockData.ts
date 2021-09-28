@@ -1,5 +1,5 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client';
-import { queryPools, QUERY_POOLS } from '../libs/uniswap-subgraph';
+import { ApolloClient, InMemoryCache, ApolloQueryResult } from '@apollo/client';
+import { QUERY_POOLS } from '../libs/uniswap-subgraph';
 import { task as T } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { Pools } from '../libs/__generated__/Pools';
@@ -12,19 +12,30 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 async function main() {
-  const mockData = pipe(
-    () =>
+  let allData: ApolloQueryResult<Pools> | null;
+  let lastResult: ApolloQueryResult<Pools> | null;
+  let skip = 0;
+  let first = 1000;
+  do {
+    console.log('skip: ' + skip + ' first: ' + first);
+    lastResult = await pipe(() =>
       client.query<Pools>({
         query: QUERY_POOLS,
-        variables: { skip: 0, first: 10000 },
-      }),
-    T.chain((r) =>
-      pipe(
-        path.resolve(__dirname, '../libs/__mocks__/pools.json'),
-        (path) => () => writeFile(path, JSON.stringify(r))
-      )
-    )
-  )();
+        variables: { skip: skip, first: first },
+      })
+    )();
+    skip += first;
+    if (!allData) {
+      allData = lastResult;
+    } else {
+      allData.data = {
+        pools: [...allData?.data?.pools, ...lastResult.data.pools],
+      };
+    }
+  } while (lastResult.data.pools.length > 0);
+  await pipe(path.resolve(__dirname, '../libs/__mocks__/pools.json'), (path) =>
+    writeFile(path, JSON.stringify(allData))
+  );
 }
 
 main();

@@ -35,7 +35,12 @@ export const useBestV3TradeExactIn = ({
   pools,
   amountIn,
 }: UseBestV3TradeExactIn) => {
-  const routes = useAllRoute({ chainId, tokenIn, tokenOut, pools });
+  const routes = useAllRoute({
+    chainId,
+    tokenIn,
+    tokenOut,
+    pools,
+  });
   const currencyAmount = useMemo(
     () =>
       pipe(
@@ -104,7 +109,7 @@ export const useBestV3TradeExactIn = ({
             pipe(
               r.pools,
               (r) => {
-                console.log('routes', r);
+                console.log(r);
                 return r;
               },
               A.reduce(
@@ -122,14 +127,24 @@ export const useBestV3TradeExactIn = ({
                   );
                 }
               ),
-              T.map((r) => O.some(r))
+              T.map((r) => O.some(r)),
+              TO.map((to) => {
+                console.log(to);
+                return to;
+              })
             )
           ),
-          TO.sequenceArray
+
+          TO.sequenceArray,
+          TO.map((to) => {
+            console.log(to);
+            return to;
+          })
         )
       ),
       TO.fromOption,
-      TO.flatten
+      TO.flatten,
+      TO.map((r) => console.log('here: ' + r))
       /*       TO.map((r) => setQuotesResults(O.some([...r]))) */
     )();
   }, [routes, tokenIn, currencyAmount]);
@@ -199,6 +214,6 @@ export const useBestV3TradeExactIn = ({
       O.map((r) => setBestRoute(r))
     );
   }, [amountIn, tokenOut, quotesResults, routes]); */
-  console.log(defaultPools, currencyAmount);
-  return { bestRoute, quotesResults };
+  console.log(routes);
+  return { bestRoute, quotesResults, routes };
 };

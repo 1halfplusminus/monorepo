@@ -1,5 +1,11 @@
 import { Tick } from '@uniswap/v3-sdk';
-import { record as R, function as F, array as A, number as N } from 'fp-ts';
+import {
+  record as R,
+  function as F,
+  array as A,
+  number as N,
+  option as O,
+} from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { createPoolFromSubgrap } from '../uniswap';
 import { PoolsList } from '../uniswap-subgraph';
@@ -28,17 +34,20 @@ export const createPoolsFromSubgraph = (chainId: number) => (
       pipe(
         p,
         A.map((p) =>
-          createPoolFromSubgrap(chainId)(
-            p,
-            TICK_SPACINGS[p.feeTier],
-            pipe(
-              p.ticks,
-              A.map(createTicksFromSubGrap),
-              A.sort(sortTickByIndex)
+          O.tryCatch(() =>
+            createPoolFromSubgrap(chainId)(
+              p,
+              TICK_SPACINGS[p.feeTier],
+              pipe(
+                p.ticks,
+                A.map(createTicksFromSubGrap),
+                A.sort(sortTickByIndex)
+              )
             )
           )
         )
       )
     ),
-    A.flatten
+    A.flatten,
+    A.compact
   );

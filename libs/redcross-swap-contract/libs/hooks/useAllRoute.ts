@@ -131,7 +131,11 @@ export const useAllRoute = ({
                 currencyIn,
                 singleHopOnly
               )
-            )
+            ),
+            O.map((r) => {
+              console.log(r);
+              return r;
+            })
           )
       ),
     [chainId, tokenIn, tokenOut, pools, singleHopOnly]

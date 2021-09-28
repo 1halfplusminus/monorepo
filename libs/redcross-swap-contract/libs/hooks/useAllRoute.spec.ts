@@ -1,5 +1,5 @@
 import { getMockTokens } from '../utils/getMockTokens';
-import { option as O, record as R } from 'fp-ts';
+import { option as O, record as R, io as IO, function as f } from 'fp-ts';
 import { defaultPools, groupBySymbol } from '../uniswap-subgraph';
 import { pipe } from 'fp-ts/function';
 import { createPoolFromSubgrap, createUniswapToken } from '../uniswap';
@@ -355,7 +355,245 @@ describe('Use All Routes', () => {
     expect(result.current).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": Array [],
+        "value": Array [
+          Route {
+            "_midPrice": null,
+            "input": Token {
+              "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+              "chainId": 1,
+              "decimals": 18,
+              "isNative": false,
+              "isToken": true,
+              "name": undefined,
+              "symbol": "WETH",
+            },
+            "output": Token {
+              "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+              "chainId": 1,
+              "decimals": 18,
+              "isNative": false,
+              "isToken": true,
+              "name": undefined,
+              "symbol": "DAI",
+            },
+            "pools": Array [
+              Pool {
+                "fee": 500,
+                "liquidity": JSBI [
+                  870013884,
+                  257650,
+                ],
+                "sqrtRatioX96": JSBI [
+                  0,
+                  1673411904,
+                  85361484,
+                ],
+                "tickCurrent": -78371,
+                "tickDataProvider": null,
+                "token0": Token {
+                  "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "FEI",
+                },
+                "token1": Token {
+                  "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "WETH",
+                },
+              },
+              Pool {
+                "fee": 500,
+                "liquidity": JSBI [
+                  0,
+                  1669124416,
+                  71364563,
+                ],
+                "sqrtRatioX96": JSBI [
+                  0,
+                  -195559424,
+                  666765,
+                  1,
+                ],
+                "tickCurrent": 3,
+                "tickDataProvider": null,
+                "token0": Token {
+                  "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "DAI",
+                },
+                "token1": Token {
+                  "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "FEI",
+                },
+              },
+            ],
+            "tokenPath": Array [
+              Token {
+                "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                "chainId": 1,
+                "decimals": 18,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "WETH",
+              },
+              Token {
+                "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+                "chainId": 1,
+                "decimals": 18,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "FEI",
+              },
+              Token {
+                "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                "chainId": 1,
+                "decimals": 18,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "DAI",
+              },
+            ],
+          },
+          Route {
+            "_midPrice": null,
+            "input": Token {
+              "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+              "chainId": 1,
+              "decimals": 18,
+              "isNative": false,
+              "isToken": true,
+              "name": undefined,
+              "symbol": "WETH",
+            },
+            "output": Token {
+              "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+              "chainId": 1,
+              "decimals": 18,
+              "isNative": false,
+              "isToken": true,
+              "name": undefined,
+              "symbol": "DAI",
+            },
+            "pools": Array [
+              Pool {
+                "fee": 3000,
+                "liquidity": JSBI [
+                  -1772979131,
+                  56030,
+                ],
+                "sqrtRatioX96": JSBI [
+                  0,
+                  1505755136,
+                  935802351,
+                  262,
+                ],
+                "tickCurrent": 111389,
+                "tickDataProvider": null,
+                "token0": Token {
+                  "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                  "chainId": 1,
+                  "decimals": 8,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "cDAI",
+                },
+                "token1": Token {
+                  "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "WETH",
+                },
+              },
+              Pool {
+                "fee": 500,
+                "liquidity": JSBI [
+                  -448724992,
+                  -354221413,
+                  18,
+                ],
+                "sqrtRatioX96": JSBI [
+                  0,
+                  1140850688,
+                  1607029680,
+                  14775,
+                ],
+                "tickCurrent": 192023,
+                "tickDataProvider": null,
+                "token0": Token {
+                  "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                  "chainId": 1,
+                  "decimals": 8,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "cDAI",
+                },
+                "token1": Token {
+                  "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                  "chainId": 1,
+                  "decimals": 18,
+                  "isNative": false,
+                  "isToken": true,
+                  "name": undefined,
+                  "symbol": "DAI",
+                },
+              },
+            ],
+            "tokenPath": Array [
+              Token {
+                "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                "chainId": 1,
+                "decimals": 18,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "WETH",
+              },
+              Token {
+                "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+                "chainId": 1,
+                "decimals": 8,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "cDAI",
+              },
+              Token {
+                "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                "chainId": 1,
+                "decimals": 18,
+                "isNative": false,
+                "isToken": true,
+                "name": undefined,
+                "symbol": "DAI",
+              },
+            ],
+          },
+        ],
       }
     `);
   });
