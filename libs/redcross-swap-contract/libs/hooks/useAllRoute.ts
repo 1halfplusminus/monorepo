@@ -110,8 +110,8 @@ export const useAllRoute = ({
   tokenOut,
   pools,
   singleHopOnly = O.none,
-}: UseAllRoute) =>
-  useMemo(
+}: UseAllRoute) => {
+  const allRoutes = useMemo(
     () =>
       pipe(
         singleHopOnly,
@@ -131,12 +131,11 @@ export const useAllRoute = ({
                 currencyIn,
                 singleHopOnly
               )
-            ),
-            O.map((r) => {
-              console.log(r);
-              return r;
-            })
+            )
           )
       ),
     [chainId, tokenIn, tokenOut, pools, singleHopOnly]
   );
+  console.log(allRoutes);
+  return allRoutes;
+};

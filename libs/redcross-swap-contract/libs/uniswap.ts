@@ -4,6 +4,7 @@ import {
   Tick,
   TickListDataProvider,
   tickToPrice,
+  NoTickDataProvider,
 } from '@uniswap/v3-sdk';
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
@@ -204,7 +205,7 @@ export const createPoolFromSubgrap = (chainId: number) => (
       Number(pool.tick),
       ticks.length > 0 && false
         ? new TickListDataProvider(ticks, tickSpacing)
-        : null
+        : new NoTickDataProvider()
     )
   );
 export const createPool = (

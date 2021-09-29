@@ -19,32 +19,47 @@ describe('Use Best Trade', () => {
   const tokenC = pipe(tokens, R.lookup('LRC'));
   const chainId = 1;
   it('should use best trade', async () => {
+    const tokenIn = pipe(O.some(createUniswapToken), O.ap(tokenA));
+    const tokenOut = pipe(O.some(createUniswapToken), O.ap(tokenC));
+    const uniswapPools = pipe(
+      pools,
+      O.map((pools) => createPoolsFromSubgraph(1)(pools))
+    );
+    const amountIn = O.some(1);
+    const someChainId = O.some(chainId);
     const { result, waitForValueToChange } = renderHook(() => {
       const quoter = useQuoter({
         provider: O.some(signer),
         chainId: O.some(chainId),
       });
-      return [
-        useBestV3TradeExactIn({
-          tokenIn: pipe(O.some(createUniswapToken), O.ap(tokenA)),
-          tokenOut: pipe(O.some(createUniswapToken), O.ap(tokenC)),
-          amountIn: O.some(chainId),
-          chainId: O.some(chainId),
-          pools: pipe(
-            pools,
-            O.map((pools) => createPoolsFromSubgraph(1)(pools))
-          ),
-          quoter,
-        }),
+      return useBestV3TradeExactIn({
+        tokenIn: tokenIn,
+        tokenOut: tokenOut,
+        amountIn: amountIn,
+        chainId: someChainId,
+        pools: uniswapPools,
         quoter,
-      ] as const;
+      });
     });
 
-    expect(O.isSome(result.current[1])).toBe(true);
     /*     expect(O.isSome(result.current[0].quotesResults)).toBe(true); */
-    await waitForValueToChange(() => result.current[0].routes, {
+    await waitForValueToChange(() => result.current.bestRoute, {
       timeout: 10000,
     });
-    expect(O.isSome(result.current[0].bestRoute)).toBe(true);
+    expect(result.current.quotesResults).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Array [],
+      }
+    `);
+    expect(result.current.bestRoute).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Object {
+          "amountOut": null,
+          "bestRoute": null,
+        },
+      }
+    `);
   });
 });

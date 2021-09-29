@@ -1,7 +1,7 @@
 import { SupportedChainId } from '../constants/chains';
 import type { Option } from 'fp-ts/Option';
 import { option as O, array as A, taskOption as TO, task as T } from 'fp-ts';
-import { CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { Token, CurrencyAmount } from '@uniswap/sdk-core';
 import { IQuoter } from '../../typechain/IQuoter';
 import { useAllRoute } from './useAllRoute';
 import { encodeRouteToPath, Pool, Route, Trade } from '@uniswap/v3-sdk';
@@ -31,7 +31,6 @@ export const useBestV3TradeExactIn = ({
   tokenIn,
   tokenOut,
   chainId,
-  quoter,
   pools,
   amountIn,
 }: UseBestV3TradeExactIn) => {
@@ -51,22 +50,7 @@ export const useBestV3TradeExactIn = ({
       ),
     [amountIn, tokenIn]
   );
-  const quoteExactInInputs = useMemo(
-    () =>
-      pipe(
-        sequenceT(O.Apply)(routes, currencyAmount),
-        O.map(([routes, amountIn]) =>
-          pipe(
-            routes,
-            A.map((route) => [
-              encodeRouteToPath(route, false),
-              `0x${amountIn.quotient.toString(16)}`,
-            ])
-          )
-        )
-      ),
-    [currencyAmount, routes]
-  );
+
   const [quotesResults, setQuotesResults] = useState<
     O.Option<Array<{ amountOut: BigNumber }>>
   >(O.none);
@@ -77,111 +61,68 @@ export const useBestV3TradeExactIn = ({
       amountOut: BigNumberish;
     }>
   >(O.none);
-
-  /* useEffect(() => {
-    pipe(
-      sequenceT(O.Apply)(pools, tokenIn, currencyAmount),
-      O.map(([pools, tokenIn, currencyAmount]) =>
-        pipe(
-          () => Trade.bestTradeExactOut(pools, tokenIn, currencyAmount),
-          T.map((r) => O.some(r))
-        )
-      ),
-      TO.fromOption,
-      TO.flatten,
-      TO.map((t) =>
-        setBestRoute(
-          O.some({
-            bestRoute: t[0].swaps[0].route,
-            amountOut: t[0].swaps[0].outputAmount.toFixed(),
-          })
-        )
-      )
-    )();
-  }, [pools, tokenIn, currencyAmount]); */
   useEffect(() => {
     pipe(
       sequenceT(O.Apply)(routes, currencyAmount),
       O.map(([routes, currencyAmount]) =>
-        pipe(
-          routes,
-          A.map((r) =>
-            pipe(
-              r.pools,
-              (r) => {
-                console.log(r);
-                return r;
-              },
-              A.reduce(
-                () => Promise.resolve(currencyAmount),
-                (acc, p) => {
-                  console.log('pool' + p.token0);
-                  return pipe(
-                    acc,
-                    T.chain(() =>
-                      pipe(
-                        async () => [currencyAmount, p] as const,
-                        T.map((r) => r[0])
-                      )
-                    )
-                  );
-                }
-              ),
-              T.map((r) => O.some(r)),
-              TO.map((to) => {
-                console.log(to);
-                return to;
-              })
-            )
-          ),
+        pipe(routes, (routes) => async () => {
+          const accs: Array<CurrencyAmount<Token>> = [];
+          let acc: CurrencyAmount<Token>;
+          for (let route of routes) {
+            console.log('route chain id ' + route.chainId);
+            acc = route.midPrice.quote(currencyAmount);
+            console.log(
+              'quote: ' + acc.currency.symbol + ' ' + acc.denominator
+            );
+            console.log(
+              'route ' + route.input.symbol + ' => ' + route.output.symbol
+            );
+            console.log('result: ' + acc.asFraction.numerator);
+            accs.push(acc);
+          }
+          const formattedAccs = pipe(
+            accs,
+            A.map((r) => {
+              return {
+                amountOut: BigNumber.from(r.numerator.toString(10)),
+              };
+            })
+          );
+          setQuotesResults(O.some([...formattedAccs]));
+          /*  const accs: Array<CurrencyAmount<Token>> = [];
+          console.log('here');
+          for (let route of routes) {
+            let acc: CurrencyAmount<Token> = currencyAmount;
+            console.log('here');
+            for (let pool of route.pools) {
+              console.log('here');
+              const r = await pool.getOutputAmount(acc)[0];
+              console.log(r);
+              if (r) {
+                acc = r;
+              }
+            }
+            accs.push(acc);
+          }
+          const formattedAccs = pipe(
+            accs,
+            A.map((r) => {
+              console.log(r.numerator);
+              return {
+                amountOut: BigNumber.from(r.numerator.toString(10)),
+              };
+            })
+          );
 
-          TO.sequenceArray,
-          TO.map((to) => {
-            console.log(to);
-            return to;
-          })
-        )
+          setQuotesResults(O.some([...formattedAccs])); */
+          return O.some(true);
+        })
       ),
       TO.fromOption,
-      TO.flatten,
-      TO.map((r) => console.log('here: ' + r))
-      /*       TO.map((r) => setQuotesResults(O.some([...r]))) */
+      TO.flatten
     )();
-  }, [routes, tokenIn, currencyAmount]);
-  /*  useEffect(() => {
-    pipe(
-      sequenceT(O.Apply)(quoter, quoteExactInInputs, currencyAmount, chainId),
-      O.map(([quoter, quoteExactInInputs, currencyAmount, chainId]) =>
-        pipe(
-          quoteExactInInputs,
-          A.map(([path, amountIn]) =>
-            TO.tryCatch(() =>
-              quoter
-                .quoteExactInput(path, amountIn, {
-                  gasPrice: QUOTE_GAS_OVERRIDES[chainId],
-                })
-                .catch((e) => {
-                  console.log(e);
-                })
-            )
-          ),
-          TO.sequenceArray,
-          TO.map((r: any) =>
-            pipe(
-              [...r],
-              A.map((r) =>
-                quoter.interface.decodeFunctionResult('quoteExactInput', r.data)
-              )
-            )
-          )
-        )
-      ),
-      TO.fromOption,
-      TO.flatten,
-      T.map((r) => setQuotesResults(r))
-    )();
-  }, [quoter, quoteExactInInputs, currencyAmount]); */
-  /* useEffect(() => {
+  }, [routes]);
+  useEffect(() => {
     pipe(
       sequenceT(O.Apply)(amountIn),
       O.map(() =>
@@ -213,7 +154,7 @@ export const useBestV3TradeExactIn = ({
       ),
       O.map((r) => setBestRoute(r))
     );
-  }, [amountIn, tokenOut, quotesResults, routes]); */
-  console.log(routes);
+  }, [amountIn, quotesResults, routes]);
+
   return { bestRoute, quotesResults, routes };
 };
