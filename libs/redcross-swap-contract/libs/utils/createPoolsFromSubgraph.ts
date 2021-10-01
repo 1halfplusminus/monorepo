@@ -34,20 +34,18 @@ export const createPoolsFromSubgraph = (chainId: number) => (
       pipe(
         p,
         A.map((p) =>
-          O.tryCatch(() =>
-            createPoolFromSubgrap(chainId)(
-              p,
-              TICK_SPACINGS[p.feeTier],
-              pipe(
-                p.ticks,
-                A.map(createTicksFromSubGrap),
-                A.sort(sortTickByIndex)
-              )
+          createPoolFromSubgrap(chainId)(
+            p,
+            1,
+            pipe(
+              p.ticks,
+              A.map(createTicksFromSubGrap),
+              A.sort(sortTickByIndex)
             )
           )
         )
       )
     ),
-    A.flatten,
-    A.compact
+    A.flatten
+    /*     A.compact */
   );

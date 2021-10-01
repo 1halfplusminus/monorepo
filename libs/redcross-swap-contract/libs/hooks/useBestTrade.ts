@@ -70,7 +70,11 @@ export const useBestV3TradeExactIn = ({
           let acc: CurrencyAmount<Token>;
           for (let route of routes) {
             console.log('route chain id ' + route.chainId);
-            acc = route.midPrice.quote(currencyAmount);
+            if (route.output.equals(currencyAmount.currency)) {
+              acc = currencyAmount;
+            } else {
+              acc = route.midPrice.quote(currencyAmount);
+            }
             console.log(
               'quote: ' + acc.currency.symbol + ' ' + acc.denominator
             );

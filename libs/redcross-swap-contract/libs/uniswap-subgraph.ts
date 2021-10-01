@@ -25,13 +25,7 @@ import { Token as UToken } from '@uniswap/sdk-core';
 
 export const QUERY_POOLS = gql`
   query Pools($skip: Int, $fist: Int) {
-    pools(
-      where: { tick_not: 0 }
-      skip: $skip
-      first: $fist
-      orderBy: liquidity
-      orderDirection: desc
-    ) {
+    pools(where: { liquidity_gt: 0 }, skip: $skip, first: $fist) {
       id
       token0 {
         id
@@ -49,7 +43,7 @@ export const QUERY_POOLS = gql`
       feeTier
       token0Price
       token1Price
-      ticks(where: { liquidityNet_gt: 0 }) {
+      ticks {
         liquidityNet
         liquidityGross
         id
@@ -105,7 +99,11 @@ export const queryPools = (apolloClient: ApolloClient<unknown>) => (
     T.map((r) => selectPools(r))
   )();
 
-export const defaultPools = pipe(QUERY_POOLS_RESULT, selectPools);
+export const defaultPools = pipe(
+  QUERY_POOLS_RESULT,
+  selectPools,
+  A.filter((p) => p.liquidity != 0)
+);
 
 export const defaultFetchPools = async (skip: number, first: number) =>
   defaultPools.slice(skip, skip + first);

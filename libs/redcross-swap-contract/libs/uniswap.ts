@@ -200,7 +200,7 @@ export const createPoolFromSubgrap = (chainId: number) => (
       createTokenFromSubgraph(chainId)(pool.token0),
       createTokenFromSubgraph(chainId)(pool.token1),
       Number(pool.feeTier),
-      Number(pool.sqrtPrice),
+      pool.sqrtPrice,
       Number(pool.liquidity),
       Number(pool.tick),
       ticks.length > 0 && false
