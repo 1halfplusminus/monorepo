@@ -21,8 +21,12 @@ import { sequenceT } from 'fp-ts/lib/Apply';
 import { computeAllRoutes, eqPool, useAllRoute } from './useAllRoute';
 import { renderHook } from '@testing-library/react-hooks';
 import { selectFirstPool } from '../utils/selectFirstPool';
-import { createPoolsFromSubgraph } from '../utils/createPoolsFromSubgraph';
+import {
+  createPoolFromSubgraph,
+  createPoolsFromSubgraph,
+} from '../utils/createPoolsFromSubgraph';
 import { createFirstPoolFromSubgrap } from '../utils/createFirstPoolFromSubgraph';
+import { TICK_SPACINGS } from '@uniswap/v3-sdk';
 
 describe('Use All Routes', () => {
   const chainId = O.some(1);
@@ -96,13 +100,62 @@ describe('Use All Routes', () => {
             pools,
             R.collect((k, v) => v),
             A.flatten,
-            A.findFirst(
+            A.filter(
               (p) =>
                 p.token0.symbol == tokenA.symbol ||
                 p.token1.symbol == tokenA.symbol
+            ),
+            A.map(
+              (p) =>
+                [
+                  p,
+                  p.token0.symbol == tokenA.symbol ? p.token0 : p.token1,
+                ] as const
             )
           );
-          console.log(pools);
+          var tokenAPool = createTokenFromSubgraph(chainId)(tokenAPools[0][1]);
+          const tokenBPools = pipe(
+            pools,
+            R.collect((k, v) => v),
+            A.flatten,
+            A.filter(
+              (p) =>
+                p.token0.symbol == tokenB.symbol ||
+                p.token1.symbol == tokenB.symbol
+            ),
+            A.map(
+              (p) =>
+                [
+                  p,
+                  p.token0.symbol == tokenB.symbol ? p.token0 : p.token1,
+                ] as const
+            )
+          );
+          var tokenBPool = createTokenFromSubgraph(chainId)(tokenBPools[0][1]);
+          const tokenCPools = pipe(
+            pools,
+            R.collect((k, v) => v),
+            A.flatten,
+            A.filter(
+              (p) =>
+                p.token0.symbol == tokenC.symbol ||
+                p.token1.symbol == tokenC.symbol
+            ),
+            A.map((p) => createPoolFromSubgraph(chainId)(p)),
+            A.filter(
+              (p) => p.involvesToken(tokenAPool) || p.involvesToken(tokenBPool)
+            ),
+            A.map(
+              (p) =>
+                [
+                  p,
+                  p.token0.symbol == tokenB.symbol ? p.token0 : p.token1,
+                ] as const
+            )
+          );
+          console.log(
+            tokenCPools.map((p) => p.token0.symbol + ' => ' + p.token1.symbol)
+          );
         })
       )
     );

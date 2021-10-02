@@ -1,22 +1,17 @@
 import { Tick } from '@uniswap/v3-sdk';
-import {
-  record as R,
-  function as F,
-  array as A,
-  number as N,
-  option as O,
-} from 'fp-ts';
+import { record as R, function as F, array as A, number as N } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { createPoolFromSubgrap } from '../uniswap';
 import { PoolsList } from '../uniswap-subgraph';
 import { contramap } from 'fp-ts/Ord';
-import { Pools_pools_ticks } from '../__generated__/Pools';
+import { Pools_pools_ticks, Pools_pools } from '../__generated__/Pools';
 import { TICK_SPACINGS } from '../../test/shared/constants';
-const sortTickByIndex = pipe(
+
+export const sortTickByIndex = pipe(
   N.Ord,
   contramap((t: Tick) => t.index)
 );
-const createTicksFromSubGrap = (t: Pools_pools_ticks) => {
+export const createTicksFromSubGrap = (t: Pools_pools_ticks) => {
   return new Tick({
     liquidityGross: t.liquidityGross,
     liquidityNet: t.liquidityNet,
@@ -24,6 +19,14 @@ const createTicksFromSubGrap = (t: Pools_pools_ticks) => {
   });
 };
 
+export const createPoolFromSubgraph = (chainId: number) => (p: Pools_pools) =>
+  pipe(
+    createPoolFromSubgrap(chainId)(
+      p,
+      TICK_SPACINGS[p.feeTier],
+      pipe(p.ticks, A.map(createTicksFromSubGrap), A.sort(sortTickByIndex))
+    )
+  );
 export const createPoolsFromSubgraph = (chainId: number) => (
   pools: PoolsList
 ) =>
@@ -36,7 +39,7 @@ export const createPoolsFromSubgraph = (chainId: number) => (
         A.map((p) =>
           createPoolFromSubgrap(chainId)(
             p,
-            1,
+            TICK_SPACINGS[p.feeTier],
             pipe(
               p.ticks,
               A.map(createTicksFromSubGrap),
