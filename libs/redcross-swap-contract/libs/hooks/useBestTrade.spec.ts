@@ -2,7 +2,7 @@ import { useBestV3TradeExactIn } from './useBestTrade';
 import { pipe } from 'fp-ts/function';
 import { defaultPools, groupBySymbol } from '../uniswap-subgraph';
 import { option as O, record as R } from 'fp-ts';
-import { getMockTokens } from '../utils/getMockTokens';
+import { createTokensMapFromPools } from '../utils/createTokensMapFromPools';
 import { createUniswapToken, useQuoter } from '../uniswap';
 import { createPoolsFromSubgraph } from '../utils/createPoolsFromSubgraph';
 import { signer } from '../__mocks__/providers';
@@ -13,19 +13,18 @@ import result from 'antd/lib/result';
 (global as any).fetch = fetch as any;
 jest.setTimeout(100000);
 describe('Use Best Trade', () => {
-  const pools = O.some(groupBySymbol(defaultPools));
-  const tokens = getMockTokens();
+  const chainId = 1;
+  const pools = groupBySymbol(defaultPools);
+  const poolsOption = O.some(pools);
+  const uniswapPools = pipe(pools, createPoolsFromSubgraph(chainId), O.some);
+  const tokens = createTokensMapFromPools(chainId)(pools);
   const tokenA = pipe(tokens, R.lookup('AAVE'));
   const tokenB = pipe(tokens, R.lookup('BAL'));
 
-  const chainId = 1;
   it('should use best trade', async () => {
-    const tokenIn = pipe(O.some(createUniswapToken), O.ap(tokenA));
-    const tokenOut = pipe(O.some(createUniswapToken), O.ap(tokenB));
-    const uniswapPools = pipe(
-      pools,
-      O.map((pools) => createPoolsFromSubgraph(1)(pools))
-    );
+    const tokenIn = tokenA;
+    const tokenOut = tokenB;
+
     const amountIn = O.some(1);
     const someChainId = O.some(chainId);
     const { result, waitForValueToChange } = renderHook(() => {

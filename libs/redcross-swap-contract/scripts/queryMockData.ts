@@ -15,7 +15,7 @@ async function main() {
   let allData: ApolloQueryResult<Pools> | null;
   let lastResult: ApolloQueryResult<Pools> | null;
   let skip = 0;
-  let first = 1000;
+  let first = 100;
   do {
     console.log('skip: ' + skip + ' first: ' + first);
     lastResult = await pipe(() =>

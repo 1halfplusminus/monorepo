@@ -1,4 +1,3 @@
-import { getMockTokens } from '../utils/getMockTokens';
 import {
   option as O,
   record as R,
@@ -6,11 +5,7 @@ import {
   function as f,
   array as A,
 } from 'fp-ts';
-import {
-  defaultPools,
-  groupBySymbol,
-  selectPoolByToken,
-} from '../uniswap-subgraph';
+import { defaultPools, groupBySymbol } from '../uniswap-subgraph';
 import { pipe } from 'fp-ts/function';
 import {
   createPoolFromSubgrap,
@@ -25,13 +20,16 @@ import {
   createPoolFromSubgraph,
   createPoolsFromSubgraph,
 } from '../utils/createPoolsFromSubgraph';
-import { createFirstPoolFromSubgrap } from '../utils/createFirstPoolFromSubgraph';
-import { TICK_SPACINGS } from '@uniswap/v3-sdk';
+import { createTokensMapFromPools } from '../utils/createTokensMapFromPools';
 
 describe('Use All Routes', () => {
-  const chainId = O.some(1);
-  const pools = O.some(groupBySymbol(defaultPools));
-  const tokens = getMockTokens();
+  const _chainId = 1;
+  const _pools = groupBySymbol(defaultPools);
+  const _uniswapPools = pipe(_pools, createPoolsFromSubgraph(_chainId));
+  const chainId = O.some(_chainId);
+  const pools = O.some(_pools);
+  const tokens = createTokensMapFromPools(_chainId)(_pools);
+  const uniswapPools = O.some(_uniswapPools);
   const tokenA = pipe(tokens, R.lookup('WETH'));
   const tokenB = pipe(tokens, R.lookup('DAI'));
   const tokenC = pipe(tokens, R.lookup('LRC'));
@@ -39,17 +37,20 @@ describe('Use All Routes', () => {
   const bal = pipe(tokens, R.lookup('BAL'));
   it('should compare pool correctly', () => {
     const poolA = pipe(
-      sequenceT(O.Apply)(tokenB, tokenA, pools),
-      O.chain(([tokenA, tokenB, pools]) =>
-        createFirstPoolFromSubgrap(tokenA, tokenB)(pools)
+      sequenceT(O.Apply)(tokenA, tokenB),
+      O.chain(([tokenA, tokenB]) =>
+        pipe(
+          _uniswapPools,
+          A.findFirst((t) => t.involvesToken(tokenA) && t.involvesToken(tokenB))
+        )
       )
     );
     const poolB = pipe(
-      sequenceT(O.Apply)(tokenB, tokenA, pools),
-      O.chain(([tokenA, tokenB, pools]) =>
+      sequenceT(O.Apply)(tokenA, tokenB),
+      O.chain(([tokenA, tokenB]) =>
         pipe(
-          selectFirstPool(tokenA, tokenB)(pools),
-          O.map((p) => createPoolFromSubgrap(1)(p, 1, []))
+          _uniswapPools,
+          A.findFirst((t) => t.involvesToken(tokenA) && t.involvesToken(tokenB))
         )
       )
     );
@@ -62,11 +63,11 @@ describe('Use All Routes', () => {
       )
     ).toBe(true);
     const poolC = pipe(
-      sequenceT(O.Apply)(tokenB, tokenC, pools),
-      O.chain(([tokenA, tokenB, pools]) =>
+      sequenceT(O.Apply)(tokenA, tokenC),
+      O.chain(([tokenA, tokenB]) =>
         pipe(
-          selectFirstPool(tokenA, tokenB)(pools),
-          O.map((p) => createPoolFromSubgrap(1)(p, 1, []))
+          _uniswapPools,
+          A.findFirst((t) => t.involvesToken(tokenA) && t.involvesToken(tokenB))
         )
       )
     );
@@ -97,65 +98,26 @@ describe('Use All Routes', () => {
         pipe(createPoolsFromSubgraph(chainId)(pools), (subGraphPool) => {
           expect(tokenA.chainId === chainId).toBe(true);
           const tokenAPools = pipe(
-            pools,
-            R.collect((k, v) => v),
-            A.flatten,
-            A.filter(
-              (p) =>
-                p.token0.symbol == tokenA.symbol ||
-                p.token1.symbol == tokenA.symbol
-            ),
-            A.map(
-              (p) =>
-                [
-                  p,
-                  p.token0.symbol == tokenA.symbol ? p.token0 : p.token1,
-                ] as const
-            )
+            _uniswapPools,
+            A.findFirst((p) => p.involvesToken(tokenA))
           );
-          var tokenAPool = createTokenFromSubgraph(chainId)(tokenAPools[0][1]);
+
           const tokenBPools = pipe(
-            pools,
-            R.collect((k, v) => v),
-            A.flatten,
-            A.filter(
-              (p) =>
-                p.token0.symbol == tokenB.symbol ||
-                p.token1.symbol == tokenB.symbol
-            ),
-            A.map(
-              (p) =>
-                [
-                  p,
-                  p.token0.symbol == tokenB.symbol ? p.token0 : p.token1,
-                ] as const
-            )
+            _uniswapPools,
+            A.findFirst((p) => p.involvesToken(tokenB))
           );
-          var tokenBPool = createTokenFromSubgraph(chainId)(tokenBPools[0][1]);
+
           const tokenCPools = pipe(
-            pools,
-            R.collect((k, v) => v),
-            A.flatten,
-            A.filter(
-              (p) =>
-                p.token0.symbol == tokenC.symbol ||
-                p.token1.symbol == tokenC.symbol
-            ),
-            A.map((p) => createPoolFromSubgraph(chainId)(p)),
-            A.filter(
-              (p) => p.involvesToken(tokenAPool) || p.involvesToken(tokenBPool)
-            ),
-            A.map(
-              (p) =>
-                [
-                  p,
-                  p.token0.symbol == tokenB.symbol ? p.token0 : p.token1,
-                ] as const
+            sequenceT(O.Apply)(aave),
+            O.map(([tokenA]) =>
+              pipe(
+                _uniswapPools,
+                A.filter((p) => p.involvesToken(tokenA)),
+                A.map((p) => p.token0.symbol + ' => ' + p.token1.symbol)
+              )
             )
           );
-          console.log(
-            tokenCPools.map((p) => p.token0.symbol + ' => ' + p.token1.symbol)
-          );
+          console.log(tokenCPools);
         })
       )
     );
@@ -164,8 +126,8 @@ describe('Use All Routes', () => {
         sequenceT(O.Apply)(tokenB, tokenC, pools, chainId),
         O.map(([tokenA, tokenB, pools, chainId]) =>
           computeAllRoutes(
-            createUniswapToken(tokenA),
-            createUniswapToken(tokenB),
+            tokenA,
+            tokenB,
             createPoolsFromSubgraph(chainId)(pools),
             2
           )
@@ -182,8 +144,8 @@ describe('Use All Routes', () => {
         sequenceT(O.Apply)(tokenA, tokenC, pools, chainId),
         O.map(([tokenA, tokenB, pools, chainId]) =>
           computeAllRoutes(
-            createUniswapToken(tokenA),
-            createUniswapToken(tokenB),
+            tokenA,
+            tokenB,
             createPoolsFromSubgraph(chainId)(pools),
             2
           )
@@ -279,8 +241,8 @@ describe('Use All Routes', () => {
       sequenceT(O.Apply)(pools, chainId),
       O.map(([pools, chainId]) => createPoolsFromSubgraph(chainId)(pools))
     );
-    const tokenIn = pipe(O.some(createUniswapToken), O.ap(tokenA));
-    const tokenOut = pipe(O.some(createUniswapToken), O.ap(tokenC));
+    const tokenIn = tokenA;
+    const tokenOut = tokenC;
     const { result, waitForValueToChange } = renderHook(() =>
       useAllRoute({
         chainId,

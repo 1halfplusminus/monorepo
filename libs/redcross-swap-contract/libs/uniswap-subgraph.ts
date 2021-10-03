@@ -25,7 +25,7 @@ import { Token as UToken } from '@uniswap/sdk-core';
 
 export const QUERY_POOLS = gql`
   query Pools($skip: Int, $fist: Int) {
-    pools(where: { liquidity_gt: 0 }, skip: $skip, first: $fist) {
+    pools(skip: $skip, first: $fist) {
       id
       token0 {
         id

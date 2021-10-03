@@ -1,7 +1,4 @@
-import { getMockTokens } from '../utils/getMockTokens';
 import { option as O, record as R, function as F, array as A } from 'fp-ts';
-import { defaultPools, groupBySymbol } from '../uniswap-subgraph';
-
 import { createPoolFromSubgrap } from '../uniswap';
 import { Pools_pools } from '../__generated__/Pools';
 import { TokenListItem } from '../index';

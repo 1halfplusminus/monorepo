@@ -9,7 +9,6 @@ import {
 describe('Create token from subgrap', () => {
   const chaindId = 1;
   const pools = groupBySymbol(defaultPools);
-  const uniswapPools = pipe(pools, createPoolsFromSubgraph(1));
 
   it('should create token from subgrap', () => {
     const tokens = createTokensFromSubgraph(chaindId)(pools);
