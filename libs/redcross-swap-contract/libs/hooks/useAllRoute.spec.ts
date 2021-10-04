@@ -21,6 +21,7 @@ import {
   createPoolsFromSubgraph,
 } from '../utils/createPoolsFromSubgraph';
 import { createTokensMapFromPools } from '../utils/createTokensMapFromPools';
+import { route } from 'next/dist/next-server/server/router';
 
 describe('Use All Routes', () => {
   const _chainId = 1;
@@ -125,29 +126,14 @@ describe('Use All Routes', () => {
       pipe(
         sequenceT(O.Apply)(tokenB, tokenC, pools, chainId),
         O.map(([tokenA, tokenB, pools, chainId]) =>
-          computeAllRoutes(
-            tokenA,
-            tokenB,
-            createPoolsFromSubgraph(chainId)(pools),
-            2
-          )
-        )
-      )
-    ).toMatchInlineSnapshot(`
-      Object {
-        "_tag": "Some",
-        "value": Array [],
-      }
-    `);
-    expect(
-      pipe(
-        sequenceT(O.Apply)(tokenA, tokenC, pools, chainId),
-        O.map(([tokenA, tokenB, pools, chainId]) =>
-          computeAllRoutes(
-            tokenA,
-            tokenB,
-            createPoolsFromSubgraph(chainId)(pools),
-            2
+          pipe(
+            computeAllRoutes(
+              tokenA,
+              tokenB,
+              createPoolsFromSubgraph(chainId)(pools),
+              1
+            ),
+            A.map((r) => r.tokenPath.map((t) => t.symbol))
           )
         )
       )
@@ -155,82 +141,96 @@ describe('Use All Routes', () => {
       Object {
         "_tag": "Some",
         "value": Array [
-          Route {
-            "_midPrice": null,
-            "input": Token {
-              "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-              "chainId": 1,
-              "decimals": 18,
-              "isNative": false,
-              "isToken": true,
-              "name": undefined,
-              "symbol": "WETH",
-            },
-            "output": Token {
-              "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-              "chainId": 1,
-              "decimals": 18,
-              "isNative": false,
-              "isToken": true,
-              "name": undefined,
-              "symbol": "LRC",
-            },
-            "pools": Array [
-              Pool {
-                "fee": 3000,
-                "liquidity": JSBI [
-                  -1401946112,
-                  1054244610,
-                  242,
-                ],
-                "sqrtRatioX96": JSBI [
-                  1215137683,
-                  -1417409300,
-                  47658189,
-                ],
-                "tickCurrent": -90028,
-                "tickDataProvider": NoTickDataProvider {},
-                "token0": Token {
-                  "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-                  "chainId": 1,
-                  "decimals": 18,
-                  "isNative": false,
-                  "isToken": true,
-                  "name": undefined,
-                  "symbol": "LRC",
-                },
-                "token1": Token {
-                  "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                  "chainId": 1,
-                  "decimals": 18,
-                  "isNative": false,
-                  "isToken": true,
-                  "name": undefined,
-                  "symbol": "WETH",
-                },
-              },
-            ],
-            "tokenPath": Array [
-              Token {
-                "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                "chainId": 1,
-                "decimals": 18,
-                "isNative": false,
-                "isToken": true,
-                "name": undefined,
-                "symbol": "WETH",
-              },
-              Token {
-                "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-                "chainId": 1,
-                "decimals": 18,
-                "isNative": false,
-                "isToken": true,
-                "name": undefined,
-                "symbol": "LRC",
-              },
-            ],
-          },
+          Array [
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "WETH",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "WETH",
+            "LRC",
+          ],
+          Array [
+            "DAI",
+            "WETH",
+            "LRC",
+          ],
+        ],
+      }
+    `);
+    expect(
+      pipe(
+        sequenceT(O.Apply)(tokenA, tokenC, pools, chainId),
+        O.map(([tokenA, tokenB, pools, chainId]) =>
+          pipe(
+            computeAllRoutes(
+              tokenA,
+              tokenB,
+              createPoolsFromSubgraph(chainId)(pools),
+              2
+            ),
+            A.map((r) => r.tokenPath.map((t) => t.symbol))
+          )
+        )
+      )
+    ).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Array [
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
         ],
       }
     `);
@@ -252,86 +252,54 @@ describe('Use All Routes', () => {
       })
     );
     waitForValueToChange(() => result.current);
-    expect(result.current).toMatchInlineSnapshot(`
+    expect(
+      pipe(
+        result.current,
+        O.map((routes) =>
+          pipe(
+            routes,
+            A.map((r) => r.tokenPath.map((t) => t.symbol))
+          )
+        )
+      )
+    ).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
         "value": Array [
-          Route {
-            "_midPrice": null,
-            "input": Token {
-              "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-              "chainId": 1,
-              "decimals": 18,
-              "isNative": false,
-              "isToken": true,
-              "name": undefined,
-              "symbol": "WETH",
-            },
-            "output": Token {
-              "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-              "chainId": 1,
-              "decimals": 18,
-              "isNative": false,
-              "isToken": true,
-              "name": undefined,
-              "symbol": "LRC",
-            },
-            "pools": Array [
-              Pool {
-                "fee": 3000,
-                "liquidity": JSBI [
-                  -1401946112,
-                  1054244610,
-                  242,
-                ],
-                "sqrtRatioX96": JSBI [
-                  1215137683,
-                  -1417409300,
-                  47658189,
-                ],
-                "tickCurrent": -90028,
-                "tickDataProvider": NoTickDataProvider {},
-                "token0": Token {
-                  "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-                  "chainId": 1,
-                  "decimals": 18,
-                  "isNative": false,
-                  "isToken": true,
-                  "name": undefined,
-                  "symbol": "LRC",
-                },
-                "token1": Token {
-                  "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                  "chainId": 1,
-                  "decimals": 18,
-                  "isNative": false,
-                  "isToken": true,
-                  "name": undefined,
-                  "symbol": "WETH",
-                },
-              },
-            ],
-            "tokenPath": Array [
-              Token {
-                "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-                "chainId": 1,
-                "decimals": 18,
-                "isNative": false,
-                "isToken": true,
-                "name": undefined,
-                "symbol": "WETH",
-              },
-              Token {
-                "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
-                "chainId": 1,
-                "decimals": 18,
-                "isNative": false,
-                "isToken": true,
-                "name": undefined,
-                "symbol": "LRC",
-              },
-            ],
-          },
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "DAI",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
+          Array [
+            "WETH",
+            "USDC",
+            "LRC",
+          ],
         ],
       }
     `);

@@ -136,6 +136,6 @@ export const useAllRoute = ({
       ),
     [chainId, tokenIn, tokenOut, pools, singleHopOnly]
   );
-  console.log(allRoutes);
+
   return allRoutes;
 };

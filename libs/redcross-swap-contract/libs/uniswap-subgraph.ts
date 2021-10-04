@@ -43,7 +43,7 @@ export const QUERY_POOLS = gql`
       feeTier
       token0Price
       token1Price
-      ticks {
+      ticks(orderBy: id, orderDirection: desc) {
         liquidityNet
         liquidityGross
         id
@@ -99,7 +99,7 @@ export const queryPools = (apolloClient: ApolloClient<unknown>) => (
     T.map((r) => selectPools(r))
   )();
 
-export const defaultPools = pipe(
+export const defaultPools: Omit<Pools_pools, '__typename'>[] = pipe(
   QUERY_POOLS_RESULT,
   selectPools,
   A.filter((p) => p.liquidity != 0)
