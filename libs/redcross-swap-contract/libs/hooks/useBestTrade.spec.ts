@@ -12,6 +12,7 @@ import fetch from 'node-fetch';
 import result from 'antd/lib/result';
 import { ethers } from 'ethers';
 import { CurrencyAmount } from '@uniswap/sdk-core';
+import { sequenceT } from 'fp-ts/lib/Apply';
 (global as any).fetch = fetch as any;
 jest.setTimeout(100000);
 describe('Use Best Trade', () => {
@@ -44,18 +45,17 @@ describe('Use Best Trade', () => {
       });
     });
 
-    /*     expect(O.isSome(result.current[0].quotesResults)).toBe(true); */
     await waitForValueToChange(() => result.current.bestRoute, {
       timeout: 10000,
     });
 
     expect(
       pipe(
-        result.current.quotesResults,
-        O.map((results) =>
+        sequenceT(O.Apply)(result.current.quotesResults),
+        O.map(([results]) =>
           pipe(
             results,
-            A.map((r) => ethers.utils.formatEther(r.amountOut))
+            A.map((r) => result.current.formatOutToken(r.amountOut))
           )
         )
       )
@@ -63,22 +63,34 @@ describe('Use Best Trade', () => {
       Object {
         "_tag": "Some",
         "value": Array [
-          "3541235311587112787445274118480243527212772820184208948898816065599159568853839322058204055140565.507031114968989696",
-          "3620491325159846305602527249817719696891487690723190453730920041271934349201115710634342822438105.251292102833209344",
-          "3537577426216426274915947895352454734355802646887462487738870204635741651213869408704696361421568.837115783577337856",
+          Object {
+            "_tag": "Some",
+            "value": "13.400098189900522044",
+          },
+          Object {
+            "_tag": "Some",
+            "value": "13.700004372508515041",
+          },
+          Object {
+            "_tag": "Some",
+            "value": "13.386256685786345597",
+          },
         ],
       }
     `);
-    expect(result.current.bestRoute).toMatchInlineSnapshot(`
+    expect(
+      pipe(
+        result.current.bestRoute,
+        O.map((r) => r.bestRoute.tokenPath.map((t) => t.symbol))
+      )
+    ).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": Object {
-          "amountOut": Object {
-            "hex": "0x1785d6aa96c17f37cc1226a6723b0938f3410ccd74a345b1000000000000000000000000000000000000000000000000",
-            "type": "BigNumber",
-          },
-          "bestRoute": undefined,
-        },
+        "value": Array [
+          "AAVE",
+          "WETH",
+          "BAL",
+        ],
       }
     `);
   });

@@ -5,8 +5,8 @@ import { Token, CurrencyAmount } from '@uniswap/sdk-core';
 import { IQuoter } from '../../typechain/IQuoter';
 import { useAllRoute } from './useAllRoute';
 import { encodeRouteToPath, Pool, Route, Trade } from '@uniswap/v3-sdk';
-import { BigNumberish, BigNumber } from 'ethers';
-import { useEffect, useMemo, useState } from 'react';
+import { BigNumberish, BigNumber, ethers } from 'ethers';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { pipe } from 'fp-ts/function';
 import { sequenceT } from 'fp-ts/lib/Apply';
 import { Result } from '@ethersproject/abi';
@@ -45,7 +45,12 @@ export const useBestV3TradeExactIn = ({
       pipe(
         sequenceT(O.Apply)(amountIn, tokenIn),
         O.map(([amountIn, tokenIn]) =>
-          CurrencyAmount.fromRawAmount(tokenIn, amountIn.toString())
+          CurrencyAmount.fromRawAmount(
+            tokenIn,
+            ethers.utils
+              .parseUnits(amountIn.toString(), tokenIn.decimals)
+              .toString()
+          )
         )
       ),
     [amountIn, tokenIn]
@@ -63,55 +68,34 @@ export const useBestV3TradeExactIn = ({
   >(O.none);
   useEffect(() => {
     pipe(
-      sequenceT(O.Apply)(routes, currencyAmount),
-      O.map(([routes, currencyAmount]) =>
+      sequenceT(O.Apply)(routes, currencyAmount, tokenOut),
+      O.map(([routes, currencyAmount, tokenOut]) =>
         pipe(routes, (routes) => async () => {
           const accs: Array<CurrencyAmount<Token>> = [];
           let acc: CurrencyAmount<Token>;
+          console.log('exchange: ' + currencyAmount.toSignificant());
           for (let route of routes) {
             console.log('route chain id ' + route.chainId);
             acc = route.midPrice.quote(currencyAmount);
             console.log(
               'route ' + route.input.symbol + ' => ' + route.output.symbol
             );
-            console.log('result: ' + acc.quotient);
+            console.log('result: ' + acc.toSignificant());
             accs.push(acc);
           }
           const formattedAccs = pipe(
             accs,
             A.map((r) => {
               return {
-                amountOut: BigNumber.from(r.numerator.toString(10)),
+                amountOut: ethers.utils.parseUnits(
+                  r.toFixed(),
+                  tokenOut.decimals
+                ),
               };
             })
           );
           setQuotesResults(O.some([...formattedAccs]));
-          /*  const accs: Array<CurrencyAmount<Token>> = [];
-          console.log('here');
-          for (let route of routes) {
-            let acc: CurrencyAmount<Token> = currencyAmount;
-            console.log('here');
-            for (let pool of route.pools) {
-              console.log('here');
-              const r = await pool.getOutputAmount(acc)[0];
-              console.log(r);
-              if (r) {
-                acc = r;
-              }
-            }
-            accs.push(acc);
-          }
-          const formattedAccs = pipe(
-            accs,
-            A.map((r) => {
-              console.log(r.numerator);
-              return {
-                amountOut: BigNumber.from(r.numerator.toString(10)),
-              };
-            })
-          );
 
-          setQuotesResults(O.some([...formattedAccs])); */
           return O.some(true);
         })
       ),
@@ -121,8 +105,8 @@ export const useBestV3TradeExactIn = ({
   }, [routes]);
   useEffect(() => {
     pipe(
-      sequenceT(O.Apply)(amountIn),
-      O.map(() =>
+      sequenceT(O.Apply)(amountIn, routes),
+      O.map(([aIn, routes]) =>
         pipe(
           quotesResults,
           O.map((results) =>
@@ -152,6 +136,27 @@ export const useBestV3TradeExactIn = ({
       O.map((r) => setBestRoute(r))
     );
   }, [amountIn, quotesResults, routes]);
-
-  return { bestRoute, quotesResults, routes };
+  const formatOutToken = useCallback(
+    (value: BigNumberish) =>
+      pipe(
+        tokenOut,
+        O.map((tokenOut) => ethers.utils.formatUnits(value, tokenOut.decimals))
+      ),
+    [tokenOut]
+  );
+  const bestPriceFormated = useMemo(
+    () =>
+      pipe(
+        sequenceT(O.Apply)(bestRoute),
+        O.chain(([br]) => formatOutToken(br.amountOut))
+      ),
+    [bestRoute]
+  );
+  return {
+    bestRoute,
+    quotesResults,
+    routes,
+    bestPriceFormated,
+    formatOutToken,
+  };
 };
