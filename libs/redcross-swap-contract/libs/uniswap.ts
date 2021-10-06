@@ -9,7 +9,7 @@ import {
 import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Address } from 'hardhat-deploy/dist/types';
-import { BigNumber, ethers, Signer } from 'ethers';
+import { BigNumber, ethers, Signer, BigNumberish } from 'ethers';
 import { Token as UToken } from '@uniswap/sdk-core';
 import { constant, flow, pipe } from 'fp-ts/function';
 import {
@@ -35,10 +35,11 @@ import {
   poolSelector,
   eqPoolTokenToken,
 } from './uniswap-subgraph';
-import { useIsMounted } from './index';
+import { useIsMounted, TokenListItem } from './index';
 import { IQuoter__factory } from '../typechain/factories/IQuoter__factory';
 import { QUOTER_ADDRESSES } from './constants/addresses';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
+import { useBestV3TradeExactIn } from './hooks/useBestTrade';
 import {
   Pools_pools,
   Pools_pools_token0,
@@ -344,4 +345,54 @@ export const useUniswap = ({
     poolImmutables,
     poolInfo,
   };
+};
+
+interface UseUniswapToken {
+  tokenA: Option<Token | TokenListItem>;
+  tokenB: Option<Token | TokenListItem>;
+}
+export const useUniswapTokens = ({ tokenA, tokenB }: UseUniswapToken) => {
+  const uTokenA = useMemo(
+    () =>
+      pipe(
+        tokenA,
+        O.map((token) => createUniswapToken(token))
+      ),
+    [tokenA]
+  );
+  const uTokenB = useMemo(
+    () =>
+      pipe(
+        tokenB,
+        O.map((token) => createUniswapToken(token))
+      ),
+    [tokenB]
+  );
+  return { tokenA: uTokenA, tokenB: uTokenB };
+};
+interface UseUniswapRoute {
+  tokenIn: Option<Token | TokenListItem>;
+  tokenOut: Option<Token | TokenListItem>;
+  chainId: Option<number>;
+  pools: Option<Pool[]>;
+  amountIn: Option<BigNumberish>;
+}
+export const useUniswapRoute = ({
+  amountIn,
+  chainId,
+  pools,
+  ...rest
+}: UseUniswapRoute) => {
+  const { tokenA: tokenIn, tokenB: tokenOut } = useUniswapTokens({
+    tokenA: rest.tokenIn,
+    tokenB: rest.tokenOut,
+  });
+  const { bestRoute, bestPriceFormated } = useBestV3TradeExactIn({
+    amountIn,
+    chainId,
+    pools,
+    tokenIn,
+    tokenOut,
+  });
+  return { bestRoute, bestPriceFormated };
 };

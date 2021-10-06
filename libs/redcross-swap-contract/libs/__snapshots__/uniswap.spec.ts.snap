@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Use uniswap hook should use uniwap token correctly 2`] = `
+Object {
+  "_tag": "Some",
+  "value": undefined,
+}
+`;

@@ -15,7 +15,11 @@ import {
   number as N,
 } from 'fp-ts';
 import { FeeAmount } from '../test/shared/constants';
-import { createPoolContractFromToken, createPoolFromSubgrap } from './uniswap';
+import {
+  createPoolContractFromToken,
+  createPoolFromSubgrap,
+  useUniswapTokens,
+} from './uniswap';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Pools_pools } from './__generated__/Pools';
 import {
@@ -28,13 +32,17 @@ import {
 } from './uniswap-subgraph';
 import { FACTORY_ADDRESS, Tick, Route } from '@uniswap/v3-sdk';
 import { sequenceT } from 'fp-ts/Apply';
-import { createPoolContract, useQuoter } from './uniswap';
+import { createPoolContract, useQuoter, useUniswapRoute } from './uniswap';
 import { contramap } from 'fp-ts/Ord';
-import { getMockTokens } from './utils/getMockTokens';
+
 import { chainId, provider } from './__mocks__/providers';
 
 import fetch from 'node-fetch';
-global.fetch = fetch as any;
+import { Token } from '@uniswap/sdk-core';
+import { getMockTokens } from './utils/getMockTokens';
+import { createPoolsFromSubgraph } from './utils/createPoolsFromSubgraph';
+
+(global as any).fetch = fetch as any;
 jest.setTimeout(100000);
 
 describe('Uniswap Lib', () => {
@@ -230,7 +238,7 @@ describe('Use uniswap hook', () => {
       })
     )();
   });
-  it('should use uniswap correctly', async () => {
+  /*   it('should use uniswap correctly', async () => {
     const pools = O.some(groupBySymbol(defaultPools));
     const { result, waitForValueToChange, waitForNextUpdate } = renderHook(() =>
       useUniswap({
@@ -258,5 +266,90 @@ describe('Use uniswap hook', () => {
         return O.some(p);
       })
     )();
+  }); */
+  it('should use uniwap token correctly', async () => {
+    const tokens = getMockTokens();
+    const busd = pipe(tokens, R.lookup('WETH'));
+    const dai = pipe(tokens, R.lookup('DAI'));
+    const { result } = renderHook(() =>
+      useUniswapTokens({
+        tokenA: busd,
+        tokenB: dai,
+      })
+    );
+    const formatSnapshot = (token: O.Option<Token>) =>
+      pipe(
+        token,
+        O.map(({ symbol, address, chainId, decimals }) => ({
+          symbol,
+          address,
+          chainId,
+          decimals,
+        }))
+      );
+    expect(formatSnapshot(result.current.tokenA)).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Object {
+          "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "chainId": 1,
+          "decimals": 18,
+          "symbol": "WETH",
+        },
+      }
+    `);
+    expect(formatSnapshot(result.current.tokenB)).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Object {
+          "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+          "chainId": 1,
+          "decimals": 18,
+          "symbol": "DAI",
+        },
+      }
+    `);
+  });
+  it('should use uniwap best route correctly', async () => {
+    const tokens = getMockTokens();
+    const busd = pipe(tokens, R.lookup('WETH'));
+    const dai = pipe(tokens, R.lookup('DAI'));
+    const someChainId = O.some(chainId);
+    const pools = groupBySymbol(defaultPools);
+    const poolsOption = O.some(pools);
+    const uniswapPools = pipe(pools, createPoolsFromSubgraph(chainId), O.some);
+    const amountIn = O.some(1);
+    const { result, waitForValueToChange } = renderHook(() =>
+      useUniswapRoute({
+        tokenIn: busd,
+        tokenOut: dai,
+        chainId: someChainId,
+        pools: uniswapPools,
+        amountIn,
+      })
+    );
+
+    expect(formatSnapshot(result.current.tokenA)).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Object {
+          "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "chainId": 1,
+          "decimals": 18,
+          "symbol": "WETH",
+        },
+      }
+    `);
+    expect(formatSnapshot(result.current.tokenB)).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": Object {
+          "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+          "chainId": 1,
+          "decimals": 18,
+          "symbol": "DAI",
+        },
+      }
+    `);
   });
 });

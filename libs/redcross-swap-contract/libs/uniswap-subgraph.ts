@@ -169,7 +169,7 @@ export const usePools = ({
   chainId,
   fetchPools = defaultFetchPools,
   first = 0,
-  more = 1000,
+  more = 100,
   tokens = O.some([]),
 }: UsePools) => {
   const { fetchMore, hasMore } = useFetchMore({

@@ -22,7 +22,6 @@ interface UseBestV3TradeExactIn {
   tokenIn: Option<Token>;
   tokenOut: Option<Token>;
   chainId: Option<number>;
-  quoter: Option<IQuoter>;
   pools: Option<Pool[]>;
   amountIn: Option<BigNumberish>;
 }

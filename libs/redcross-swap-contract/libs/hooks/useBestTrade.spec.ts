@@ -31,17 +31,12 @@ describe('Use Best Trade', () => {
     const amountIn = O.some(1);
     const someChainId = O.some(chainId);
     const { result, waitForValueToChange } = renderHook(() => {
-      const quoter = useQuoter({
-        provider: O.some(signer),
-        chainId: O.some(chainId),
-      });
       return useBestV3TradeExactIn({
         tokenIn: tokenIn,
         tokenOut: tokenOut,
         amountIn: amountIn,
         chainId: someChainId,
         pools: uniswapPools,
-        quoter,
       });
     });
 
