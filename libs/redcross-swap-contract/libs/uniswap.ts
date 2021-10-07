@@ -10,7 +10,7 @@ import { IUniswapV3Pool } from '../typechain/IUniswapV3Pool';
 import { IUniswapV3Pool__factory } from '../typechain/factories/IUniswapV3Pool__factory';
 import { Address } from 'hardhat-deploy/dist/types';
 import { BigNumber, ethers, Signer, BigNumberish } from 'ethers';
-import { Token as UToken } from '@uniswap/sdk-core';
+import { Token as UToken, CurrencyAmount } from '@uniswap/sdk-core';
 import { constant, flow, pipe } from 'fp-ts/function';
 import {
   task as T,
@@ -40,6 +40,7 @@ import { IQuoter__factory } from '../typechain/factories/IQuoter__factory';
 import { QUOTER_ADDRESSES } from './constants/addresses';
 import { JsonRpcProvider, Provider } from '@ethersproject/providers';
 import { useBestV3TradeExactIn } from './hooks/useBestTrade';
+import { Route } from '@uniswap/v3-sdk';
 import {
   Pools_pools,
   Pools_pools_token0,
@@ -394,5 +395,35 @@ export const useUniswapRoute = ({
     tokenIn,
     tokenOut,
   });
-  return { bestRoute, bestPriceFormated };
+  const isTokenInputOrOuput = (r: Route<UToken, UToken>) => (t: Token) => {
+    const price = r.midPrice.quote(
+      CurrencyAmount.fromRawAmount(
+        r.input,
+        ethers.utils.parseUnits('1', t.decimals).toString()
+      )
+    );
+    if (t.address == r.input.address) {
+      return O.some(
+        CurrencyAmount.fromFractionalAmount(
+          r.output,
+          price.denominator,
+          price.numerator
+        ).toSignificant()
+      );
+    }
+    if (t.address == r.output.address) {
+      return O.some(price.toSignificant());
+    }
+    return O.none;
+  };
+  const getTokenPrice = useCallback(
+    (token: Option<Token>) =>
+      pipe(
+        sequenceT(O.Apply)(token, bestRoute),
+        O.chain(([t, r]) => pipe(t, () => isTokenInputOrOuput(r.bestRoute)(t))),
+        TO.fromOption
+      )(),
+    [bestRoute]
+  );
+  return { bestRoute, bestPriceFormated, getTokenPrice };
 };

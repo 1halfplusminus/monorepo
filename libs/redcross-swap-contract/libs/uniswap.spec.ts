@@ -41,6 +41,7 @@ import fetch from 'node-fetch';
 import { Token } from '@uniswap/sdk-core';
 import { getMockTokens } from './utils/getMockTokens';
 import { createPoolsFromSubgraph } from './utils/createPoolsFromSubgraph';
+import result from 'antd/lib/result';
 
 (global as any).fetch = fetch as any;
 jest.setTimeout(100000);
@@ -311,12 +312,12 @@ describe('Use uniswap hook', () => {
     `);
   });
   it('should use uniwap best route correctly', async () => {
+    const chainId = 1;
     const tokens = getMockTokens();
     const busd = pipe(tokens, R.lookup('WETH'));
     const dai = pipe(tokens, R.lookup('DAI'));
     const someChainId = O.some(chainId);
     const pools = groupBySymbol(defaultPools);
-    const poolsOption = O.some(pools);
     const uniswapPools = pipe(pools, createPoolsFromSubgraph(chainId), O.some);
     const amountIn = O.some(1);
     const { result, waitForValueToChange } = renderHook(() =>
@@ -329,27 +330,43 @@ describe('Use uniswap hook', () => {
       })
     );
 
-    expect(formatSnapshot(result.current.tokenA)).toMatchInlineSnapshot(`
+    await waitForValueToChange(() => result.current.bestRoute);
+    const formatForSnapshot = pipe(
+      result.current.bestRoute,
+      O.map((b) =>
+        pipe(
+          b.bestRoute.tokenPath,
+          A.map((p) => p.symbol)
+        )
+      )
+    );
+    expect(formatForSnapshot).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": Object {
-          "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-          "chainId": 1,
-          "decimals": 18,
-          "symbol": "WETH",
-        },
+        "value": Array [
+          "WETH",
+          "XTK",
+          "DAI",
+        ],
       }
     `);
-    expect(formatSnapshot(result.current.tokenB)).toMatchInlineSnapshot(`
+    expect(result.current.bestPriceFormated).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": Object {
-          "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-          "chainId": 1,
-          "decimals": 18,
-          "symbol": "DAI",
-        },
+        "value": "12244.150135113544209729",
       }
     `);
+    expect(await result.current.getTokenPrice(tokenA)).toMatchInlineSnapshot(`
+      Object {
+        "_tag": "Some",
+        "value": "0.0000000000000000000000000000000000000000816716",
+      }
+    `);
+    expect(await result.current.getTokenPrice(tokenB)).toMatchInlineSnapshot(`
+          Object {
+            "_tag": "Some",
+            "value": "12244.1",
+          }
+      `);
   });
 });
