@@ -71,15 +71,14 @@ export const useBestV3TradeExactIn = ({
       O.map(([routes, currencyAmount, tokenOut]) =>
         pipe(routes, (routes) => async () => {
           const accs: Array<CurrencyAmount<Token>> = [];
-          let acc: CurrencyAmount<Token>;
           console.log('exchange: ' + currencyAmount.toSignificant());
           for (let route of routes) {
             console.log('route chain id ' + route.chainId);
-            acc = route.midPrice.quote(currencyAmount);
+            var acc = route.midPrice.quote(currencyAmount);
             console.log(
-              'route ' + route.input.symbol + ' => ' + route.output.symbol
+              'route ' + pipe(route.tokenPath.map((t) => t.symbol).join(' => '))
             );
-            console.log('result: ' + acc.toSignificant());
+            console.log('result: ' + acc.toExact());
             accs.push(acc);
           }
           const formattedAccs = pipe(
@@ -87,7 +86,7 @@ export const useBestV3TradeExactIn = ({
             A.map((r) => {
               return {
                 amountOut: ethers.utils.parseUnits(
-                  r.toFixed(),
+                  r.numerator.toString(),
                   tokenOut.decimals
                 ),
               };

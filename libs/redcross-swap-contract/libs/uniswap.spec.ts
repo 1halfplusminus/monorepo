@@ -345,7 +345,7 @@ describe('Use uniswap hook', () => {
         "_tag": "Some",
         "value": Array [
           "WETH",
-          "XTK",
+          "Subs",
           "DAI",
         ],
       }
@@ -353,20 +353,20 @@ describe('Use uniswap hook', () => {
     expect(result.current.bestPriceFormated).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": "12244.150135113544209729",
+        "value": "395695111137276896021076860732927359958493339580436660136796891961092113400179470915040003454153905146509220591209915015656919514742784000000000000000000.0",
       }
     `);
     expect(await result.current.getTokenPrice(tokenA)).toMatchInlineSnapshot(`
       Object {
         "_tag": "Some",
-        "value": "0.0000000000000000000000000000000000000000816716",
+        "value": "0.00011228524044199963",
       }
     `);
     expect(await result.current.getTokenPrice(tokenB)).toMatchInlineSnapshot(`
-          Object {
-            "_tag": "Some",
-            "value": "12244.1",
-          }
-      `);
+      Object {
+        "_tag": "Some",
+        "value": "8905.89",
+      }
+    `);
   });
 });

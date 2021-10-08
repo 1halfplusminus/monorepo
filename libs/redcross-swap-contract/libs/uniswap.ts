@@ -396,20 +396,13 @@ export const useUniswapRoute = ({
     tokenOut,
   });
   const isTokenInputOrOuput = (r: Route<UToken, UToken>) => (t: Token) => {
-    const price = r.midPrice.quote(
-      CurrencyAmount.fromRawAmount(
-        r.input,
-        ethers.utils.parseUnits('1', t.decimals).toString()
-      )
+    const currencyAmountInput = CurrencyAmount.fromRawAmount(
+      r.input,
+      ethers.utils.parseUnits('1', r.input.decimals).toString()
     );
+    const price = r.midPrice.quote(currencyAmountInput);
     if (t.address == r.input.address) {
-      return O.some(
-        CurrencyAmount.fromFractionalAmount(
-          r.output,
-          price.denominator,
-          price.numerator
-        ).toSignificant()
-      );
+      return O.some((1 / Number(price.toSignificant())).toString());
     }
     if (t.address == r.output.address) {
       return O.some(price.toSignificant());
